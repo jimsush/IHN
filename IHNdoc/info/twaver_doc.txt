@@ -1,0 +1,17 @@
+TWaver 3D for HTML5（MONO Design）试用在线链接如下：
+https://mono-design.cn/
+
+您的在线编辑账号已开通，
+用户名：eshore
+密码：Chen**o2015!(区分大小写)
+
+试用期限至10/31，请使用IE11以上版本或其他非IE浏览器登录，PC需要具有独立显卡。
+
+在线Demo链接如下：
+https://mono-design.cn/demo/index.html
+
+在线开发文档链接如下：
+http://doc.servasoft.com/
+
+TWaver 3D for HTML5（MONO Design）：包括开发SDK、各种demo（demo目录下）、编辑工具下载链接如下，试用期到9/30。
+http://twaver.servasoft.com/dl/twaver/sssyuwyeriUR/k/mono-design-v2.1.3.zip
