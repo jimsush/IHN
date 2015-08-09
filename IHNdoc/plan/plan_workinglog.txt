@@ -1,0 +1,9 @@
+week 1 (~Aug 16):
+1, spring, jdbc,mysql,restful,log4j/logback,
+2, maven,
+3, front-end+hello world
+4, util classes
+
+5, analyze requirement 
+
+
