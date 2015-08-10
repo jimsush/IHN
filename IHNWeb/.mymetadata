@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="IHNWeb"
+  id="myeclipse.1439215979558"
+  context-root="/IHNWeb"
+  j2ee-spec="5.0"
+  archive="IHNWeb.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+
