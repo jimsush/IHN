@@ -1,0 +1,53 @@
+#ihn-header-container
+{
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-top: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  width:90%;
+}
+
+#ihn-header
+{
+	border: 1px red solid;
+}
+
+#ihn-maincontent-container
+{
+	padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+	width: 90%;
+	height: 600px;
+}
+
+#ihn-sidemenu
+{
+	border-right: 1px solid #B8B8B8;
+	float:left;
+	width:260px;
+	height: 100%;
+	border: 1px red solid;
+}
+
+#ihn-maincontent
+{
+    height: 100%;
+    border: 1px red solid;
+}
+
+#ihn-footer-container
+{
+	padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+	width: 90%;
+}
+
+#ihn-footer
+{
+	border: 1px red solid;
+}
