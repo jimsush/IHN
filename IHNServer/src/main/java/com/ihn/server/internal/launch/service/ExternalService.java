@@ -1,4 +1,4 @@
-package com.ihn.server.internal.launch.mysql;
+package com.ihn.server.internal.launch.service;
 
 public interface ExternalService {
     

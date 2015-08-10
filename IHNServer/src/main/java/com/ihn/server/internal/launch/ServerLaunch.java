@@ -4,8 +4,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.ihn.server.internal.service.BizContext;
-
 public class ServerLaunch  implements ApplicationContextAware{
 
     @Override

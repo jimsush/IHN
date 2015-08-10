@@ -3,7 +3,11 @@ package com.ihn.server.util.logging;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
-
+/**
+ * spring systemic bean
+ * @author tong
+ *
+ */
 public class LogAwareBeanPostProcessor implements BeanPostProcessor {
 
     private IHNLogFactory ihnLogFactory;

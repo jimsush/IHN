@@ -1,7 +1,5 @@
-package com.ihn.server.util.process;
+package com.ihn.server.internal.launch;
 
-import com.ihn.server.internal.launch.StopServer;
-import com.ihn.server.internal.service.BizContext;
 import com.ihn.server.util.schedule.FixedIntervalSchedulerJob;
 
 public class CheckServerStopFlagJob  extends FixedIntervalSchedulerJob{

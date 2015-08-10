@@ -1,4 +1,4 @@
-package com.ihn.server.model;
+package com.ihn.server.internal.parking.model;
 
 public class Parking extends PropertyAsset {
 	

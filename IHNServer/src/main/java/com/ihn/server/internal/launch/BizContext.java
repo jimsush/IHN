@@ -1,4 +1,4 @@
-package com.ihn.server.internal.service;
+package com.ihn.server.internal.launch;
 
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;

@@ -5,7 +5,8 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ihn.server.internal.service.BizContext;
+import com.ihn.server.internal.launch.BizContext;
+import com.ihn.server.internal.launch.service.ExternalService;
 import com.ihn.server.util.process.RunCmdService;
 import com.mysql.jdbc.CommunicationsException;
 

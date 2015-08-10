@@ -11,9 +11,16 @@ import org.springframework.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * logger factory
+ * @author tong
+ *
+ */
 public class IHNLogFactory {
 
-	private Logger logger = LoggerFactory.getLogger("server");
+	public static final String DEFAULT_LOGGER="server";
+	
+	private Logger logger = LoggerFactory.getLogger(DEFAULT_LOGGER);
 	
     private LoggerContext lc;
 

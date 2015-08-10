@@ -22,7 +22,6 @@
 		</property>
 	</bean>
 
-
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
 		<property name="jdbcUrl" value="jdbc:mysql://localhost:7788/ihn" />
@@ -62,6 +61,7 @@
 	<bean id="ihnLogFactory" class="com.ihn.server.util.logging.IHNLogFactory">
 		<constructor-arg value="classpath:logback.xml" />
 	</bean>
+	
 	<bean id="logAwareBeanPostProcessor" class="com.ihn.server.util.logging.LogAwareBeanPostProcessor">
 		<property name="ihnLogFactory" ref="ihnLogFactory" />
 	</bean>
@@ -75,4 +75,13 @@
 		</property>
 	</bean>
 
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean> 
+    
+    <bean id="moduleManager" class="com.ihn.server.internal.modules.ModuleManager"/>
+
+	<import resource="applicationContext-sm.xml" />
+	<import resource="applicationContext-parking.xml" />
+	
 </beans>
