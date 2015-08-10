@@ -11,14 +11,13 @@
             http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
 			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
-	<bean id="serverLaunch" class="com.ihn.server.internal.launch.StartMain" />
+	<bean id="serverLaunch" class="com.ihn.server.internal.launch.ServerLaunch" />
 
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="locations">
 			<list>
-				<value>classpath:resources/jdbc.properties
-				</value>
+				<value>classpath:jdbc.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -60,11 +59,18 @@
 		</property>
 	</bean>
 
+	<bean id="ihnLogFactory" class="com.ihn.server.util.logging.IHNLogFactory">
+		<constructor-arg value="classpath:logback.xml" />
+	</bean>
+	<bean id="logAwareBeanPostProcessor" class="com.ihn.server.util.logging.LogAwareBeanPostProcessor">
+		<property name="ihnLogFactory" ref="ihnLogFactory" />
+	</bean>
+	
 	<bean id="messageSource"
 		class="org.springframework.context.support.ResourceBundleMessageSource">
 		<property name="basenames">
 			<list>
-				<value>resources/i18n</value>
+				<value>i18n</value>
 			</list>
 		</property>
 	</bean>
