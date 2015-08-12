@@ -37,7 +37,7 @@ public class BizContext {
     
     private static void init(){
     	getLogFactory();
-    	Logger logger = ihnLogFactory.getLogger("server");
+    	Logger logger = ihnLogFactory.getLogger(IHNLogFactory.DEFAULT_LOGGER);
     	logger.info("init server...");
     	
     }
