@@ -1,5 +1,8 @@
 package com.ihn.server.util;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SysUtils {
 
 	public static void sleepNotException(long millis){
@@ -9,5 +12,41 @@ public class SysUtils {
             System.out.println("sleep ex,"+ex.getClass().getSimpleName());
         }
     }
+	
+	public static Set array2Set(Object[] objs){
+		Set set=new HashSet();
+		if(objs==null || objs.length==0)
+			return set;
+		
+		for(Object obj : objs)
+			set.add(obj);
+		
+		return set;
+	}
+	
+	/**
+	 * format a set to a string
+	 * @param set
+	 * @param separator  such as , | || ; 
+	 * @return a,b,c,d  <p>return null if set is null
+	 */
+	public static String set2String(Set set, String separator){
+		if(set==null || set.size()==0)
+			return null;
+		
+		StringBuilder sb=new StringBuilder();
+		int i=0;
+		for(Object obj : set){
+			if(i==0){
+				i=1;
+			}else{
+				sb.append(separator);
+			}
+			sb.append(obj);
+		}
+		return sb.toString();
+	}
+	
+	
 	
 }

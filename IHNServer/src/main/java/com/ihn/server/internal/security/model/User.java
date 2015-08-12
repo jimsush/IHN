@@ -2,6 +2,8 @@ package com.ihn.server.internal.security.model;
 
 import java.util.Set;
 
+import com.ihn.server.util.SysUtils;
+
 public class User {
 	
 	private String userName;
@@ -33,6 +35,10 @@ public class User {
 		this.roles = roles;
 	}
 	
-	
+	@Override
+	public String toString(){
+		return "username:"+this.userName+" password:"+this.password+" role="+SysUtils.set2String(this.roles, ",");
+		
+	}
 
 }

@@ -13,3 +13,8 @@ mysql>select * from user;
 mysql>desc user;
 mysql>insert user(username, password,role) values('su','su','admin');
 
+
+SingleColumnRowMapper
+ColumnMapRowMapper
+BeanPropertyRowMapper
+

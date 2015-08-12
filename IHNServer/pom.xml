@@ -11,9 +11,9 @@
   <build>
    
     <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <outputDirectory>WEB-INF/classes</outputDirectory>
     <finalName>${artifactId}-${version}</finalName>
-    <testOutputDirectory>target/classes</testOutputDirectory>
+    <testOutputDirectory>WEB-INF/classes</testOutputDirectory>
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <resources>
@@ -50,7 +50,7 @@
     <dependency>
     	<groupId>mysql</groupId>
 		<artifactId>mysql-connector-java</artifactId>
-		<version>5.1.36</version>
+		<version>5.0.8</version>
 	</dependency>
 	<dependency>
     	<groupId>org.springframework</groupId>
@@ -110,8 +110,22 @@
     <artifactId>jersey-multipart</artifactId>
     <version>1.18</version>
   </dependency>
-
  
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-server</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-webapp</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
+  	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-servlet</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
   </dependencies>
   
   
@@ -126,6 +140,8 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    
+     
      <repository>
     <id>central2</id>
       <name>Hermes Maven Repository</name> 
@@ -135,7 +151,8 @@
         <enabled>false</enabled> 
       </snapshots> 
     </repository> 
-    
+      
+     
   </repositories>
  
   <pluginRepositories>
@@ -151,6 +168,8 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
+    
+    <!--
     <pluginRepository>
       <id>central2</id>
       <name>Maven Plugin Repository</name>
@@ -163,6 +182,8 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
+       -->
+     
   </pluginRepositories>
   
 </project>
