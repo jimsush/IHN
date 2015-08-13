@@ -22,40 +22,20 @@
 		</property>
 	</bean>
 
-	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
 		<property name="jdbcUrl" value="jdbc:mysql://localhost:7788/ihn" />
 		<property name="user" value="root" />
-		<property name="minPoolSize">
-			<value>1</value>
-		</property>
-		<property name="maxPoolSize">
-			<value>20</value>
-		</property>
-		<property name="maxIdleTime">
-			<value>1800</value>
-		</property>
-		<property name="acquireIncrement">
-			<value>2</value>
-		</property>
-		<property name="maxStatements">
-			<value>0</value>
-		</property>
-		<property name="initialPoolSize">
-			<value>2</value>
-		</property>
-		<property name="idleConnectionTestPeriod">
-			<value>1800</value>
-		</property>
-		<property name="acquireRetryAttempts">
-			<value>30</value>
-		</property>
-		<property name="breakAfterAcquireFailure">
-			<value>true</value>
-		</property>
-		<property name="testConnectionOnCheckout">
-			<value>false</value>
-		</property>
+		<property name="minPoolSize" value="2" />
+		<property name="maxPoolSize" value="20" />
+		<property name="maxIdleTime" value="1800" />
+		<property name="acquireIncrement" value="2" />
+		<property name="maxStatements" value="20" />
+		<property name="initialPoolSize" value="2" />
+		<property name="idleConnectionTestPeriod" value="1800" />
+		<property name="acquireRetryAttempts" value="5" />
+		<property name="breakAfterAcquireFailure" value="true" />
+		<property name="testConnectionOnCheckout" value="true" />
 	</bean>
 
 	<bean id="ihnLogFactory" class="com.ihn.server.util.logging.IHNLogFactory">

@@ -1,16 +1,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ihn.server</groupId>
   <artifactId>IHNServer</artifactId>
   <version>0.1</version>
-  <packaging>jar</packaging>
+  <packaging>jar</packaging> 
+  
   
   <build>
+   
     <directory>target</directory>
-    <outputDirectory>target/classes</outputDirectory>
+    <outputDirectory>WEB-INF/classes</outputDirectory>
     <finalName>${artifactId}-${version}</finalName>
-    <testOutputDirectory>target/classes</testOutputDirectory>
+    <testOutputDirectory>WEB-INF/classes</testOutputDirectory>
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <resources>
@@ -25,7 +28,9 @@
     </testResources>
   </build>
   
+  
   <dependencies>
+  
     <dependency>
     	<groupId>junit</groupId>
     	<artifactId>junit</artifactId>
@@ -45,7 +50,7 @@
     <dependency>
     	<groupId>mysql</groupId>
 		<artifactId>mysql-connector-java</artifactId>
-		<version>5.1.36</version>
+		<version>5.0.8</version>
 	</dependency>
 	<dependency>
     	<groupId>org.springframework</groupId>
@@ -62,6 +67,7 @@
 		<artifactId>commons-lang</artifactId>
 		<version>2.2</version>
 	</dependency>
+	
 	<dependency>
 		<groupId>c3p0</groupId>
 		<artifactId>c3p0</artifactId>
@@ -73,6 +79,7 @@
 		<version>3.0</version>
 	</dependency>
 	
+	 
 	<dependency>
     <groupId>com.sun.jersey</groupId>
     <artifactId>jersey-client</artifactId>
@@ -103,7 +110,22 @@
     <artifactId>jersey-multipart</artifactId>
     <version>1.18</version>
   </dependency>
-
+ 
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-server</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-webapp</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
+  	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-servlet</artifactId>
+		<version>7.1.0.RC0</version>
+	</dependency>
   </dependencies>
   
   
@@ -118,12 +140,25 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    
+     
+     <repository>
+    <id>central2</id>
+      <name>Hermes Maven Repository</name> 
+      <layout>default</layout> 
+      <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url> 
+      <snapshots> 
+        <enabled>false</enabled> 
+      </snapshots> 
+    </repository> 
+      
+     
   </repositories>
  
   <pluginRepositories>
-    <pluginRepository>
+  <pluginRepository>
       <id>central</id>
-      <name>Maven Plugin Repository</name>
+      <name>central</name>
       <url>http://repo1.maven.org/maven2</url>
       <layout>default</layout>
       <snapshots>
@@ -133,6 +168,22 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
+    
+    <!--
+    <pluginRepository>
+      <id>central2</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+       -->
+     
   </pluginRepositories>
   
 </project>

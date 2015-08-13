@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.ihn.server.internal.launch.jetty.JettyProcess;
 import com.ihn.server.internal.launch.mysql.MysqlProcess;
 import com.ihn.server.internal.launch.service.ExternalProcessMgr;
 import com.ihn.server.internal.launch.service.ExternalService;
@@ -74,6 +75,9 @@ public class StartServer implements ProcessExecute{
         ExternalProcessMgr externalProcessMgr=new ExternalProcessMgr();
         List<ExternalService> externalServices=new ArrayList<ExternalService>();
         externalProcessMgr.setExternalServices(externalServices);
+        
+        JettyProcess jetty=new JettyProcess();
+        externalServices.add(jetty);
         
         MysqlProcess mysqld=new MysqlProcess();
         externalServices.add(mysqld);
