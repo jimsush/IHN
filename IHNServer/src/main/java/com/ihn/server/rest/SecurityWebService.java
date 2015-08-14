@@ -7,20 +7,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.ihn.server.internal.launch.BizContext;
+import com.ihn.server.internal.security.SecurityService;
+
 @Path("/sm")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SecurityWebService {
-
+	
 	@GET
 	@Path("login")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String  login(@QueryParam("username") String userName, @QueryParam("password")String password){
-		if(userName.equals("su"))
-			return "ok";
-		else
-			return "failed";
+		SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
+		return securityService.login(userName,password);
 	}
+	
 	
 	
 }

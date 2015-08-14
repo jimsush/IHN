@@ -11,9 +11,9 @@
   <build>
    
     <directory>target</directory>
-    <outputDirectory>WEB-INF/classes</outputDirectory>
+    <outputDirectory>WebRoot/WEB-INF/classes</outputDirectory>
     <finalName>${artifactId}-${version}</finalName>
-    <testOutputDirectory>WEB-INF/classes</testOutputDirectory>
+    <testOutputDirectory>WebRoot/WEB-INF/classes</testOutputDirectory>
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
     <resources>

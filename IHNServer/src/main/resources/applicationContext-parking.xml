@@ -8,7 +8,8 @@
 			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
 			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 	
-	
+<bean id="parkingDao" class="com.ihn.server.internal.parking.dao.impl.ParkingDaoImpl" autowire="byName" />
+<bean id="parkingService" class="com.ihn.server.internal.parking.service.ParkingServiceImpl" autowire="byName" />	
 	
 	
 </beans>

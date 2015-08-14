@@ -14,6 +14,7 @@ public class UserDaoImpl implements UserDao{
 	private JdbcTemplate jdbcTemplate;
 	private UserMapper userMapper=new UserMapper();
 	
+	@SuppressWarnings("rawtypes")
 	@Override
 	public User getByKey(String userName) {
 		List objs = jdbcTemplate.query("select * from user where userName=?", new Object[]{userName}, new int[]{Types.VARCHAR}, this.userMapper);
@@ -40,6 +41,7 @@ public class UserDaoImpl implements UserDao{
 				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR});
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public List<User> getAll(){
 		List objs = jdbcTemplate.query("select * from user", this.userMapper);
