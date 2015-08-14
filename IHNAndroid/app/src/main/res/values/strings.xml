@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">In Home Navigator</string>
+
+    <string name="action_test">城市</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="action_findcar">寻车</string>
+    <string name="action_findplace">找商家</string>
+    <string name="action_managemap">地图管理</string>
+    <string name="action_settings">设置</string>
+
+    <string-array name="units">
+        <item>世纪中心</item>
+        <item>金融广场</item>
+        <item>中山公园</item>
+        <item>虹桥机场</item>
+        <item>浦东机场</item>
+        <item>上海南站</item>
+        <item>科技馆</item>
+    </string-array>
+
+    <string name="title_activity_my_list">寻车</string>
+
+    <string name="hello_world">Find Car</string>
+
+    
+</resources>

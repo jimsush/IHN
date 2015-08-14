@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ihn.ihnandroid.MyListActivity">
+
+    <item android:id="@+id/action_test" android:title="@string/action_test"
+        android:showAsAction="always"/>
+
+    <item android:id="@+id/action_findcar" android:title="@string/action_findcar"
+        android:showAsAction="always"
+        android:icon="@drawable/car_64"/>
+
+    <item android:id="@+id/action_findplace"
+        android:title="@string/action_findplace"
+        android:icon="@drawable/search_50"
+        android:showAsAction="always|collapseActionView"
+        android:actionViewClass="android.widget.SearchView"/>
+
+    <item android:id="@+id/action_managemap" android:title="@string/action_managemap"
+        android:showAsAction="ifRoom|withText" android:icon="@drawable/map_64"/>
+
+    <item android:id="@+id/action_settings" android:title="@string/action_settings"
+        android:showAsAction="never|withText" android:icon="@drawable/setting_64"/>
+
+</menu>
