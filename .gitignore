@@ -2,4 +2,5 @@
 target
 *.class
 *.jar
+classes
 

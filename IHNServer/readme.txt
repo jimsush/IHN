@@ -6,8 +6,17 @@ server side subsystem:
 
 
 dependency:
-1, mysql server
-2, mysql gui client
+0, java8/maven
+1, mysql server (c3p0 connection pool)
+2, mysql JDBC driver
 3, JMS (optional)
-4, Spring, log4j,...
+4, Spring, logback,...
+5, baidu map api
+6, twaver 3d api
+7, jquery, requirejs, backbond
+8, jetty, jersey restful web service, jackson to handle json
+
+StartServer --> start mysql/jetty  -> init spring(core, sm and parking) -> start modules
+
+
 

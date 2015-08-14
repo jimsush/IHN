@@ -36,8 +36,8 @@ public class JettyProcess implements ExternalService{
 		    	Server server = new Server(8080);
 		    	 
 		        WebAppContext context = new WebAppContext();
-		        context.setDescriptor("WEB-INF/classes/web.xml");
-		        context.setResourceBase(".");
+		        context.setDescriptor("WebRoot/WEB-INF/classes/web.xml");
+		        context.setResourceBase("WebRoot/");
 		        context.setContextPath("/");
 		        context.setParentLoaderPriority(true);
 		        server.setHandler(context);

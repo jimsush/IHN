@@ -23,22 +23,7 @@ public class SecurityModule implements CommonModule{
 
 	@Override
 	public void start() {
-		UserDao userDao=BizContext.getBean("userDao", UserDao.class);
-		List<User> users = userDao.getAll();
-		User user = userDao.getByKey("su");
-		if(user!=null){
-			user.setPassword("password");
-			userDao.update(user);
-			userDao.delete("su");
-		}else{
-			user=new User();
-			user.setUserName("su");
-			user.setPassword("password");
-			user.setRoles(SysUtils.array2Set(new Object[]{"admin","viewer"}));
-			userDao.insert(user);
-		}
-		
-		System.out.println(user);
+		BizContext.getLogger().info("start SecurityModule");
 	}
 
 	@Override
