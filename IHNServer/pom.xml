@@ -126,9 +126,14 @@
 		<artifactId>jetty-servlet</artifactId>
 		<version>7.1.0.RC0</version>
 	</dependency>
+	
+	<dependency>
+  		<groupId>com.fasterxml.jackson.core</groupId>
+  		<artifactId>jackson-core</artifactId>
+  		<version>2.6.0</version>
+	</dependency>
+
   </dependencies>
-  
-  
   
   <repositories>
     <repository>
@@ -140,19 +145,7 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
-    
-     
-     <repository>
-    <id>central2</id>
-      <name>Hermes Maven Repository</name> 
-      <layout>default</layout> 
-      <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url> 
-      <snapshots> 
-        <enabled>false</enabled> 
-      </snapshots> 
-    </repository> 
-      
-     
+
   </repositories>
  
   <pluginRepositories>
@@ -169,21 +162,6 @@
       </releases>
     </pluginRepository>
     
-    <!--
-    <pluginRepository>
-      <id>central2</id>
-      <name>Maven Plugin Repository</name>
-      <url>http://nyhublnx3.nam.nsroot.net:8081/nexus/content/repositories/public</url>
-      <layout>default</layout>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-    </pluginRepository>
-       -->
-     
   </pluginRepositories>
   
 </project>
