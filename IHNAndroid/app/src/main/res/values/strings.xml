@@ -18,7 +18,7 @@
         <item>科技馆</item>
     </string-array>
 
-    <string name="title_activity_my_list">寻车</string>
+    <string name="title_activity_my_list">室内导航</string>
 
     <string name="hello_world">Find Car</string>
 
