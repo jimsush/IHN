@@ -19,7 +19,8 @@
     </string-array>
 
     <string name="title_activity_my_list">室内导航</string>
-
+    <string name="navigate_map">导航地图</string>
+    <string name="parking_list">车库列表</string>
     <string name="hello_world">Find Car</string>
 
     
