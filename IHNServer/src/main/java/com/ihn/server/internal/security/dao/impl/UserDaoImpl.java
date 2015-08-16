@@ -29,16 +29,16 @@ public class UserDaoImpl implements UserDao{
 
 	@Override
 	public void insert(User user) {
-		jdbcTemplate.update("insert into user(username, password, role) values(?,?,?)", 
-				new Object[]{ user.getUserName(), user.getPassword(), SysUtils.set2String(user.getRoles(),",") }, 
-				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR});
+		jdbcTemplate.update("insert into user(username, password, role,corp,scopes) values(?,?,?,?,?)", 
+				new Object[]{ user.getUserName(), user.getPassword(), user.getRole(), user.getCorp(),SysUtils.set2String(user.getScopes(),",") }, 
+				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR,Types.VARCHAR});
 	}
 	
 	@Override
 	public void update(User user) {
-		jdbcTemplate.update("update user set password=?, role=? where username=?", 
-				new Object[]{ user.getPassword(), SysUtils.set2String(user.getRoles(),","),  user.getUserName() },
-				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR});
+		jdbcTemplate.update("update user set password=?, role=?, corp=?, scope=? where username=?", 
+				new Object[]{ user.getPassword(), user.getRole(), user.getCorp(), SysUtils.set2String(user.getScopes(),","),  user.getUserName() },
+				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR});
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

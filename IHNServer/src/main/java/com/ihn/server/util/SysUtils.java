@@ -24,6 +24,13 @@ public class SysUtils {
 		return set;
 	}
 	
+	public static Set<String> string2Set(String string,String separator){
+		if(string==null || string.length()==0)
+			return new HashSet<String>();
+		String[] fields=string.split(separator);
+		return (Set<String>)array2Set(fields);
+	}
+	
 	/**
 	 * format a set to a string
 	 * @param set
