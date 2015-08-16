@@ -12,6 +12,10 @@ require([
     var headerView = null, sideMenuView = null, mainContentView = null, footerView = null;
     var router = null;
     
+    var checkLogin = function() {
+    	window.location = 'login.html';
+    };
+    
     var initialize = function() {
         headerView = new HeaderView({
             el: $('#ihn-header')
@@ -30,6 +34,7 @@ require([
         });
     };
     
+    checkLogin();
     initialize();
     
     router = new AppRouter({
