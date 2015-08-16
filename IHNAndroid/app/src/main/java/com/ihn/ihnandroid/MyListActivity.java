@@ -13,36 +13,32 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MyListActivity extends Activity {
 
     private ListView listView;
 
+    public MyListActivity() {
+        super();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.image_demo_list1);
 
-        try {
-            ActionBar actionBar = getActionBar();
-            actionBar.show();
-            actionBar.setDisplayHomeAsUpEnabled(true);
+        listView = (ListView) findViewById(R.id.listView1);
 
-            String[] values={"上海","深圳"};
-
-            ArrayAdapter<String> spinnerAdaptor = new ArrayAdapter<String>(this, R.layout.navigation_item, values);
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-            actionBar.setListNavigationCallbacks(spinnerAdaptor, new DropDownNavigationListener(this));
-        }catch(Throwable th){
-            th.printStackTrace();
-        }
-
-    }
-
-    public MyListActivity() {
-        super();
+        initActionBar1();
+        initImageTextList1();
     }
 
     @Override
@@ -51,6 +47,49 @@ public class MyListActivity extends Activity {
         inflater.inflate(R.menu.menu_my_list, menu);
         boolean result=super.onCreateOptionsMenu(menu);
 
+        initSearchPlaceInActionBar1(menu);
+        return result;
+    }
+
+    private void initActionBar1(){
+        try {
+            ActionBar actionBar = getActionBar();
+            actionBar.show();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+            String[] values={"上海","深圳"};
+            ArrayAdapter<String> spinnerAdaptor = new ArrayAdapter<String>(this, R.layout.navigation_item, values);
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+            actionBar.setListNavigationCallbacks(spinnerAdaptor, new DropDownNavigationListener(this));
+        }catch(Throwable th){
+            th.printStackTrace();
+        }
+    }
+
+    private void initImageTextList1(){
+        Map<String, Object> item1 = new HashMap<String, Object>();
+        item1.put("image", R.drawable.car_64);
+        item1.put("name", "陆家嘴地下车库");
+
+        Map<String, Object> item2 = new HashMap<String, Object>();
+        item2.put("image", R.drawable.car_64);
+        item2.put("name", "徐家汇港汇车库");
+
+        Map<String, Object> item3 = new HashMap<String, Object>();
+        item3.put("image", R.drawable.car_64);
+        item3.put("name", "人民广场2号车库");
+
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        data.add(item1);
+        data.add(item2);
+        data.add(item3);
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.property_image_text_item1,
+                new String[]{"image","name"}, new int[]{ R.id.imageView_prop, R.id.textView_propProperty});
+
+        this.listView.setAdapter(simpleAdapter);
+    }
+
+    private void initSearchPlaceInActionBar1(Menu menu){
         MenuItem searchItem = menu.findItem(R.id.action_findplace);
         SearchView searchView =(SearchView)searchItem.getActionView();
         if(searchView!=null) {
@@ -62,8 +101,6 @@ public class MyListActivity extends Activity {
                 }
             });
         }
-
-        return result;
     }
 
     @Override
@@ -105,4 +142,5 @@ public class MyListActivity extends Activity {
         MyAlertDialogFragment fragment=new MyAlertDialogFragment();
         fragment.show(getFragmentManager(),"basic");
     }
+
 }

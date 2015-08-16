@@ -1,10 +1,11 @@
 package com.ihn.server.internal.parking.model;
 
 public enum ElementType {
-	SENSOR,
+	BEACON,
 	GATEWAY,
+	EXIT,
 	DOOR,
-	ENTRANCE,
+	STALL,
 	WINDOW,
 	PILLAR,
 	WASHSTORE,

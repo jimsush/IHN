@@ -2,12 +2,12 @@ package com.ihn.server.internal.security.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.jdbc.core.RowMapper;
 
 import com.ihn.server.internal.security.model.User;
+import com.ihn.server.util.SysUtils;
 
 public class UserMapper implements RowMapper {
 
@@ -16,18 +16,11 @@ public class UserMapper implements RowMapper {
 		User user=new User();
 		user.setUserName(rs.getString("username"));
 		user.setPassword(rs.getString("password"));
-		Set<String> roleSet=new HashSet<String>();
-		user.setRoles(roleSet);
+		user.setRole(rs.getString("role"));
+		user.setCorp(rs.getString("corp"));
 		
-		String role = rs.getString("role");
-		if(role!=null && role.length()>0){
-			String[] roles = role.split(",");
-			if(roles!=null){
-				for(String r : roles){
-					roleSet.add(r);
-				}
-			}
-		}
+		Set<String> scopeSet = SysUtils.string2Set(rs.getString("scopes"), ",");
+		user.setScopes(scopeSet);
 		return user;
 	}
 

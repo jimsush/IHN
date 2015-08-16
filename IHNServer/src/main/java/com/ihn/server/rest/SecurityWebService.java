@@ -19,10 +19,24 @@ public class SecurityWebService {
 	@Path("login")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String  login(@QueryParam("username") String userName, @QueryParam("password")String password){
-		SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
-		return securityService.login(userName,password);
+		try{
+			SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
+			return securityService.login(userName,password);
+		}catch(Throwable th){
+			return "{'result':'false', 'reason':'"+th.getMessage()+"'}";
+		}
 	}
 	
-	
+	@GET
+	@Path("properties")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getManagedProperties(@QueryParam("username") String userName){
+		try{
+			SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
+			return securityService.getManagedProperties(userName);
+		}catch(Throwable th){
+			return "{'result':'false', 'reason':'"+th.getMessage()+"'}";
+		}
+	}
 	
 }
