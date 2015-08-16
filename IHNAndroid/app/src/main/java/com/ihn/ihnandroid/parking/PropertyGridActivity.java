@@ -35,26 +35,28 @@ public class PropertyGridActivity extends Activity {
     private void initGridView1(){
         gridView=(GridView)findViewById(R.id.gridView);
 
-
+        initImageTextList1();
     }
 
     private void initImageTextList1(){
         Map<String, Object> item1 = new HashMap<String, Object>();
-        item1.put("image", R.drawable.car_64);
-        //item1.put("name", "陆家嘴地下车库");
+        item1.put("image", R.drawable.setting_64);
 
         Map<String, Object> item2 = new HashMap<String, Object>();
         item2.put("image", R.drawable.car_64);
-        //item2.put("name", "徐家汇港汇车库");
 
         Map<String, Object> item3 = new HashMap<String, Object>();
-        item3.put("image", R.drawable.car_64);
-       // item3.put("name", "人民广场2号车库");
+        item3.put("image", R.drawable.search_50);
+
+        Map<String, Object> item4 = new HashMap<String, Object>();
+        item4.put("image", R.drawable.map_64);
 
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
         data.add(item1);
         data.add(item2);
         data.add(item3);
+        data.add(item4);
+
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.property_grid_item,
                 new String[]{"image"}, new int[]{ R.id.imageView_propIcon} );
 
