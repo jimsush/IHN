@@ -9,6 +9,12 @@ public class IHNException extends RuntimeException {
     
     public static final int CODE_SCHEDULE=1;
     
+    public IHNException(String msg,int errorCode,String... source){
+        super(msg);
+        this.errorCode = errorCode;
+        this.source = source;
+    }
+    
     public IHNException(int errorCode, String... source){
         super();
         this.errorCode = errorCode;
@@ -19,7 +25,7 @@ public class IHNException extends RuntimeException {
      * @return the errorCode
      */
     public int getErrorCode() {
-        return errorCode;
+    	return errorCode;
     }
 
     /**
