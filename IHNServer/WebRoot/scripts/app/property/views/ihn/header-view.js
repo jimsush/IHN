@@ -1,6 +1,7 @@
 define([
-  'text!templates/ihn/header-template.html'
-], function (HeaderTemplate) {
+  'text!templates/ihn/header-template.html',
+  '../../../cookie/IHNCookie'
+], function (HeaderTemplate, IHNCookie) {
 
     var HeaderView = Backbone.View.extend({
     	
@@ -13,6 +14,15 @@ define([
         render: function () {
             this.$el.html(this.template());
             return this;
+        },
+        
+        events: {
+        	'click .logout': 'logout'
+        },
+        
+        logout: function() {
+        	IHNCookie.eraseCookie('user');
+        	window.location = 'login.html';
         }
         
     });

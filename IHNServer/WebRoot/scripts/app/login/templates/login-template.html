@@ -1,0 +1,65 @@
+<div class="wrapper">
+	<div class="content">
+		<div id="form_wrapper" class="form_wrapper">
+			<form class="register">
+				<h3>注册</h3>
+				<div class="column">
+					<div>
+						<label>用户名:</label>
+						<input type="text"/>
+						<span class="error">This is an error</span>
+					</div>
+					<div>
+						<label>邮箱:</label>
+						<input type="text" />
+						<span class="error">This is an error</span>
+					</div>
+					<div>
+						<label>密码:</label>
+						<input type="password" />
+						<span class="error">This is an error</span>
+					</div>
+				</div>
+				<div class="bottom">
+					<input type="button" value="注册" name="register" />
+					<a href="index.html" rel="login" class="linkform">已有账号？登录</a>
+					<div class="clear"></div>
+				</div>
+			</form>
+			<form class="login active">
+				<h3>登录</h3>
+				<div>
+					<label>用户名:</label>
+					<input type="text" />
+					<span class="error">This is an error</span>
+				</div>
+				<div>
+					<label>密码:<a href="forgot_password.html" rel="forgot_password" class="forgot linkform">忘记密码</a></label>
+					<input type="password" />
+					<span class="error">This is an error</span>
+				</div>
+				<div class="bottom">
+					<div class="remember"><input type="checkbox" /><span>记住密码</span></div>
+					<input type="button" value="登录" name="login" />
+					<a href="register.html" rel="register" class="linkform">没有账号？注册</a>
+					<div class="clear"></div>
+				</div>
+			</form>
+			<form class="forgot_password">
+				<h3>忘记密码</h3>
+				<div>
+					<label>用户名或邮箱:</label>
+					<input type="text" />
+					<span class="error">This is an error</span>
+				</div>
+				<div class="bottom">
+					<input type="button" value="发送" name="send" />
+					<a href="index.html" rel="login" class="linkform">想起密码？登录</a>
+					<a href="register.html" rel="register" class="linkform">没有账号？注册</a>
+					<div class="clear"></div>
+				</div>
+			</form>
+		</div>
+		<div class="clear"></div>
+	</div>
+</div>
