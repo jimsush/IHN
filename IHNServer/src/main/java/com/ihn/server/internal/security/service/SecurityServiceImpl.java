@@ -3,6 +3,7 @@ package com.ihn.server.internal.security.service;
 import java.util.Set;
 
 import com.ihn.server.internal.launch.BizContext;
+import com.ihn.server.internal.security.IhnSecurityException;
 import com.ihn.server.internal.security.SecurityService;
 import com.ihn.server.internal.security.dao.UserDao;
 import com.ihn.server.internal.security.model.User;
@@ -10,51 +11,30 @@ import com.ihn.server.internal.security.model.User;
 public class SecurityServiceImpl implements SecurityService{
 
 	@Override
-	public String  login(String userName, String password){
-		if(password==null || userName==null){
-			return "{'result':'false','reason':'username or password is null'}";
-		}
-		
+	public boolean login(String userName, String password){
 		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
 		User user = userDao.getByKey(userName);
 		if(user==null){
-			return "{'result':'false','reason':'user is not existed'}";
+			throw new IhnSecurityException(IhnSecurityException.ID_USER_NOT_EXIST,userName);
 		}else{
-			if(password.equals(user.getPassword())){
-				return "{'result':'true'}";
-			}else{
-				return "{'result':'false','reason':'password is incorrect'}";
+			if(!password.equals(user.getPassword())){
+				throw new IhnSecurityException(IhnSecurityException.ID_PASSWORD_INCORRECT,userName);
 			}
 		}
+		
+		return true;
 	}
 
 	@Override
-	public String getManagedProperties(String userName) {
-		if(userName==null){
-			return "{'result':'false','reason':'username is null'}";
-		}
-		
+	public Set<String> getManagedProperties(String userName) {
 		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
 		User user = userDao.getByKey(userName);
 		Set<String> scopes = user.getScopes();
 		if(scopes==null || scopes.size()==0){
-			return "{'result':'false','reason':'no managed property'}";
-		}else{
-			StringBuilder sb=new StringBuilder();
-			sb.append("{'result':'true','properties':[");
-			int i=0;
-			for(String scope : scopes){
-				if(i==0){
-					i++;
-				}else{
-					sb.append(",");
-				}
-				sb.append("'").append(scope).append("'");
-			}
-			sb.append("]");
-			sb.append("}");
-			return sb.toString();
+			throw new IhnSecurityException(IhnSecurityException.ID_NO_SCOPE,userName);
 		}
+		
+		return scopes;
 	}
 	
 }
