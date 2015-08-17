@@ -1,0 +1,6 @@
+<span>This is side menu</span>
+<ul>
+  <% _.each(menus, function(menu) { %>
+      <li><a href="<%= menu.link %>"><%= menu.name %></a></li>
+  <% }); %>
+</ul>
