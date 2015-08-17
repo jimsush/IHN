@@ -14,13 +14,31 @@
             android:name=".MyListActivity"
             android:label="@string/title_activity_my_list"
             android:theme="@android:style/Theme.Holo.Light"
-            android:logo="@drawable/logo_50">
+            android:logo="@drawable/logo_50"
+            android:uiOptions="splitActionBarWhenNarrow">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".parking.ParkingWebViewActivity"
+            android:label="@string/navigate_map"
+            android:parentActivityName=".MyListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MyListActivity" />
+        </activity>
+
+        <activity
+            android:name=".parking.PropertyGridActivity"
+            android:label="@string/parking_list"
+            android:parentActivityName=".MyListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MyListActivity" />
+        </activity>
 
     </application>
 

@@ -16,6 +16,9 @@ import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.ihn.ihnandroid.parking.ParkingWebViewActivity;
+import com.ihn.ihnandroid.parking.PropertyGridActivity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +64,8 @@ public class MyListActivity extends Activity {
             ArrayAdapter<String> spinnerAdaptor = new ArrayAdapter<String>(this, R.layout.navigation_item, values);
             actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
             actionBar.setListNavigationCallbacks(spinnerAdaptor, new DropDownNavigationListener(this));
+
+            initActionBarTabs1(actionBar);
         }catch(Throwable th){
             th.printStackTrace();
         }
@@ -103,6 +108,12 @@ public class MyListActivity extends Activity {
         }
     }
 
+    private void initActionBarTabs1(ActionBar actionBar){
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.addTab(actionBar.newTab().setText("个人中心").setTabListener(new MyTabMenuListener()));
+        actionBar.addTab(actionBar.newTab().setText("地图管理").setTabListener(new MyTabMenuListener()));
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -127,11 +138,13 @@ public class MyListActivity extends Activity {
             */
 
             case R.id.action_managemap:
-                showMyDialog(3);
+                //showMyDialog(3);
+                openHTML5MapView1();
                 return true;
 
             case R.id.action_settings:
                 Toast.makeText(this,"settings is under construction", Toast.LENGTH_LONG).show();
+                openPropertyGridView1();
                 return true;
         }
 
@@ -141,6 +154,18 @@ public class MyListActivity extends Activity {
     private void showMyDialog(int type){
         MyAlertDialogFragment fragment=new MyAlertDialogFragment();
         fragment.show(getFragmentManager(),"basic");
+    }
+
+    private void openHTML5MapView1(){
+        Intent intent=new Intent();
+        intent.setClass(MyListActivity.this,ParkingWebViewActivity.class);
+        startActivity(intent);
+    }
+
+    private void openPropertyGridView1(){
+        Intent intent=new Intent();
+        intent.setClass(MyListActivity.this,PropertyGridActivity.class);
+        startActivity(intent);
     }
 
 }
