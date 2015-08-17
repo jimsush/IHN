@@ -4,10 +4,10 @@ public class ComputePosition {
 	
 	/**
 	 * 
-	 * @param signalDegress multiple sensors, each sensor has 4 properties: posX, posY, posZ, power
-	 * @return
+	 * @param signalDegress multiple sensors, each sensor has 4 properties double[4]: posX, posY, posZ, power
+	 * @return [0]=x, [1]=y
 	 */
-	public double[][] evalutePosition(double[][][][] ... signalDegress){
+	public double[] evalutePosition(double[] ... signalDegress){
 		return null;
 	}
 
