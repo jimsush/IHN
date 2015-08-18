@@ -1,3 +1,4 @@
+
 package com.ihn.server.internal.security;
 
 import java.util.HashMap;
@@ -23,5 +24,6 @@ public class IhnSecurityException extends IHNException{
 	public IhnSecurityException(int errorCode, String user) {
 		super(id2Info.get(errorCode), errorCode, user);
 	}
+	
 
 }
