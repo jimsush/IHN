@@ -11,6 +11,8 @@ public class PropertyCorp {
 	
 	private String name;
 	
+	private String enname;
+	
 	private String city;
 	private String address;
 	private String phone;
@@ -82,6 +84,14 @@ public class PropertyCorp {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getEnname() {
+		return enname;
+	}
+
+	public void setEnname(String enname) {
+		this.enname = enname;
 	}
 
 	
