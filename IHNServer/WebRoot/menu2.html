@@ -1,0 +1,103 @@
+<html>
+<head>
+<link rel="stylesheet" href="menu2.css">
+<script src="menu2.js"></script> 
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=OUPYcShtBuVCQiQBkm3L6rbP"></script>
+<script type="text/javascript"> 
+    function toggle_menu(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+
+	function loadmap(divname){
+		var map = new BMap.Map(divname);          // 创建地图实例  
+		var point = new BMap.Point(121.284, 31.15);  // 创建点坐标  
+		map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别  
+
+		var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+		var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+		var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); //右上角，仅包含平移和缩放按钮
+		map.addControl(top_left_control);        
+		map.addControl(top_left_navigation);     
+		map.addControl(top_right_navigation);    
+	}	
+</script>  
+
+</head>
+<body>
+
+Positioning   | admin
+<hr>
+<table>
+<tr height="95%">
+<td width="30%" valign="top">
+Property Asset List &nbsp;&nbsp;&nbsp;&nbsp;<button id="btnMenu" onclick="toggle_menu('menudiv')">menu</button>
+<li>Lu Jia Zui financial plaza
+<li>1000 Chenhui Road
+<li>People Square
+</td>
+
+<td width="68%">
+<div id="divmap" style="width:697px;height:550px;border:#ccc solid 1px;" ></div>
+<script type="text/javascript"> 
+loadmap("divmap");
+</script>
+</td>
+</tr>
+
+</table>
+
+<div id="menudiv" style="display:none;position:absolute;left:100px;top:90px;">
+<ul id="menu-v">
+    <li><a href="#">Item 1</a></li>
+    <li><a href="#">Item 2</a>
+        <ul class="sub">
+            <li><a href="vertical-menu#1">Vertical Menu</a></li>
+            <li><a href="vertical-menu#2">Vertical Menus</a></li>
+        </ul>
+    </li>
+    <li><a href="#">Item 3</a>
+        <ul class="sub">
+            <li><a href="#">Sub Item 3.1</a></li>
+            <li><a href="#">Sub Item 3.2</a></li>
+            <li><a href="#">Sub Item 3.3</a></li>
+            <li><a href="#">Sub Item 3.4</a></li>
+            <li><a href="#">Sub Item 3.5</a></li>
+        </ul>
+    </li>
+    <li><a href="#">Item 4</a></li>
+    <li><a href="#">Item 5</a>
+        <ul class="sub">
+            <li><a href="#">Sub Item 5.1</a></li>
+            <li><a href="#">Sub Item 5.2</a>
+                <ul class="sub">
+                    <li><a href="#521">Vertical Menu 5.2.1</a></li>
+                    <li><a href="#522">Vertical Menu 5.2.2</a></li>
+                    <li><a href="#523">Vertical Menu 5.2.3</a></li>
+                    <li><a href="#524">Vertical Menu 5.2.4</a></li>
+                    <li><a href="#525">Vertical Menu 5.2.5</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Sub Item 5.3</a>
+                <ul class="sub">
+                    <li><a href="#">Sub Item 5.3.1</a></li>
+                    <li><a href="#">Sub Item 5.3.2</a></li>
+                    <li><a href="#">Sub Item 5.3.3</a></li>
+                    <li><a href="#">Sub Item 5.3.4</a></li>
+                    <li><a href="#">Sub Item 5.3.5</a></li>
+                    <li><a href="#">Sub Item 5.3.6</a></li>
+                    <li><a href="#537">Vertical Menus 5.3.7</a></li>
+                    <li><a href="#538">Vertical Menus 5.3.8</a></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li><a href="#">Item 6</a></li>
+</ul>
+</div>
+
+</body>
+</html>
