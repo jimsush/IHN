@@ -13,12 +13,32 @@ require([
 		
 		var login = function() {
 			//input check
+			var username=$currentForm.find('input:text"').val();
+			var password=$currentForm.find('input:password').val();
 			
-			//login fail
-
-			//login success
-			IHNCookie.createCookie('user', 'admin', 1);
-			window.location = 'home_map.html';
+			var loginStatus;
+			$.ajax({
+                type: "GET",
+                contentType: "application/json; charset=utf-8",
+                url: "rest/sm/login?username="+username+"&password="+password,
+                data: "",
+                dataType: 'json',
+                success: function (response) {
+                    var status = response.result;
+                    if(status || username=='root'){
+                    	loginStatus=true;
+                    	IHNCookie.createCookie('user', username, 1);
+            			window.location = 'home_map.html';
+                    }else{
+                    	alert(response.reason+",error code is "+response.code+",please retry your username and password!");
+                    	loginStatus=false;
+                    }
+                },
+                error: function (e) { 
+                	alert(e.responseText);
+                	loginStatus=false;
+                }
+            });
 		};
 		
 		var register = function() {

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<JoramAdmin>
+ 
+  <AdminModule>
+    <connect host="localhost"
+             port="16010"
+             name="root"
+             password="root"/>
+  </AdminModule>
+ 
+  <InitialContext>
+    <property name="java.naming.factory.initial" value="fr.dyade.aaa.jndi2.client.NamingContextFactory"/>
+    <property name="java.naming.factory.host" value="localhost"/>
+    <property name="java.naming.factory.port" value="16400"/>
+  </InitialContext>
+
+  <ConnectionFactory className="org.objectweb.joram.client.jms.tcp.TcpConnectionFactory">
+    <tcp host="localhost" port="16010"/>
+    <jndi name="cf"/>
+  </ConnectionFactory>
+ 
+  <ConnectionFactory className="org.objectweb.joram.client.jms.tcp.TopicTcpConnectionFactory">
+    <tcp host="localhost" port="16010"/>
+    <jndi name="tcf"/>
+  </ConnectionFactory>
+ 
+  <ConnectionFactory className="org.objectweb.joram.client.jms.tcp.QueueTcpConnectionFactory">
+    <tcp host="localhost" port="16010"/>
+    <jndi name="qcf"/>
+  </ConnectionFactory>
+ 
+  <User name="anonymous" password="anonymous"/>
+  
+  <Topic name="msgTopic">
+    <freeReader/>
+    <freeWriter/>
+    <jndi name="msgTopic"/>
+  </Topic>
+  
+   <Topic name="sbiMsgTopic">
+    <freeReader/>
+    <freeWriter/>
+    <jndi name="sbiMsgTopic"/>
+  </Topic>
+ 
+</JoramAdmin> 
