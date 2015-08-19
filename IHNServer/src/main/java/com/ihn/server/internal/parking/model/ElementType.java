@@ -11,5 +11,8 @@ public enum ElementType {
 	WASHSTORE,
 	UPSTAIR,
 	ELEVATOR,
-	PARKINGSPACE;
+	PARKINGSPACE,
+	PLACEHOLDER, //
+	POINT  // mark the path, center of park space
+	;
 }

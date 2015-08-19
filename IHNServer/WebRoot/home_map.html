@@ -1,0 +1,110 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+<link rel="stylesheet" href="styles/menu.css">
+<script src="scripts/menu.js"></script> 
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=OUPYcShtBuVCQiQBkm3L6rbP"></script>
+
+<script type="text/javascript"> 
+
+   function toggle_menu(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+   }
+
+	function loadmap(divname){
+		var map = new BMap.Map(divname);          // 创建地图实例  
+		var point = new BMap.Point(121.535813, 31.226057);  // 创建点坐标  
+		map.centerAndZoom(point, 13);                 // 初始化地图，设置中心点坐标和地图级别  
+
+		var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+		var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+		var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); //右上角，仅包含平移和缩放按钮
+		map.addControl(top_left_control);        
+		map.addControl(top_left_navigation);     
+		map.addControl(top_right_navigation);    
+		
+		var open3dmap=function open3dmap(){
+			window.location = 'index.html';
+		}
+		
+		var markers1 = new BMap.Marker(new BMap.Point(121.540844, 31.216669));
+		//var icon1 = new BMap.Icon(icons, new BMap.Size(15, 15)); 
+		//markers1.setIcon(icon);
+		map.addOverlay(markers1);
+		var label = new BMap.Label("陆家嘴世纪金融广场",{offset:new BMap.Size(20,-10)});
+		markers1.setLabel(label);
+		markers1.addEventListener("click",open3dmap);
+				
+		var markers2 = new BMap.Marker(new BMap.Point(121.535813, 31.226057));
+		map.addOverlay(markers2);
+		var label2 = new BMap.Label("浦东软件园",{offset:new BMap.Size(20,-10)});
+		markers2.setLabel(label2);
+		markers2.addEventListener("click",open3dmap);
+		
+		var markers3 = new BMap.Marker(new BMap.Point(121.479399, 31.23847));
+		map.addOverlay(markers3);
+		var label3 = new BMap.Label("人民广场",{offset:new BMap.Size(20,-10)});
+		markers3.setLabel(label3);
+		markers3.addEventListener("click",open3dmap);
+		
+		var showlong=function showInfo(e){
+			//alert(e.point.lng + ", " + e.point.lat);
+		}
+		map.addEventListener("click", showlong);
+		
+		
+	}	
+</script>  
+
+</head>
+
+<body>
+
+&nbsp;&nbsp;室内定位导航专家&nbsp;&nbsp;   |&nbsp;&nbsp; admin
+<hr>
+<table>
+<tr height="95%">
+	<td width="20%" valign="top">
+	可管理的物业列表&nbsp;&nbsp;&nbsp;&nbsp;<button id="btnMenu" onclick="toggle_menu('menudiv')">操作</button>
+	<p>
+	<li style="line-height:38px;"><a href="#">陆家嘴世纪金融广场，上海浦东新区，花木路1号</a></li>
+	<li style="line-height:38px;"><a href="#">东方路浦东软件园，上海浦东新区，东方路1000号</a></li>
+	<li style="line-height:38px;"><a href="#">人民广场，上海黄浦区，人民路100号</a></li>
+	<br>
+	<br>
+	<br>
+	<li style="line-height:38px;font-size:small;"><a href="#">更多记录...</a></li>
+	<br>
+	</td>
+
+	<td width="78%">
+		<div id="divmap" style="width:800px;height:550px;border:#ccc solid 1px;" ></div>
+		<script type="text/javascript"> 
+			loadmap("divmap");
+		</script>
+	</td>
+</tr>
+
+</table>
+
+
+<div id="menudiv" style="display:none;position:absolute;left:100px;top:90px;">
+	<ul id="menu-v">
+	    <li><a href="#">增加物业</a></li>
+	    <li><a href="#">维护物业</a></li>
+	    <li><a href="#">创建集团账号</a></li>
+	    <li><a href="#">维护物业管理员</a></li>
+	    <li><a href="#">个人设置</a></li>
+	</ul>
+</div>
+
+
+</body>
+
+</html>

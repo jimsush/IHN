@@ -18,7 +18,7 @@ require([
 
 			//login success
 			IHNCookie.createCookie('user', 'admin', 1);
-			window.location = 'index.html';
+			window.location = 'home_map.html';
 		};
 		
 		var register = function() {

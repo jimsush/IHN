@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.ihn.server.internal.launch.activemq.ActiveMQProcess;
 import com.ihn.server.internal.launch.jetty.JettyProcess;
 import com.ihn.server.internal.launch.mysql.MysqlProcess;
 import com.ihn.server.internal.launch.service.ExternalProcessMgr;
@@ -81,6 +82,9 @@ public class StartServer implements ProcessExecute{
         
         MysqlProcess mysqld=new MysqlProcess();
         externalServices.add(mysqld);
+        
+        ActiveMQProcess activeMQ=new ActiveMQProcess(); 
+        externalServices.add(activeMQ);
         
         return externalProcessMgr.init();
     }

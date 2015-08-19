@@ -10,6 +10,7 @@ import com.ihn.server.internal.security.model.User;
 
 public class SecurityServiceImpl implements SecurityService{
 
+	
 	@Override
 	public boolean login(String userName, String password){
 		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
@@ -25,6 +26,7 @@ public class SecurityServiceImpl implements SecurityService{
 		return true;
 	}
 
+	
 	@Override
 	public Set<String> getManagedProperties(String userName) {
 		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
@@ -36,5 +38,6 @@ public class SecurityServiceImpl implements SecurityService{
 		
 		return scopes;
 	}
+	
 	
 }
