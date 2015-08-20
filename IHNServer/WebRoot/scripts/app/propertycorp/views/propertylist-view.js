@@ -1,5 +1,5 @@
 define([
-  'text!templates/propertylist-template.html'
+  'text!templates/propertylist-template.html',
 ], function (PropertyListTemplate) {
 
     var PropertyListView = Backbone.View.extend({
@@ -17,17 +17,21 @@ define([
         },
         
         events: {
-        	'click input[type=button]' : 'doToggleMenu'
+        	'click #btnMenu' : 'doToggleMenu'
         },
         
         doToggleMenu: function(event){
         	alert('toggle event');
+        	var e = $('btnMenu');
+            if(e.style.display == 'block')
+               e.style.display = 'none';
+            else
+               e.style.display = 'block';
         },
         
         addOne: function(model){
         	$("#proplist").append("<li style='line-height:38px;'><a href='#'>"+model.get('name')+","+model.get('city')+","+model.get('address')+"</a></li>");
         } 
-        
         
     });
 
