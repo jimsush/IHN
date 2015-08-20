@@ -2,6 +2,7 @@ define([
 ], function () {
 
     var BaiduMapView = Backbone.View.extend({
+    	map: null,
     	
         initialize: function () {
             this.render();
@@ -16,21 +17,22 @@ define([
         addOne: function(propertyAsset){
         	if(this.collection.size()==1){
         		var point = new BMap.Point(propertyAsset.get('longitude'), propertyAsset.get('latitude'));  
-        		map.centerAndZoom(point, 13);                 
+        		this.map.centerAndZoom(point, 13);                 
 
         		var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});
         		var top_left_navigation = new BMap.NavigationControl(); 
         		var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); 
-        		map.addControl(top_left_control);        
-        		map.addControl(top_left_navigation);     
-        		map.addControl(top_right_navigation);
+        		this.map.addControl(top_left_control);        
+        		this.map.addControl(top_left_navigation);     
+        		this.map.addControl(top_right_navigation);
         	}
         	
         	var marker = new BMap.Marker(new BMap.Point(propertyAsset.get('longitude'), propertyAsset.get('latitude'));
-    		map.addOverlay(marker);
-    		var label = new BMap.Label(propertyAsset.get('name'),{offset:new BMap.Size(20,-10)});
+    		this.map.addOverlay(marker);
+    		var label = new BMap.Label(propertyAsset.get('name'),
+    				{offset:new BMap.Size(20,-10)});
     		marker.setLabel(label);
-    		marker.addEventListener("click", open3dmap); //how to pass parameter
+    		marker.addEventListener("click", this.open3dmap); //how to pass parameter
         },
         
         initBaiduMapAPI: function(){
@@ -39,9 +41,8 @@ define([
         	script.src="http://api.map.baidu.com/api?v=1.5&ak=OUPYcShtBuVCQiQBkm3L6rbP";
         	this.$el.appendChild(script);
         	
-        	var map = new BMap.Map('baidumap-div'); 
-        	map.addEventListener("click", showlnglat);
-        	return map;
+        	this.map = new BMap.Map('baidumap-div'); 
+        	this.map.addEventListener("click", this.showlnglat);
         },
         
         open3dmap: function open3dmap(){
@@ -55,4 +56,5 @@ define([
     });
 
     return BaiduMapView;
+    
 });

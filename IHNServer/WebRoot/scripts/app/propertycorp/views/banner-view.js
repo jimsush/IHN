@@ -18,4 +18,5 @@ define([
     });
 
     return BannerView;
+    
 });
