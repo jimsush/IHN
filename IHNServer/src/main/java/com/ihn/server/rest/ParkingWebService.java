@@ -16,7 +16,14 @@ public class ParkingWebService {
 	@Path("property")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getProperty(@QueryParam("id") String propertyId){
-		return "{'result':'true','id':'LJZ_P1','name':'LuJiaZui Financial Plaza', 'longitude':121.284, 'latitude':31.15, 'floors':['B1', 'B2', 'B3']}";
+		return "[{\"id\":\"LJZ_P1\", \"name\": \"LuJiaZui Century Financial Plaza\","
+				+"\"city\" : \"Shanghai\","
+				+ " \"longitude\": 121.540844, \"latitude\":31.216669},"
+				
+				+"{\"id\" : \"PDSP_P1\",\"name\":\"PuDong Software Park\",\"city\":\"Shanghai\",\"longitude\":121.535813,\"latitude\":31.226057},"
+				+"{\"id\" : \"PS_P1\",\"name\":\"People Squre\",\"city\":\"Shanghai\",\"longitude\":121.479399,\"latitude\":31.23847}"
+				
+				+"]";
 	}
 	
 	@GET

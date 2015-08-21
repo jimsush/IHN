@@ -20,12 +20,12 @@ define([
 	  },
 	  
 	  initialize : function(){
-		  alert('PropertyAsset created');
+		  //alert('PropertyAsset created '+this.id);
 	  }
   });	
 	
   var PropertyAssetCollection = Backbone.Collection.extend({
-	  model: PropertyAsset;
+	  model: PropertyAsset,
   });
   
   return PropertyAssetCollection;
