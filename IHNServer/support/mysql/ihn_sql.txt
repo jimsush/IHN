@@ -1,1 +1,12 @@
-create table...
+drop table user;
+CREATE TABLE user (
+  username varchar(100) NOT NULL default '',
+  password varchar(100) default '',
+  role varchar(100) default '',
+  corp varchar(100) default '',
+  scopes varchar(100) default ''
+) ENGINE=MyISAM DEFAULT CHARSET=gbk;
+desc user;
+insert user(username,password,role,corp,scopes) values('admin','admin','admin','ihn','admin'); 
+select * from user;
+

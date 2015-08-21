@@ -15,7 +15,7 @@ import com.ihn.server.internal.algorithm.shortpath.Vertex;
 
 public class TestDijkstraAlgorithm {
 	
-	private List<Vertex> nodes;
+	  private List<Vertex> nodes;
 	  private List<Edge> edges;
 
 	  @Test
