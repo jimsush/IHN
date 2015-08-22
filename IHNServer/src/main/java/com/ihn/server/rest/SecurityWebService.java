@@ -48,7 +48,7 @@ public class SecurityWebService {
 		try{
 			SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
 			Set<String>  scopes=securityService.getManagedProperties(userName);
-			return JSONUtils.makeJSONString("result", true, "properties", scopes);
+			return JSONUtils.makeJSONString("result", true, "data", scopes);
 		}catch(IhnSecurityException ex){
 			return JSONUtils.makeJSONString("result", false, "code", ex.getErrorCode(), "reason", ex.getMessage());
 		}catch(Throwable th){

@@ -1,5 +1,8 @@
 package com.ihn.server.rest;
 
+import java.util.Collection;
+
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -50,6 +53,17 @@ public class JSONUtils {
 			throw new RuntimeException(e.getMessage());
 		}
 		return json.toString();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static String makeJSONStringFromCollection(Collection objs){
+		JSONArray list = new JSONArray();
+		for(Object obj : objs){
+			list.put(obj);
+		}
+		return list.toString();
+		
+		
 	}
 
 }

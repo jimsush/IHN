@@ -35,7 +35,7 @@ require([
 		
 		var username=IHNCookie.readCookie("user");
 		
-		propertyAssetCollection.url='/rest/park/property?username='+username;
+		propertyAssetCollection.url='/rest/park/properties?username='+username;
 		propertyAssetCollection.fetch({
 			  reset : true,
 			  success : function(collection, response, options){
