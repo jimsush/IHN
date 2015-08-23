@@ -107,6 +107,13 @@ require([
 					break;
 				}
 			});
+			
+			$form_wrapper.find('input[type="password"]').bind("keydown",function(e){
+				if (e.which == 13) {
+					login();
+				}
+			});
+			
 		};
 		
 		var init = function() {

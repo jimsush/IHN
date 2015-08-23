@@ -7,13 +7,15 @@ require([
     'views/baidumap-view',
     'views/menu-view',
     'collections/corp',
-    '../cookie/IHNCookie'
+    '../cookie/IHNCookie',
+    'routers/corp-routers'
 ], function ($, _, Backbone, BannerView, PropertyListView, BaiduMapView, 
-		MenuView, PropertyAssetCollection, IHNCookie) {
+		MenuView, PropertyAssetCollection, IHNCookie, CorpRouter) {
 	
 	var bannerView=null, propertyListView=null; baiduMapView=null;
 	var menuView=null;
 	var propertyAssetCollection=null;
+	var router=null;
 	
 	var initialize = function() {
 		propertyAssetCollection=new PropertyAssetCollection
@@ -54,6 +56,9 @@ require([
 	};
 	
 	initialize();
+	
+	router = new CorpRouter();
+	Backbone.history.start();
 	
 });
   

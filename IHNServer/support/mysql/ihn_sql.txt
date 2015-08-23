@@ -24,7 +24,7 @@ create table propertyasset(
 desc propertyasset;
 insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P1','LuJiaZui Century Financial Plaza','Shanghai','258 JinKang Road','LJZ',121.540844,31.216669);
 insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P2','PuDong Software Parking','Shanghai','ZhangJiang Hi-tech Park','LJZ',121.535813,31.226057);
-insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P3','People Square Parking','Shanghai','People Square HuangPu District','LJZ',121.540844,31.216669);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P3','People Square Parking','Shanghai','People Square HuangPu District','LJZ',121.479399, 31.23847);
 
 select * from propertyasset;
 

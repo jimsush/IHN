@@ -1,6 +1,7 @@
 define([
-  'text!templates/menu-template.html'
-], function (MenuTemplate) {
+  'text!templates/menu-template.html',
+  'jquery'
+], function (MenuTemplate,$) {
 
     var MenuView = Backbone.View.extend({
     	
@@ -14,6 +15,8 @@ define([
             this.$el.html(this.template());
             return this;
         }
+        
+        
         
     });
 
