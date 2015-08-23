@@ -3,4 +3,8 @@ target
 *.class
 *.jar
 classes
-
+ib_logfile*
+*.MYD
+*.frm
+*.MYI
+*.log
