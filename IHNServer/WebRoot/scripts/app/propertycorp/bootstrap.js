@@ -6,15 +6,17 @@ require([
     'views/propertylist-view',
     'views/baidumap-view',
     'views/menu-view',
-    'collections/corp'
-], function ($, _, Backbone, BannerView, PropertyListView, BaiduMapView, MenuView, PropertyAssetCollection) {
+    'collections/corp',
+    '../cookie/IHNCookie'
+], function ($, _, Backbone, BannerView, PropertyListView, BaiduMapView, 
+		MenuView, PropertyAssetCollection, IHNCookie) {
 	
 	var bannerView=null, propertyListView=null; baiduMapView=null;
 	var menuView=null;
 	var propertyAssetCollection=null;
 	
 	var initialize = function() {
-		propertyAssetCollection=new PropertyAssetCollection();
+		propertyAssetCollection=new PropertyAssetCollection
 		
 		bannerView = new BannerView({
             el: $('#banner-div')
@@ -31,22 +33,21 @@ require([
             el: $('#menu-div')
         });
 		
-		propertyAssetCollection.url='/rest/property/properties'; //?username=aaa
+		var username=IHNCookie.readCookie("user");
+		
+		propertyAssetCollection.url='/rest/park/properties?username='+username;
 		propertyAssetCollection.fetch({
-			  success: function(collection, response, options){
-				  collection.each(function(propertyAsset){
-					  // 
-					  // $('#a-ul').add('<li>aaaaa</li>');
-					  // propertyListView.add('<li>');
-					  //
-					  // update baidu map
-					  // call another function
-					  // 
-					  //baiduMapView.loadMap('',null);
-				  });
+			  reset : true,
+			  success : function(collection, response, options){
+				  /*collection.each(function(propertyAsset){
+					  alert("asset: "+propertyAsset.get('id')+" "
+							  +propertyAsset.get('name')+" "
+							  +propertyAsset.get('longitude')+" "
+							  +propertyAsset.get('latitude'));
+				  });*/
 			  },
-			  error: function(collection, response, options){
-				  alert('error');
+			  error : function(collection, response, options){
+				  alert(response+","+options);
 			  }
 		});
 		
@@ -54,5 +55,5 @@ require([
 	
 	initialize();
 	
-}
+});
   

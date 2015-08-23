@@ -2,6 +2,7 @@ package com.ihn.server.internal.parking.service;
 
 import com.ihn.server.internal.parking.ParkingService;
 import com.ihn.server.internal.parking.dao.ParkingDao;
+import com.ihn.server.internal.parking.model.PropertyAsset;
 
 public class ParkingServiceImpl implements ParkingService {
 	
@@ -12,10 +13,11 @@ public class ParkingServiceImpl implements ParkingService {
 	}
 
 	@Override
-	public void test() {
-		this.parkingDao.getClass();
+	public PropertyAsset getPropertyAsset(String propertyAssetId) {
+		return parkingDao.getByKey(propertyAssetId);
 	}
 
+	
 	
 	
 }

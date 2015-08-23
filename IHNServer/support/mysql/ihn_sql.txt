@@ -7,6 +7,25 @@ CREATE TABLE user (
   scopes varchar(100) default ''
 ) ENGINE=MyISAM DEFAULT CHARSET=gbk;
 desc user;
-insert user(username,password,role,corp,scopes) values('admin','admin','admin','ihn','admin'); 
+insert user(username,password,role,corp,scopes) values('admin','admin','admin','LJZ','LJZ_P1,LJZ_P2,LJZ_P3'); 
 select * from user;
+
+
+drop table propertyasset;
+create table propertyasset(
+  id varchar(100) not null default '',
+  name varchar(100) default '',
+  city varchar(100) default '',
+  address varchar(100) default '',
+  corp varchar(100) default 'LJZ',
+  longitude double default 0,
+  latitude double default 0
+) ENGINE=MyISAM DEFAULT CHARSET=gbk;
+desc propertyasset;
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P1','LuJiaZui Century Financial Plaza','Shanghai','258 JinKang Road','LJZ',121.540844,31.216669);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P2','PuDong Software Parking','Shanghai','ZhangJiang Hi-tech Park','LJZ',121.535813,31.226057);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P3','People Square Parking','Shanghai','People Square HuangPu District','LJZ',121.540844,31.216669);
+
+select * from propertyasset;
+
 
