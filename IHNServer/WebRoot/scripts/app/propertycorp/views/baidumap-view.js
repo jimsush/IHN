@@ -1,5 +1,5 @@
 define([
-        'jquery'
+        'jqueryui'
 ], function ($) {
 
     var BaiduMapView = Backbone.View.extend({

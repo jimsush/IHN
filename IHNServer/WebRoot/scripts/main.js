@@ -15,14 +15,20 @@
     urlArgs: urlArgs,
     // path mappings for module names not found directly under baseUrl
     paths: {
-      jquery: '../../libs/jquery/jquery-min',
+      jquery:    '../../libs/jquery/jquery-min',
+      jqueryui: '../../libs/jquery/jquery-ui-min',
       underscore: '../../libs/underscore/underscore-min',
       backbone: '../../libs/backbone/backbone-min',
       text: '../../libs/require/text',
       mono: '../../libs/twaver/t'
     },
+    
     // Configure the dependencies, exports, and custom initialization for older
     shim: {
+      jqueryui: {
+            deps: ['jquery'],
+            exports: '$'
+      },
       underscore: {
         exports: '_'
       },
@@ -31,7 +37,7 @@
         exports: 'Backbone'
       },
       mono: ['jquery'],
-      bootstrap: ['jquery', 'underscore', 'backbone'],
+      bootstrap: ['jqueryui', 'underscore', 'backbone'],
     },
     deps: ['bootstrap'],
     waitSeconds: 40

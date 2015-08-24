@@ -1,5 +1,5 @@
 require([
-    'jquery',
+    'jqueryui',
     'underscore',
     'text!templates/login-template.html',
     '../cookie/IHNCookie',

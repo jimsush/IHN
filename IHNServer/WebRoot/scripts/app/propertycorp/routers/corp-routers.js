@@ -1,5 +1,5 @@
 define([
-    'jquery',
+    'jqueryui',
     'underscore',
     'backbone',
     'views/propertylist-view'
@@ -10,27 +10,33 @@ define([
   var AppRouter = Backbone.Router.extend({
 
     curRoute: 'propertylist',
+    propertyListView: null,
     
-    initialize: function() {
-    	
+    initialize: function(options) {
+    	this.propertyListView=options.propertyListView;
+    	this.propertyListView.router=this;
     },
     
     routes: {
-      'resetpassword': 'resetpassword',
-      'noresetpassword': 'noresetpassword'
+      'resetpassword':  'resetpassword',
+      'manageproperty': 'manageproperty',
+      'adminaccount':   'adminaccount'
     },
     
     resetpassword: function(href) {
       curRoute = 'resetpassword';
-      var div1=$('#resetpassword_div');
-      div1[0].style.display='block';
+      this.propertyListView.openResetPasswordDialog();
     },
     
-    noresetpassword: function(href) {
-        curRoute = 'noresetpassword';
-        var div1=$('#resetpassword_div');
-        div1[0].style.display='none';
-      }
+    manageproperty: function(href){
+    	curRoute = 'manageproperty';
+        this.propertyListView.openManagePropertyDialog();
+    },
+    
+    adminaccount: function(href){
+    	curRoute = 'adminaccount';
+    	this.propertyListView.openAdminAccountDialog();
+    }
     
   });
   

@@ -1,5 +1,5 @@
 require([
-    'jquery',
+    'jqueryui',
     'underscore',
     'backbone',
     'routers/ihn-router',

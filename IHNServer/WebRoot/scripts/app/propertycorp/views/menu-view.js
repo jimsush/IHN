@@ -1,7 +1,7 @@
 define([
   'text!templates/menu-template.html',
-  'jquery'
-], function (MenuTemplate,$) {
+  'jqueryui'
+], function (MenuTemplate, $) {
 
     var MenuView = Backbone.View.extend({
     	

@@ -1,5 +1,5 @@
 require([
-    'jquery',
+    'jqueryui',
     'underscore',
     'backbone',
     'views/banner-view',
@@ -41,14 +41,7 @@ require([
 		propertyAssetCollection.fetch({
 			  reset : true,
 			  success : function(collection, response, options){
-				  /*collection.each(function(propertyAsset){
-					  alert("asset: "+propertyAsset.get('id')+" "
-							  +propertyAsset.get('name')+" "
-							  +propertyAsset.get('longitude')+" "
-							  +propertyAsset.get('latitude'));
-				  });*/
-			  },
-			  error : function(collection, response, options){
+			  }, error : function(collection, response, options){
 				  alert(response+","+options);
 			  }
 		});
@@ -57,7 +50,9 @@ require([
 	
 	initialize();
 	
-	router = new CorpRouter();
+	router = new CorpRouter({
+		'propertyListView': propertyListView,
+	});
 	Backbone.history.start();
 	
 });
