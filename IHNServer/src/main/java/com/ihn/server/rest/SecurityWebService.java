@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -12,11 +13,28 @@ import javax.ws.rs.core.MediaType;
 import com.ihn.server.internal.launch.BizContext;
 import com.ihn.server.internal.security.IhnSecurityException;
 import com.ihn.server.internal.security.SecurityService;
+import com.ihn.server.internal.security.model.User;
 
 @Path("/sm")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SecurityWebService {
+	
+	@POST
+	@Path("password")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String changePassword(User user){
+		try{
+			SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
+			securityService.changePassword(user.getUserName(),user.getPassword());
+			return JSONUtils.makeJSONString("result", true);
+		}catch(IhnSecurityException ex){
+			return JSONUtils.makeJSONString("result", false, "code", ex.getErrorCode(), "reason", ex.getMessage());
+		}catch(Throwable th){
+			return JSONUtils.makeJSONString("result", false, "reason", th.getMessage());
+		}
+	}
+	
 	
 	@GET
 	@Path("login")

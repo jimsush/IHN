@@ -25,18 +25,29 @@ public class SecurityServiceImpl implements SecurityService{
 		
 		return true;
 	}
-
 	
 	@Override
 	public Set<String> getManagedProperties(String userName) {
 		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
 		User user = userDao.getByKey(userName);
+		if(user==null){
+			throw new IhnSecurityException(IhnSecurityException.ID_USER_NOT_EXIST,userName);
+		}
+		
 		Set<String> scopes = user.getScopes();
 		if(scopes==null || scopes.size()==0){
 			throw new IhnSecurityException(IhnSecurityException.ID_NO_SCOPE,userName);
 		}
 		
 		return scopes;
+	}
+
+	@Override
+	public void changePassword(String userName, String password) {
+		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
+		User user = userDao.getByKey(userName);
+		user.setPassword(password);
+		userDao.update(user);
 	}
 	
 	

@@ -29,14 +29,14 @@ public class UserDaoImpl implements UserDao{
 
 	@Override
 	public void insert(User user) {
-		jdbcTemplate.update("insert into user(username, password, role,corp,scopes) values(?,?,?,?,?)", 
+		jdbcTemplate.update("insert into user(username, password, role, corp, scopes) values(?,?,?,?,?)", 
 				new Object[]{ user.getUserName(), user.getPassword(), user.getRole(), user.getCorp(),SysUtils.set2String(user.getScopes(),",") }, 
 				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR,Types.VARCHAR,Types.VARCHAR});
 	}
 	
 	@Override
 	public void update(User user) {
-		jdbcTemplate.update("update user set password=?, role=?, corp=?, scope=? where username=?", 
+		jdbcTemplate.update("update user set password=?, role=?, corp=?, scopes=? where username=?", 
 				new Object[]{ user.getPassword(), user.getRole(), user.getCorp(), SysUtils.set2String(user.getScopes(),","),  user.getUserName() },
 				new int[]{Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR});
 	}
