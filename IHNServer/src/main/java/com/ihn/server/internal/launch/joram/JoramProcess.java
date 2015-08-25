@@ -1,26 +1,33 @@
 
 package com.ihn.server.internal.launch.joram;
 
+
+
+import org.apache.commons.lang.StringUtils;
+
+import com.ihn.server.internal.launch.service.ExternalService;
+
+/*
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Properties;
-
-import org.apache.commons.lang.StringUtils;
 import org.objectweb.joram.client.jms.Topic;
 import org.objectweb.joram.client.jms.admin.AdminModule;
 import org.objectweb.joram.client.jms.admin.User;
 import org.objectweb.joram.client.jms.tcp.QueueTcpConnectionFactory;
 import org.objectweb.joram.client.jms.tcp.TcpConnectionFactory;
 import org.objectweb.joram.client.jms.tcp.TopicTcpConnectionFactory;
+
 import org.slf4j.Logger;
 
 import com.ihn.server.internal.launch.BizContext;
-import com.ihn.server.internal.launch.service.ExternalService;
+
 import com.ihn.server.util.SysUtils;
 import com.ihn.server.util.exception.ExceptionUtils;
 import com.ihn.server.util.process.RunCmdService;
+*/
 
-public class JoramProcess implements ExternalService{
+public class JoramProcess implements ExternalService {
 
     private String servicePort; 
     private int    servicePortNumber;
@@ -38,14 +45,18 @@ public class JoramProcess implements ExternalService{
         return "Joram(JMS Provider)";
     }
     
+    
     @Override
     public boolean checkIsRun() {
     	System.out.println("Joram checkIsRun...");
 
         if(StringUtils.isEmpty(this.servicePort))
         	this.servicePort="16010";
-        servicePortNumber=Integer.valueOf(this.servicePort);
-        
+        this.servicePortNumber=Integer.valueOf(this.servicePort);
+        System.out.println(this.servicePortNumber+""+checkStartFlag+serverTopicName+namingPort);
+        return true;
+    }
+        /*
         Boolean[] result=SysUtils.checkPorts("TCP", new String[]{this.servicePort});
         checkStartFlag=result==null || result.length==0 ? false : result[0];
         return checkStartFlag;
@@ -74,10 +85,7 @@ public class JoramProcess implements ExternalService{
         service.setStartCmdLine(cmd);
         service.startService();
     }
-
-    /**
-     * use actual ip address
-     */
+    
     private void replaceServerIpInJndiFile(){
     	String serverIp="127.0.0.1";
     	String bindIp=System.getProperty(BizContext.PROP_BIND_IP_ADDRESS);
@@ -117,7 +125,7 @@ public class JoramProcess implements ExternalService{
     	// set back to context 
     	BizContext.setServerBindIp(serverIp);
     	
-    	// д�뵽properties
+    	// 
     	String jndiFile=BizContext.runHomeDir+"joram/config/jndi.properties";
     	BufferedWriter writer=null;
     	try{
@@ -152,11 +160,6 @@ public class JoramProcess implements ExternalService{
         } 
     }
 
-    /**
-     * create topic
-     * @param serverIp
-     * @return
-     */
     private boolean createTopic(String serverIp) {
     	Logger logger = BizContext.getLogger();
         javax.naming.Context ictx =null;
@@ -221,5 +224,23 @@ public class JoramProcess implements ExternalService{
             AdminModule.disconnect();           
         }
     }
+    */
+
+	@Override
+	public void start() {
+	}
+
+	@Override
+	public boolean isInited() {
+		return false;
+	}
+
+	@Override
+	public void init() {
+	}
+
+	@Override
+	public void stop() {
+	}
 
 }

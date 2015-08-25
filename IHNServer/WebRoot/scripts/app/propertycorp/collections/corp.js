@@ -20,7 +20,6 @@ define([
 	  },
 	  
 	  initialize : function(){
-		  //alert('PropertyAsset created '+this.id);
 	  }
   });	
 	
@@ -29,4 +28,5 @@ define([
   });
   
   return PropertyAssetCollection;
+  
 });
