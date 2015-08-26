@@ -3,14 +3,13 @@ require([
     'underscore',
     'backbone',
     'routers/ihn-router',
-    'views/ihn/header-view',
-    'views/ihn/sidemenu-view',
+    'views/ihn/banner-view',
     'views/ihn/maincontent-view',
     'views/ihn/footer-view',
     '../cookie/IHNCookie'
-], function ($, _, Backbone, AppRouter, HeaderView, SideMenuView, MainContentView, FooterView, IHNCookie) {
+], function ($, _, Backbone, AppRouter, BannerView, MainContentView, FooterView, IHNCookie) {
   
-    var headerView = null, sideMenuView = null, mainContentView = null, footerView = null;
+    var bannerView = null, mainContentView = null, footerView = null;
     var router = null;
 
     var checkLogin = function() {
@@ -21,12 +20,8 @@ require([
     };
     
     var initialize = function() {
-        headerView = new HeaderView({
-            el: $('#ihn-header')
-        });
-      
-        sideMenuView = new SideMenuView({
-            el: $('#ihn-sidemenu')
+    	bannerView = new BannerView({
+            el: $('#ihn-banner')
         });
       
         mainContentView = new MainContentView({
@@ -42,8 +37,7 @@ require([
     initialize();
     
     router = new AppRouter({
-      'headerView':headerView,
-      'sideMenuView': sideMenuView,
+      'bannerView':bannerView,
       'mainContentView': mainContentView,
       'footerView': footerView
     });

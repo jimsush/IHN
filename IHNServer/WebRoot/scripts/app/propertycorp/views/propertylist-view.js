@@ -1,7 +1,9 @@
 define([
   'jqueryui',
-  'text!templates/propertylist-template.html'
-], function ($, PropertyListTemplate) {
+  'text!templates/propertylist-template.html',
+  'backbone',
+  '../../cookie/IHNCookie'
+], function ($, PropertyListTemplate, Backbone, IHNCookie) {
 
     var PropertyListView = Backbone.View.extend({
     	
@@ -46,9 +48,9 @@ define([
         },
         
         initResetPasswordDialog: function(){
-        	var password = $( "#password" );
+        	var password1 = $( "#password" );
         	var password2 = $( "#password2" );
-        	var allFields = $( [] ).add( password ).add( password2 );
+        	var allFields = $( [] ).add( password1 ).add( password2 );
             var self=this;
             
         	$("#resetpassword-form").dialog({
@@ -59,6 +61,23 @@ define([
                 buttons: {
                   "修改密码": function() {
                     allFields.removeClass( "ui-state-error" );
+                    
+                    var PasswordModel=Backbone.Model.extend({
+                    	urlRoot: '/rest/sm/password',
+                    	defaults:{
+                    		userName:'',
+                    		password:''
+                    	}
+                    });
+                    
+                    debugger
+                    var username1=IHNCookie.readCookie("user");
+                    var newPassword=new PasswordModel;
+                    newPassword.set({userName: username1, password: password1.val()});
+                    
+                    var mythis=this;
+                    newPassword.save();
+                    
                     $( this ).dialog( "close" );
                     self.router.navigate("");
                   },

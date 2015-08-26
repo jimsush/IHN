@@ -11,5 +11,7 @@ public interface SecurityService {
 	
 	/** get managed properties ID */
 	public Set<String> getManagedProperties(String userName);
+	
+	public void changePassword(String userName,String password);
 
 }

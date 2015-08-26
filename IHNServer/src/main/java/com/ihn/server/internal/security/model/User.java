@@ -2,8 +2,11 @@ package com.ihn.server.internal.security.model;
 
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.ihn.server.util.SysUtils;
 
+@XmlRootElement
 public class User {
 	
 	/** super */
