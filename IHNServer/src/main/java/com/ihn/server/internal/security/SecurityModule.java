@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.ihn.server.internal.launch.BizContext;
 import com.ihn.server.internal.modules.CommonModule;
+import com.ihn.server.internal.security.dao.UserDao;
 
 public class SecurityModule implements CommonModule{
 
@@ -20,6 +21,7 @@ public class SecurityModule implements CommonModule{
 	@Override
 	public void start() {
 		BizContext.getLogger().info("start SecurityModule");
+		BizContext.getBean("userDao",UserDao.class).initCode();
 	}
 
 	@Override
