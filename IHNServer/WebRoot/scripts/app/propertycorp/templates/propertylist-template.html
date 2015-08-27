@@ -40,22 +40,65 @@
 </div>
 
 <div id="manageproperty-div" title="管理物业">
-<table id="properties" class="ui-widget ui-widget-content">
-<thead>
-<tr class="ui-widget-header ">
-<th>ID</th>
-<th>名称</th>
-<th>城市</th>
-<th>地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>LJZ_P1</td>
-<td>陆家嘴世纪金融广场停车场</td>
-<td>上海</td>
-<td>浦东新区锦康路258号</td>
-</tr>
-</tbody>
-</table>
+
+<div id="manageproperty-btn-div">
+	<form id="manageproperty-form">
+		<input type="radio" id="radioSelectAll" name="radio" /><label for="radioSelectAll">全选</label>
+		<input type="radio" id="radioUnselectAll" name="radio" checked="checked"/><label for="radioUnselectAll">不选</label>
+		<button id='btnAddProperty' style="margin-left:30px;">增加物业</button>
+		<button id='btnDeleteProperty'>删除物业</button>
+		<button id='btnRefreshProperty'>刷新</button>
+		<button id='btnHelpProperty'>帮助</button>
+	</form>
+</div>
+
+<div id="">
+	<table id="properties" class="ui-widget ui-widget-content">
+		<thead>
+		<tr class="ui-widget-header ">
+		<th>ID</th> <th>名称</th> <th>城市</th> <th>地址</th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
+<div id="addproperty-div" style="display:none">
+请输入物业详细信息:
+<form id="property-form">
+<fieldset>
+	<label for="propertyName">物业名称</label>
+	<input type="text" name="propertyName" id="propertyName" value="" class="text ui-widget-content ui-corner-all">
+	<label for="city">城市</label>
+	<input type="text" name="city" id="city" value="上海" class="text ui-widget-content ui-corner-all">
+	<label for="address">地址</label>
+	<input type="text" name="address" id="address" value="" class="text ui-widget-content ui-corner-all">
+	<label for="floor">楼层(B1,B2,B3)</label>
+	<input type="text" name="floor" id="floor" value="B1" class="text ui-widget-content ui-corner-all">
+	
+	<label for="phone">物业电话</label>
+	<input type="text" name="phone" id="phone" value="" class="text ui-widget-content ui-corner-all">
+	
+	
+	<label for="longitude">经度</label>
+	<input type="text" name="longitude" id="longitude" value="121" class="text ui-widget-content ui-corner-all">
+	<label for="latitude">纬度</label>
+	<input type="text" name="latitude" id="latitude" value="32" class="text ui-widget-content ui-corner-all">
+	
+	<label for="contact">联系人</label>
+	<input type="text" name="contact" id="contact" value="" class="text ui-widget-content ui-corner-all">
+	
+	<label for="contactPhone">联系人电话</label>
+	<input type="text" name="contactPhone" id="contactPhone" value="" class="text ui-widget-content ui-corner-all">
+	
+	<label for="description">描述</label>
+	<input type="text" name="description" id="description" value="" class="text ui-widget-content ui-corner-all">
+	
+	<button id='btnSubmitProperty'>保存</button>
+	<button id='btnCancelProperty'>取消</button>
+</fieldset>
+</form>
+</div>
+
 </div>

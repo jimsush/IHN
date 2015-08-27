@@ -17,6 +17,12 @@ public class ParkingServiceImpl implements ParkingService {
 		return parkingDao.getByKey(propertyAssetId);
 	}
 
+	@Override
+	public PropertyAsset createPropertyAsset(PropertyAsset propertyAsset) {
+		parkingDao.insert(propertyAsset);
+		return propertyAsset;
+	}
+
 	
 	
 	

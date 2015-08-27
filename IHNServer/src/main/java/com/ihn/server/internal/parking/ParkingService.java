@@ -10,5 +10,6 @@ public interface ParkingService {
 	
 	public PropertyAsset getPropertyAsset(String propertyAssetId);
 	
+	public PropertyAsset createPropertyAsset(PropertyAsset propertyAsset);
 	
 }

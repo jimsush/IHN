@@ -49,6 +49,14 @@ public class SecurityServiceImpl implements SecurityService{
 		user.setPassword(password);
 		userDao.update(user);
 	}
+
+	@Override
+	public void updateManagedProperties(String userName, Set<String> scopes) {
+		UserDao userDao=BizContext.getBean("userDao",UserDao.class);
+		User user = userDao.getByKey(userName);
+		user.setScopes(scopes);
+		userDao.update(user);
+	}
 	
 	
 }

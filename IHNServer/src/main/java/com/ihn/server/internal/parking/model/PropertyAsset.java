@@ -1,9 +1,12 @@
 package com.ihn.server.internal.parking.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * property entity, such as Parking, Shopping mall...
  *
  */
+@XmlRootElement
 public class PropertyAsset {
 	
 	public static String PROP_TYPE_PARKING="parking";
@@ -33,6 +36,9 @@ public class PropertyAsset {
 	private String contactPhone;
 	
 	private String description;
+	
+	private String userObject;
+	
 
 	public String getId() {
 		return id;
@@ -149,6 +155,14 @@ public class PropertyAsset {
 	@Override
 	public String toString(){
 		return "id:"+id+" name:"+name;
+	}
+
+	public String getUserObject() {
+		return userObject;
+	}
+
+	public void setUserObject(String userObject) {
+		this.userObject = userObject;
 	}
 	
 }
