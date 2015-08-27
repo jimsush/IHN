@@ -53,5 +53,10 @@ public class UserDaoImpl implements UserDao{
 		jdbcTemplate.update("delete from user where username=?", new Object[]{userName}, new int[]{Types.VARCHAR} );
 	}
 
+	@Override
+	public void initCode() {
+		jdbcTemplate.execute("set names utf8");
+	}
+
 	
 }

@@ -1,68 +1,67 @@
 package com.ihn.server.rest;
 
 import java.util.Collection;
+import java.util.Map;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 
 public class JSONUtils {
 	
 	public static String makeJSONString(String key, Object value){
 		JSONObject json=new JSONObject();
-		try {
-			json.put(key, value);
-		} catch (JSONException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		json.put(key, value);
 		return json.toString();
 	}
 	
 	public static String makeJSONString(String key1, Object value1,String key2, Object value2){
 		JSONObject json=new JSONObject();
-		try {
-			json.put(key1, value1);
-			json.put(key2, value2);
-		} catch (JSONException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		json.put(key1, value1);
+		json.put(key2, value2);
 		return json.toString();
 	}
 	
 	
 	public static String makeJSONString(String key1, Object value1,String key2, Object value2,String key3, Object value3){
 		JSONObject json=new JSONObject();
-		try {
-			json.put(key1, value1);
-			json.put(key2, value2);
-			json.put(key3, value3);
-		} catch (JSONException e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		json.put(key1, value1);
+		json.put(key2, value2);
+		json.put(key3, value3);
 		return json.toString();
 	}
 	
 	public static String makeJSONString(String[] key, Object[] value){
 		JSONObject json=new JSONObject();
 		int len=key.length;
-		try {
-			for(int i=0;i<len;i++){
-				json.put(key[i], value[i]);
-			}
-		} catch (JSONException e) {
-			throw new RuntimeException(e.getMessage());
+		for(int i=0;i<len;i++){
+			json.put(key[i], value[i]);
 		}
 		return json.toString();
 	}
 	
 	@SuppressWarnings("rawtypes")
 	public static String makeJSONStringFromCollection(Collection objs){
-		JSONArray list = new JSONArray();
-		for(Object obj : objs){
-			list.put(obj);
-		}
-		return list.toString();
+		JSONArray obj=JSONArray.fromObject(objs);
+		return obj.toString();
 		
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static String makeJSONStringFromMap(Map objs){
+		JSONArray obj=JSONArray.fromObject(objs);
+		return obj.toString();
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static String makeJSONStringFromObject(Object obj){
+		if(obj instanceof Collection)
+			return makeJSONStringFromCollection((Collection)obj);
+		else if(obj instanceof Map)
+			return makeJSONStringFromMap((Map)obj);
+		
+		JSONObject json=JSONObject.fromObject(obj);
+		return json.toString();
 		
 	}
 

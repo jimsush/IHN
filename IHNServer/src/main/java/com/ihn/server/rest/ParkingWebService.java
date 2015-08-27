@@ -10,9 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
-
 import com.ihn.server.internal.launch.BizContext;
 import com.ihn.server.internal.parking.ParkingService;
 import com.ihn.server.internal.parking.model.PropertyAsset;
@@ -35,22 +32,11 @@ public class ParkingWebService {
 		
 		ParkingService parkingService=BizContext.getBean("parkingService",ParkingService.class);
 		Set<PropertyAsset> assets=new HashSet<PropertyAsset>();
-		JSONArray list = new JSONArray();
 		for(String propertyAssetId : scopes){
 			PropertyAsset propertyAsset = parkingService.getPropertyAsset(propertyAssetId);
 			assets.add(propertyAsset);
-			
-			JSONObject json=new JSONObject();
-			json.put("id",propertyAsset.getId());
-			json.put("name",propertyAsset.getName());
-			json.put("corp",propertyAsset.getCorp());
-			json.put("city",propertyAsset.getCity());
-			json.put("address",propertyAsset.getAddress());
-			json.put("longitude",propertyAsset.getLongitude());
-			json.put("latitude",propertyAsset.getLatitude());
-			list.put(json);
 		}
-		return list.toString();//JSONUtils.makeJSONStringFromCollection(assets);
+		return JSONUtils.makeJSONStringFromObject(assets);
 	}
 	
 	@GET

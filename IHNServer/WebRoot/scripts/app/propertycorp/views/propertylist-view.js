@@ -70,7 +70,6 @@ define([
                     	}
                     });
                     
-                    debugger
                     var username1=IHNCookie.readCookie("user");
                     var newPassword=new PasswordModel;
                     newPassword.set({userName: username1, password: password1.val()});

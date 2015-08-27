@@ -6,6 +6,8 @@ import com.ihn.server.internal.security.model.User;
 
 public interface UserDao {
 	
+	public void initCode();
+	
 	public List<User> getAll();
 	
 	public User getByKey(String userName);

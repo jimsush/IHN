@@ -1,3 +1,13 @@
+show variables like 'character%';
+
+set character_set_client=gbk;
+set character_set_connection=gbk;
+set character_set_database=gbk;
+set character_set_results=gbk;
+set character_set_server=gbk;
+
+show variables like 'character%';
+
 drop table user;
 CREATE TABLE user (
   username varchar(100) NOT NULL default '',
@@ -22,10 +32,9 @@ create table propertyasset(
   latitude double default 0
 ) ENGINE=MyISAM DEFAULT CHARSET=gbk;
 desc propertyasset;
-insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P1','LuJiaZui Century Financial Plaza','Shanghai','258 JinKang Road','LJZ',121.540844,31.216669);
-insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P2','PuDong Software Parking','Shanghai','ZhangJiang Hi-tech Park','LJZ',121.535813,31.226057);
-insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P3','People Square Parking','Shanghai','People Square HuangPu District','LJZ',121.479399, 31.23847);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P1','陆家嘴世纪金融广场','上海','浦东锦康路258号','LJZ',121.540844,31.216669);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P2','浦东软件园','上海','浦东张江高科','LJZ',121.535813,31.226057);
+insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P3','人民广场','上海','黄埔人民广场','LJZ',121.479399, 31.23847);
 
 select * from propertyasset;
-
 
