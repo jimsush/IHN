@@ -10,7 +10,7 @@
 
 <div id="resetpassword-form" title="修改密码">
 <p class="validateTips">所有的表单字段都是必填的。</p>
-<form>
+<form method="post">
 <fieldset>
 <label for="password">新设密码</label>
 <input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all">
@@ -39,10 +39,10 @@
 </table>
 </div>
 
-<div id="manageproperty-div" title="管理物业">
+<div id="mgproperty-div" title="管理物业">
 
-<div id="manageproperty-btn-div">
-	<form id="manageproperty-form">
+<div id="mgproperty-btn-div">
+	<form id="mgproperty-form" method="post" onsubmit="return false;">
 		<input type="radio" id="radioSelectAll" name="radio" /><label for="radioSelectAll">全选</label>
 		<input type="radio" id="radioUnselectAll" name="radio" checked="checked"/><label for="radioUnselectAll">不选</label>
 		<button id='btnAddProperty' style="margin-left:30px;">增加物业</button>
@@ -66,7 +66,7 @@
 
 <div id="addproperty-div" style="display:none">
 请输入物业详细信息:
-<form id="property-form">
+<form id="property-form" method="post" onsubmit="return false;">
 <fieldset>
 	<label for="propertyName">物业名称</label>
 	<input type="text" name="propertyName" id="propertyName" value="" class="text ui-widget-content ui-corner-all">

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -35,12 +35,17 @@ public class ParkingWebService {
 		Set<PropertyAsset> assets=new HashSet<PropertyAsset>();
 		for(String propertyAssetId : scopes){
 			PropertyAsset propertyAsset = parkingService.getPropertyAsset(propertyAssetId);
-			assets.add(propertyAsset);
+			if(propertyAsset!=null){
+				assets.add(propertyAsset);
+			}else{
+				//
+				
+			}
 		}
 		return JSONUtils.makeJSONStringFromObject(assets);
 	}
 		
-	@PUT
+	@POST
 	@Path("properties")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String createNewProperty(PropertyAsset asset){

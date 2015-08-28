@@ -4,7 +4,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -20,7 +20,7 @@ import com.ihn.server.internal.security.model.User;
 @Produces(MediaType.APPLICATION_JSON)
 public class SecurityWebService {
 	
-	@POST
+	@PUT
 	@Path("password")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String changePassword(User user){

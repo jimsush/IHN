@@ -24,17 +24,26 @@ define([
     },
     
     resetpassword: function(href) {
-      curRoute = 'resetpassword';
-      this.propertyListView.openResetPasswordDialog();
+    	//debugger
+    	if(this.curRoute=='resetpassword')
+    		return;
+        this.curRoute = 'resetpassword';
+        this.propertyListView.openResetPasswordDialog();
     },
     
     manageproperty: function(href){
-    	curRoute = 'manageproperty';
+    	//debugger
+    	if(this.curRoute=='manageproperty')
+    		return;
+    	this.curRoute = 'manageproperty';
         this.propertyListView.openManagePropertyDialog();
     },
     
     adminaccount: function(href){
-    	curRoute = 'adminaccount';
+    	//debugger
+    	if(this.curRoute=='adminaccount')
+    		return;
+    	this.curRoute = 'adminaccount';
     	this.propertyListView.openAdminAccountDialog();
     }
     
