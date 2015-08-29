@@ -13,10 +13,10 @@ define([
 	  template: _.template(MainContentTemplate),
 	  
 	  initialize: function () {
-		  this.$el.html(this.template());
+		  //this.$el.html(this.template());
 		  this.render();
-		  this.draw();
-		  this.setEvents();
+		  //this.draw();
+		  //this.setEvents();
       },
       
       render: function () {

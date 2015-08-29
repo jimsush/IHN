@@ -14,7 +14,7 @@ CREATE TABLE user (
   password varchar(100) default '',
   role varchar(100) default '',
   corp varchar(100) default '',
-  scopes varchar(100) default ''
+  scopes varchar(1000) default ''
 ) ENGINE=MyISAM DEFAULT CHARSET=gbk;
 desc user;
 insert user(username,password,role,corp,scopes) values('admin','admin','admin','LJZ','LJZ_P1,LJZ_P2,LJZ_P3'); 

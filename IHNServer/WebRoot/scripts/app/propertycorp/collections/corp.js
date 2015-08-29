@@ -2,6 +2,7 @@ define([
 ], function() {
   
   var PropertyAsset=Backbone.Model.extend({
+	  urlRoot:'/rest/park/properties',
 	  defaults:{
 		  id:'',
 		  name:'',
@@ -25,6 +26,7 @@ define([
 	
   var PropertyAssetCollection = Backbone.Collection.extend({
 	  model: PropertyAsset,
+	  url: '/rest/park/properties'
   });
   
   return PropertyAssetCollection;

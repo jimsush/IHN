@@ -14,4 +14,6 @@ public interface SecurityService {
 	
 	public void changePassword(String userName,String password);
 
+	public void updateManagedProperties(String userName, Set<String> scopes);
+
 }

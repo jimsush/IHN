@@ -9,7 +9,7 @@ define([
             this.render();
             this.initBaiduMapAPI();
             this.listenTo(this.collection,'reset', this.resetAll);
-            //this.listenTo(this.collection,'add', this.addOne);
+            this.listenTo(this.collection,'add', this.addOne);
         },
         
         render: function () {
@@ -32,16 +32,25 @@ define([
     		this.map.addControl(top_left_navigation);     
     		this.map.addControl(top_right_navigation);
     		
-    		var selfMap=this.map;
-    		var selfOpendmap=this.open3dmap;
-    		
+    		// selfMap=this.map;
+    		//var selfOpendmap=this.open3dmap;
+    		var self=this;
     		this.collection.each(function(propertyAsset){
-    			var marker = new BMap.Marker(new BMap.Point(propertyAsset.get('longitude'), propertyAsset.get('latitude')));
-    			selfMap.addOverlay(marker);
-        		var label = new BMap.Label(propertyAsset.get('id')+"#"+propertyAsset.get('name'),{ offset : new BMap.Size(20,-10)});
-        		marker.setLabel(label);
-        		marker.addEventListener("click", selfOpendmap);
+    			//var marker = new BMap.Marker(new BMap.Point(propertyAsset.get('longitude'), propertyAsset.get('latitude')));
+    			//selfMap.addOverlay(marker);
+        		//var label = new BMap.Label(propertyAsset.get('id')+"#"+propertyAsset.get('name'),{ offset : new BMap.Size(20,-10)});
+        		//marker.setLabel(label);
+        		//marker.addEventListener("click", selfOpendmap);
+    			self.addOne(propertyAsset);
     		});
+        },
+        
+        addOne: function(propertyAsset){
+        	var marker = new BMap.Marker(new BMap.Point(propertyAsset.get('longitude'), propertyAsset.get('latitude')));
+			this.map.addOverlay(marker);
+    		var label = new BMap.Label(propertyAsset.get('id')+"#"+propertyAsset.get('name'),{ offset : new BMap.Size(20,-10)});
+    		marker.setLabel(label);
+    		marker.addEventListener("click", this.open3dmap);
         },
         
         initBaiduMapAPI: function(){

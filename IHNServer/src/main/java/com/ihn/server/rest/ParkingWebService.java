@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -34,9 +35,30 @@ public class ParkingWebService {
 		Set<PropertyAsset> assets=new HashSet<PropertyAsset>();
 		for(String propertyAssetId : scopes){
 			PropertyAsset propertyAsset = parkingService.getPropertyAsset(propertyAssetId);
-			assets.add(propertyAsset);
+			if(propertyAsset!=null){
+				assets.add(propertyAsset);
+			}else{
+				//
+				
+			}
 		}
 		return JSONUtils.makeJSONStringFromObject(assets);
+	}
+		
+	@POST
+	@Path("properties")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String createNewProperty(PropertyAsset asset){
+		ParkingService parkingService=BizContext.getBean("parkingService",ParkingService.class);
+		parkingService.createPropertyAsset(asset);
+		
+		SecurityService securityService=BizContext.getBean("securityService",SecurityService.class);
+		String userName=asset.getUserObject();
+		Set<String>  scopes=securityService.getManagedProperties(userName);
+		scopes.add(asset.getId());
+		securityService.updateManagedProperties(userName,scopes);
+		
+		return JSONUtils.makeJSONStringFromObject(asset);
 	}
 	
 	@GET
@@ -50,17 +72,6 @@ public class ParkingWebService {
 		}catch(Exception ex){
 			return JSONUtils.makeJSONString("result", false, "reason", ex.getMessage());
 		}
-		
-		/*
-		return "[{\"id\":\"LJZ_P1\", \"name\": \"LuJiaZui Century Financial Plaza\","
-				+"\"city\" : \"Shanghai\","
-				+ " \"longitude\": 121.540844, \"latitude\":31.216669},"
-				
-				+"{\"id\" : \"PDSP_P1\",\"name\":\"PuDong Software Park\",\"city\":\"Shanghai\",\"longitude\":121.535813,\"latitude\":31.226057},"
-				+"{\"id\" : \"PS_P1\",\"name\":\"People Squre\",\"city\":\"Shanghai\",\"longitude\":121.479399,\"latitude\":31.23847}"
-				
-				+"]";
-		*/
 	}
 	
 	@GET

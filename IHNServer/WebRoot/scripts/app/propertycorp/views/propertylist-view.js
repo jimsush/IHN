@@ -14,6 +14,7 @@ define([
         initialize: function () {
             this.render();
             this.listenTo(this.collection, 'reset', this.resetAll);
+            this.listenTo(this.collection, 'add', this.addOne);
             
             this.initResetPasswordDialog();
             this.initManagePropertyDialog();
@@ -30,21 +31,25 @@ define([
         },
         
         doToggleMenu: function(event){
-        	var e = $('#menu-div');        	
-        	if(e[0].style.display == 'block')
-               e[0].style.display = 'none';
-            else
-               e[0].style.display = 'block';
+        	$('#menu-div').toggle();
         },
         
         resetAll : function(){
+        	//debugger
+        	var self=this;
         	this.collection.each(function(model){
-        		$("#proplist").append("<li style='line-height:38px;'><a href='index.html?id="+model.get('id')+"'>"+model.get('name')+","+model.get('city')+","+model.get('address')+"</a></li>");
+        		self.addOne(model);
         	});
         },
         
         addOne: function(model){
+        	//debugger
         	$("#proplist").append("<li style='line-height:38px;'><a href='#'>"+model.get('name')+","+model.get('city')+","+model.get('address')+"</a></li>");
+        	$( "#properties tbody" ).append( "<tr>" +
+					"<td>" + model.get('id') + "</td>" +
+					"<td>" + model.get('name') + "</td>" +
+					"<td>" + model.get('city') + "</td>" +
+					"<td>" + model.get('address') + "</td>" +"</tr>" );
         },
         
         initResetPasswordDialog: function(){
@@ -63,16 +68,17 @@ define([
                     allFields.removeClass( "ui-state-error" );
                     
                     var PasswordModel=Backbone.Model.extend({
-                    	urlRoot: '/rest/sm/password',
+                    	url: '/rest/sm/password',
                     	defaults:{
-                    		userName:'',
-                    		password:''
+                    		id:null,
+                    		userName:null,
+                    		password:null
                     	}
                     });
                     
                     var username1=IHNCookie.readCookie("user");
                     var newPassword=new PasswordModel;
-                    newPassword.set({userName: username1, password: password1.val()});
+                    newPassword.set({id: username1, userName: username1, password: password1.val()});
                     
                     var mythis=this;
                     newPassword.save();
@@ -98,20 +104,69 @@ define([
         },
         
         initManagePropertyDialog: function(){
+        	$('#addproperty-div').hide();
+        	
         	var self=this;
-        	$("#manageproperty-div").dialog({
+        	$("#mgproperty-div").dialog({
                 autoOpen: false,
-                height: 300,
-                width: 500,
+                height: 500,
+                width: 700,
                 modal: true,
                 close: function() {
                   $( this ).dialog( "close" );
                   self.router.navigate(""); 
                 }
-              });
+            });
+        	$('#btnAddProperty').button().click(function(e){
+        		//debugger
+        		$('#addproperty-div').show();
+        	});
+        	$('#btnCancelProperty').button().click(function(e){
+        		$('#addproperty-div').hide();
+        		
+        	});
+        	$('#btnSubmitProperty').button().click(function(e){
+        		//debugger
+        		//var id1='LJZ_P'+new Date().getTime();
+        		var name1=$('#propertyName').val();
+        		var city1=$('#city').val();
+        		var address1=$('#address').val();
+        		var longitude1=$('#longitude').val();
+        		var latitude1=$('#latitude').val();
+        		var PropertyAssetModel=Backbone.Model.extend({
+                	url: '/rest/park/properties',
+                	defaults:{
+                		id:null,
+                		name:'',
+                		city:'Shanghai',
+                		address:'',
+                		longitude:121,
+                		latitude:32,
+                		corp:'LJZ',
+                		userObject: null
+                	}
+                });
+        		
+        		var username1=IHNCookie.readCookie("user");
+        		var newItem=new PropertyAssetModel;
+        		newItem.set({userObject: username1, name: name1, city: city1, address: address1, longitude: longitude1, latitude: latitude1});
+        		newItem.save();
+        		self.collection.add(model);
+				$('#addproperty-div').hide();
+        		//newItem.save({
+        		//	success: function(model){
+        		//		debugger
+        		//		self.collection.add(model);
+        		//		$('#addproperty-div').hide();
+        		//	}
+        		//});
+        	});
         },
         openManagePropertyDialog: function(){
-        	$("#manageproperty-div").dialog("open");
+        	//debugger
+        	$( "#mgproperty-form" ).buttonset();
+        	//debugger
+        	$("#mgproperty-div").dialog("open");
         },
         
         initAdminAccountDialog: function(){
