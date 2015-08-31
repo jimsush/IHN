@@ -118,7 +118,6 @@ define([
                 }
             });
         	$('#btnAddProperty').button().click(function(e){
-        		//debugger
         		$('#addproperty-div').show();
         	});
         	$('#btnCancelProperty').button().click(function(e){
@@ -126,8 +125,6 @@ define([
         		
         	});
         	$('#btnSubmitProperty').button().click(function(e){
-        		//debugger
-        		//var id1='LJZ_P'+new Date().getTime();
         		var name1=$('#propertyName').val();
         		var city1=$('#city').val();
         		var address1=$('#address').val();
@@ -149,23 +146,22 @@ define([
         		
         		var username1=IHNCookie.readCookie("user");
         		var newItem=new PropertyAssetModel;
+        		var newId;
         		newItem.set({userObject: username1, name: name1, city: city1, address: address1, longitude: longitude1, latitude: latitude1});
-        		newItem.save();
-        		self.collection.add(model);
-				$('#addproperty-div').hide();
-        		//newItem.save({
-        		//	success: function(model){
-        		//		debugger
-        		//		self.collection.add(model);
-        		//		$('#addproperty-div').hide();
-        		//	}
-        		//});
+        		//debugger
+        		newItem.save(null, {
+            			success: function(model, response, options){
+            				self.collection.add(model);
+                    		$('#addproperty-div').hide();
+            			}, 
+            			error: function(model, response, options){
+            				debugger
+            			}
+            		});
         	});
         },
         openManagePropertyDialog: function(){
-        	//debugger
         	$( "#mgproperty-form" ).buttonset();
-        	//debugger
         	$("#mgproperty-div").dialog("open");
         },
         
