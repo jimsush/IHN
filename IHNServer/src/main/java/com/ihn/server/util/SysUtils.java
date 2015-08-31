@@ -5,6 +5,10 @@ import java.util.Set;
 
 public class SysUtils {
 
+	public static String getOSPlatform(){
+		return System.getProperty("os.name");
+	}
+	
 	public static void sleepNotException(long millis){
         try{
             Thread.sleep(millis);
