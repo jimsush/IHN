@@ -96,21 +96,21 @@ define([
       },
       
       createWall: function() {
-      	var wall=new mono.Cube(5,300,500);
-			wall.setPosition(-500,-50,0);
-			wall.setStyle('m.texture.image','../images/wall01_inner_3d.png').setStyle('m.type','phong').setStyle('m.texture.repeat',new mono.Vec2(20,20));
-			wall.setSelectable(false);
-			this.box.add(wall);
+         var wall=new mono.Cube(5,300,500);
+			   wall.setPosition(-500,-50,0);
+			   wall.setStyle('m.texture.image','../images/wall01_inner_3d.png').setStyle('m.type','phong').setStyle('m.texture.repeat',new mono.Vec2(20,20));
+			   wall.setSelectable(false);
+			   this.box.add(wall);
       },
       
       createBuilding: function(x, y, z) {
-      	var building = new mono.Cube(800, 300, 400);
-      	building.setPosition(x, y+150, z);
+      	var building = new mono.Cube(800, 300, 400); //长width,高,宽depth
+      	building.setPosition(x, y+150, z); 
       	building.setStyle('m.texture.image', '../images/wall03_3d_1.png');
       	building.setStyle('m.type','phong');
-      	building.setStyle('m.texture.repeat', new mono.Vec2(20, 20));
+      	building.setStyle('m.texture.repeat', new mono.Vec2(20, 20)); //20*20
       	building.setSelectable(true);
-			this.box.add(building);
+			  this.box.add(building);
 			
 			//add window
 			//front
@@ -125,6 +125,7 @@ define([
 					this.box.add(win);
 				}
 			}
+			
 			//back
 			for(var i = 0; i < 4; i++) {
 				for(var j = 0; j < 13; j++) {
@@ -154,7 +155,7 @@ define([
       	parkSpace.setStyle('m.type','phong');
       	parkSpace.setStyle('m.texture.repeat', new mono.Vec2(20, 20));
       	parkSpace.setSelectable(true);
-			this.box.add(parkSpace);
+			  this.box.add(parkSpace);
 			
 			//record park space infomation
 			var index = this.parkingSpaceContainer.length;
@@ -178,11 +179,11 @@ define([
       	car.setStyle('m.alignment', mono.BillboardAlignment.bottomCenter);
       	car.setStyle('m.transparent', true);
       	car.setSelectable(false);
-			this.box.add(car);
+			  this.box.add(car);
       	
-			//update park space info
-			ps.free = false;
-			ps.cId = car._id;
+			  //update park space info
+			  ps.free = false;
+			  ps.cId = car._id;
 			
       	return true;
       },
@@ -194,27 +195,29 @@ define([
       	this.box.removeById(ps.cId);
       	
       	//update park space info
-			ps.free = true;
-			ps.cId = null;
+			  ps.free = true;
+			  ps.cId = null;
 			
       	return true;
       },
       
       envmap : ['images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg'],
+      
       bidFinder: null,
       
       setup: function(htmlElementId){				
     	    var self=this;
     	  
+    	    debugger
     	    var network = new mono.Network3D(this.box, camera, this.$el.find('#myCanvas')[0]);
     	    
-    	    //var network= new mono.Network3D();
-    		network.setClearColor('#39609B');
+    	    network.setClearColor('#39609B');
     		
     		var camera = new mono.PerspectiveCamera(30, 1.5, 30, 30000);
-    		camera.setPosition(0,5000,8000);
+    		camera.setPosition(0,5000,8000); //左上方去看整个场地
     		network.setCamera(camera);
     		
+    		//DefaultInteraction交互模式包括可以在3D场景中旋转镜头，通过鼠标滚轮缩放镜头，键盘操作镜头等
     		var interaction = network.getDefaultInteraction();
     		interaction.yLowerLimitAngle=Math.PI/180*2;
     		interaction.yUpLimitAngle=Math.PI/2;
@@ -223,10 +226,10 @@ define([
     		interaction.zoomSpeed=1;
     		interaction.panSpeed=0.2;
 
+				//从Client属性中找到bid属性为某个值的element element.setClient('bid', value)
     		this.bidFinder = new mono.QuickFinder(network.getDataBox(), 'bid', 'client');
     		network.isSelectable = function(element){return false;};		
-    		//document.getElementById(htmlElementId).appendChild(network.getRootView());
-    		mono.Utils.autoAdjustNetworkBounds(network,document.documentElement,'clientWidth','clientHeight');
+    		mono.Utils.autoAdjustNetworkBounds(network,document.documentElement,'clientWidth','clientHeight');//自适应缩放
     		
     		network.getRootView().addEventListener('dblclick', function(e){
     			self.handleDoubleClick(e, network);
@@ -238,11 +241,13 @@ define([
     	},
 
     	loadData: function(box){
+    		debugger
+    		
     		this.createCar(box, -880, 70, -2290, Math.PI/180*5);
     		this.createFloor(box, 5000, 0, 5400);
     		this.createFloor(box, 1000, 330, 2000).setPosition(2995, 190, -1655);
     		var floor01 = this.createFloor(box, 500, 330, 2000);
-    		floor01.s({'m.transparent':true,'m.opacity':0.5}).setPosition(3255, 590, -1655);
+    		floor01.s({'m.transparent':true,'m.opacity':0.5}).setPosition(3255, 590, -1655); //transparent原型对象透明度,opacity整体材质的透明度0.5
     		floor01.setClient('bid', 'floor01');
     		this.createSpot(box, 0, -600, false, 'A0', 10);
     		this.createSpot(box, 0, -1300, true, 'B0', 10);
@@ -263,6 +268,7 @@ define([
     	},
 
     	createLine: function(box){
+    		// 人与车位间的路线
     		var path=new mono.Path();
     		path.moveTo(-580,0,-2180);
     		path.lineTo(-500,0,-1800);
@@ -275,7 +281,7 @@ define([
     		path.lineTo(3130,600,-2400);
     		path.lineTo(3130,600,-1200);
 
-    		path = mono.PathNode.prototype.adjustPath(path, 100);
+    		path = mono.PathNode.prototype.adjustPath(path, 100); //PathNode.adjustPath可以自动将给定的路径进行曲线处理,adjustPath(path, radius自动转弯的弧度, times片数);
 
     		var cable=new mono.PathNode(path, 100, 10);
     		cable.s({
@@ -287,8 +293,8 @@ define([
     			'm.texture.image': 'images/wall.jpg',
     			'm.visible': false
     		});
-    		cable.setStartCap('plain');
-    		cable.setEndCap('plain');
+    		cable.setStartCap('plain'); //’plain’ ：平面封闭,开始部分
+    		cable.setEndCap('plain'); //结束部分
     		cable.setPositionY(20);
     		cable.setClient('bid', 'cable01');
     		box.add(cable);
@@ -299,21 +305,22 @@ define([
     			'm.alignment': mono.BillboardAlignment.bottomCenter,
     			'm.transparent': true,
     		});
-    		pin.setScale(200,0.1,1);
+    		pin.setScale(200,0.1,1); //比例尺
     		pin.setPosition(3130,600,-1200);
     		pin.setClient('bid','pin02');
     		box.add(pin);
     	},
 
     	createLift: function(box){
-    		var cube=new mono.Cube(200, 1500, 200);
-    		cube.setPosition(3610, cube.getHeight()/2, -2400);
+    		// 电梯
+    		var cube=new mono.Cube(200, 1500, 200);  //new mono.Cube(width宽, height高, depth长,segmentsW, segmentsH, segmentsD);
+    		cube.setPosition(3610, cube.getHeight()/2, -2400); //在物体的自身的中心点,坐标为(0, 0, 0)时，立方体将有一半在水平坐标下方
     		cube.s({
     			'm.side': mono.DoubleSide,
     			'm.texture.image': 'images/grid.png',
     			'left.texture.visible': false,
     			'm.transparent': true,
-    			'm.texture.repeat': new mono.Vec2(2,10),
+    			'm.texture.repeat': new mono.Vec2(2,10), //2*10层
     		});
     		box.add(cube);
 
@@ -329,6 +336,7 @@ define([
     	},
 
     	createPlant: function(box, x, z){
+    		//3盆植物
     		var w=30;
     		var h=120;
     		var pic='images/plant.png';
@@ -386,7 +394,7 @@ define([
     		var parts=[];
     		var ops=[];
     		var count=20;
-    		for(var i=0;i<count;i++){
+    		for(var i=0;i<count;i++){ //20台阶的楼梯
     			var cube=new mono.Cube(300,10,500-20*i);
     			cube.setPosition(0, i*10, 20*(count-i)/2);
     			cube.s({
@@ -400,9 +408,9 @@ define([
     			parts.push(cube);
     			ops.push('+');
     		}
-    		var stair=new mono.ComboNode(parts, ops);
+    		var stair=new mono.ComboNode(parts, ops); //组合成一个group node
     		stair.setPosition(2440, 10, -2490);
-    		stair.setRotationY(-Math.PI/2);
+    		stair.setRotationY(-Math.PI/2); //
     		box.add(stair);
     	},
 
@@ -414,9 +422,9 @@ define([
     		for(var i=1;i<points.length; i++){
     			path.lineTo(points[i][0], points[i][1]);
     		}
-    		path = mono.PathNode.prototype.adjustPath(path, 150);
+    		path = mono.PathNode.prototype.adjustPath(path, 150); //150 is segments切片数
 
-    		var trail=new mono.PathCube(path, 40, 10);
+    		var trail=new mono.PathCube(path, 40, 10); //停车场锚点到楼上锚点的路径,path,width,height,curvesegments切片数,repeat
     		trail.s({
     			'm.type': 'phong',
     			'm.specularStrength': 30,
@@ -429,10 +437,10 @@ define([
     		trail.setClient('bid','trail01');
     		box.add(trail);
 
-    		var pin=new mono.Billboard();
+    		var pin=new mono.Billboard(); //楼上的logo
     		pin.s({
     			'm.texture.image': 'images/pin.png',		
-    			'm.alignment': mono.BillboardAlignment.bottomCenter,
+    			'm.alignment': mono.BillboardAlignment.bottomCenter,//中间的底部(挨地)
     			'm.transparent': true,
     		});
     		pin.setScale(200,0.1,1);
@@ -445,6 +453,7 @@ define([
     		var obj='images/worker.obj';
     		var mtl='images/worker.mtl';               
     			
+    		// load人
     		var loader = new mono.OBJMTLLoader();
     		loader.load(obj, mtl, {'worker': 'images/worker.png',}, function (object) {                    			
     			object.setScale(3,3,3);		
@@ -479,7 +488,7 @@ define([
     		};
     		loader.load(obj, mtl, pics, function (object) {                    			
     			object.setPosition(x,y,z);
-    			object.setRotationY(rotation);
+    			object.setRotationY(rotation);//旋转5度
     			box.addByDescendant(object);		
 
     			var updater=function(element){
@@ -507,7 +516,7 @@ define([
     		path.lineTo(0, 760);
     		path.lineTo(0,0);
 
-    		var node=new mono.ShapeNode(path, 1, 220, true, 200);
+    		var node=new mono.ShapeNode(path, 1, 220, true, 200);//形状块,不规则的场所
     		node.s({
     			'm.type': 'phong',
     			'm.color': '#D7DF01',
@@ -528,7 +537,7 @@ define([
     			'm.transparent': true,
     		});
     		pin.setScale(200,200,1);
-    		pin.setParent(node); 
+    		pin.setParent(node); //binboard依附在node上
     		pin.setPositionX(800);
     		pin.setPositionY(node.getAmount());
     		pin.setPositionZ(-500);
@@ -589,6 +598,7 @@ define([
     		this.createWall(box, [[5000,4600],[5000,2950],[4500,2950]]).s({'m.transparent':true,'m.opacity':0.5}).setPositionY(580);
     	},
 
+      //所有的墙
     	createWall:function(box, data, inside, door){
     		var path=new mono.Path();
     		path.moveTo(data[0][0], data[0][1], 0);
@@ -598,7 +608,7 @@ define([
 
     		var thick=20, height=200;
     		var outsideColor= inside ? '#B8CAD5' : '#CEE3F6', insideColor='#B8CAD5', topColor='#D6E4EC';
-    		var wall= new mono.PathCube(path, thick, height, 1, 100);
+    		var wall= new mono.PathCube(path, thick, height, 1, 100); //路径方块,沿着某个路径移动形成的3D物体
     		wall.s({
     			'outside.m.color': outsideColor,
     			'inside.m.type': 'basic',
@@ -628,7 +638,7 @@ define([
     	},
 
     	createFloor:function (box, width, y, height){	
-    		var floor=new mono.Cube(width, 30, height);
+    		var floor=new mono.Cube(width, 30, height); //长width,宽height
     		floor.setPositionY(-floor.getHeight()/2+y);
     		floor.s({
     			'm.type': 'phong',
@@ -653,7 +663,7 @@ define([
     			'm.ambient': '#BEC9BE',
     			'top.m.type':'basic',
     			'top.m.texture.image': 'images/floor.jpg',
-    			'top.m.texture.repeat': new mono.Vec2(width/250*2,height/500*2),
+    			'top.m.texture.repeat': new mono.Vec2(width/250*2,height/500*2),  //横纵拉伸多少倍
     			'top.m.polygonOffset':true,
     			'top.m.polygonOffsetFactor':3,
     			'top.m.polygonOffsetUnits':3,
@@ -675,18 +685,18 @@ define([
     		cubeBorder.s({
     			'm.color': '#E4F6F6',
     		});	
-    		var area=new mono.ComboNode([cubeBorder, cube, cube], ['-', '+']);
-    		area.setPosition(x, 0, z);
+    		var area=new mono.ComboNode([cubeBorder, cube, cube], ['-', '+']);  //先从cubeBorder中去掉cube,然后再加上cube
+    		area.setPosition(x, 0, z);// x=0,z=-600,-1300,-2300
     		if(reversed){
-    			area.setRotationY(Math.PI);
+    			area.setRotationY(Math.PI);//倒放过来,同一平面旋转180度
     		}
     		box.add(area);
 
-    		var width=250;
+    		var width=250; 
     		var height=500;
 
     		for(var i=0;i<10;i++){
-    			var spot=new mono.Cube(width, 1, height);
+    			var spot=new mono.Cube(width, 1, height); //250*10~2600, 500~600 z,depth,height
     			spot.s({
     				'm.visible': false,
     			});
@@ -696,30 +706,30 @@ define([
     				'top.m.visible': true,
     				'top.m.texture.image': 'images/spot.png',		
     			});
-    			spot.setPosition(i*250-1100, 1, 0);
+    			spot.setPosition(i*250-1100, 1, 0); //z=0 relative position, 1100=?
     			spot.setParent(area);
-    			spot.setClient('bid', prefix+(id+i));
+    			spot.setClient('bid', prefix+(id+i)); //C044,045,C046(第3个位置)
     			box.add(spot);
 
-    			var block=new mono.Cylinder(5, 5, width * 0.6);
+    			var block=new mono.Cylinder(5, 5, width * 0.6); //停车杠
     			block.s({
     				'm.type':'phong',
     				'm.color': '#D39C1A',
     				'm.ambient': '#D39C1A',
     				'side.m.texture.image': 'images/block.png',		
-    				'side.m.texture.repeat': new mono.Vec2(1, 3),
+    				'side.m.texture.repeat': new mono.Vec2(1, 3), //3段
     				'top.m.color': 'black',
     				'bottom.m.color': 'black',
     				'm.specularStrength': 20,
     			});
     			block.setParent(spot);
-    			block.setRotationZ(Math.PI/2);
-    			block.setPositionY(5);//block.getHeight());
+    			block.setRotationZ(Math.PI/2); //与z轴垂直
+    			block.setPositionY(5); //5度
     			block.setPositionZ(-215);
     			box.add(block);
 
     			var label=new mono.Cube(150,2,75);		
-    			var canvas=this.generateAssetImage(prefix+(id+i), '#E6E6E6');
+    			var canvas=this.generateAssetImage(prefix+(id+i), '#E6E6E6'); //编号
     			label.setStyle('m.visible', false);
     			label.s({
     				'top.m.visible': true,
@@ -736,7 +746,7 @@ define([
     	},
 
     	createPoleObject:function(box, x, z){
-    		var cube=new mono.Cube(45, 70, 45);
+    		var cube=new mono.Cube(45, 70, 45);//下段
     		cube.s({
     			'm.type': 'phong',
     			'm.texture.image': 'images/pole.png',
@@ -748,9 +758,8 @@ define([
     			'top.m.ambient': '#E6EEF6',//'#BEC9BE',
     		});
     		cube.setPositionY(cube.getHeight()/2);
-    		//box.add(cube);
-
-    		var cube2=new mono.Cube(40, 300, 40);
+    		
+    		var cube2=new mono.Cube(40, 300, 40);//上段
     		cube2.s({
     			'm.type': 'phong',
     			'm.texture.image': 'images/floor.jpg',
@@ -760,15 +769,15 @@ define([
     		});
     		cube2.setPositionY(cube2.getHeight()/2);
     		
-    		var pole=new mono.ComboNode([cube, cube2], ['+']);
+    		var pole=new mono.ComboNode([cube, cube2], ['+']); //上下2段
     		pole.setPositionX(x);
     		pole.setPositionZ(z);
     		box.add(pole);
     	},
 
     	createPole:function(box){
-    		for(var i=0;i<3;i++){
-    			this.createPoleObject(box, -1280+i*1300, -2600);
+    		for(var i=0;i<3;i++){ //3排,每排4根柱子
+    			this.createPoleObject(box, -1280+i*1300, -2600);//x,z,第2根柱子在O心,i=1,x接近0
     			this.createPoleObject(box, -1280+i*1300, -1600);
     			this.createPoleObject(box, -1280+i*1300, -950);
     			this.createPoleObject(box, -1280+i*1300, -320);
@@ -1065,8 +1074,8 @@ define([
     		left.setPosition(x-(width-frameEdge)/4, frameBottomEdge+1+left.getHeight()/2+y, z);
     		left.s({
     			'm.color': 'orange',
-    			'm.ambient': 'orange',
-    			'm.type': 'phong',
+    			'm.ambient': 'orange',  //材质的光照反射颜色
+    			'm.type': 'phong',     //phong支持光照效果，效率略低
     			'm.transparent': true,
     			'front.m.texture.image': 'images/door_left.png',					
     			'back.m.texture.image': 'images/door_right.png',					
