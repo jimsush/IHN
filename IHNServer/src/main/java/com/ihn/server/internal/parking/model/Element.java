@@ -40,6 +40,15 @@ public class Element {
 	
 	protected Boolean transparent;
 	protected Double opacity;
+	
+	protected String userdata;
+	
+	public String getUserdata() {
+		return userdata;
+	}
+	public void setUserdata(String userdata) {
+		this.userdata = userdata;
+	}
 	public String getParkid() {
 		return parkid;
 	}
