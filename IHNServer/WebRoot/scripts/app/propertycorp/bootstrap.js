@@ -41,6 +41,7 @@ require([
 		propertyAssetCollection.fetch({
 			  reset : true,
 			  success : function(collection, response, options){
+				  
 			  }, error : function(collection, response, options){
 				  alert(response+","+options);
 			  }

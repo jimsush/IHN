@@ -1,6 +1,7 @@
 package com.ihn.server.rest;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.ihn.server.internal.launch.BizContext;
 import com.ihn.server.internal.parking.ParkingService;
+import com.ihn.server.internal.parking.model.Element;
 import com.ihn.server.internal.parking.model.PropertyAsset;
 import com.ihn.server.internal.security.SecurityService;
 
@@ -69,6 +71,22 @@ public class ParkingWebService {
 			ParkingService parkingService=BizContext.getBean("parkingService",ParkingService.class);
 			PropertyAsset propertyAsset = parkingService.getPropertyAsset(propertyAssetId);
 			return JSONUtils.makeJSONString("result", true, "data", propertyAsset);
+		}catch(Exception ex){
+			return JSONUtils.makeJSONString("result", false, "reason", ex.getMessage());
+		}
+	}
+	
+	@GET
+	@Path("elements")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getElements(@QueryParam("parkid") String parkid,@QueryParam("category") String category) throws Exception{
+		try{
+			ParkingService parkingService=BizContext.getBean("parkingService",ParkingService.class);
+			List<Element> elements= parkingService.getElementsByParkId(parkid, category);
+			if(elements==null || elements.size()==0){
+				return JSONUtils.makeJSONString("result", false, "reason", "no elements for this parking");
+			}
+			return JSONUtils.makeJSONStringFromCollection(elements);
 		}catch(Exception ex){
 			return JSONUtils.makeJSONString("result", false, "reason", ex.getMessage());
 		}

@@ -38,3 +38,28 @@ insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P
 
 select * from propertyasset;
 
+drop table element;
+CREATE TABLE element (
+  parkid varchar(100),
+  id varchar(100),
+  type varchar(100),
+  name varchar(100),
+  parent varchar(100),
+  positionx double,
+  positiony double,
+  positionz double,
+  width double,
+  height double,
+  depth double,
+  picture varchar(100),
+  rotationx double,
+  rotationy double,
+  rotationz double,
+  transparent boolean,
+  opacity double
+) ENGINE=MyISAM DEFAULT CHARSET=gbk;
+
+insert element(parkid,id,type,name,width,height,depth) values('LJZ_P1','LJZ_P1_FB1','Floor','B1',5000,5400,0);
+insert element(parkid,id,type,name,width,height,depth,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_FF1','Floor','F1',1000,2000,330,2995,190,-1665);
+insert element(parkid,id,type,name,width,height,depth,positionx,positiony,positionz,transparent,opacity) values('LJZ_P1','LJZ_P1_FF2','Floor','floor01',500,2000,33,3255, 590, -1655,true,0.5);
+
