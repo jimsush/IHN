@@ -18,6 +18,8 @@ public class ParkingDaoImpl implements ParkingDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	
+
 	@Override
 	public PropertyAsset getByKey(String propertyAssetId) {
 		List objs = jdbcTemplate.query("select * from propertyasset where id=?", new Object[]{propertyAssetId}, new int[]{Types.VARCHAR}, this.propertyAssetMapper);
@@ -25,8 +27,6 @@ public class ParkingDaoImpl implements ParkingDao {
 			return null;
 		return (PropertyAsset)objs.get(0);
 	}
-
-	@Override
 	public PropertyAsset insert(PropertyAsset propertyAsset) {
 		jdbcTemplate.update("insert into propertyasset(id, name, city, address, corp, longitude, latitude) values(?,?,?,?,?,?,?)", 
 				new Object[]{ propertyAsset.getId(), propertyAsset.getName(), propertyAsset.getCity(),

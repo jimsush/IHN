@@ -38,3 +38,66 @@ insert propertyasset(id,name,city,address,corp,longitude,latitude) values('LJZ_P
 
 select * from propertyasset;
 
+<input type="password" drop table element;
+CREATE TABLE element (
+  parkid varchar(100),
+  id varchar(100),
+  type varchar(100),
+  name varchar(100),
+  parent varchar(100),
+  category varchar(100),
+  positionx double,
+  positiony double,
+  positionz double,
+  width double,
+  height double,
+  depth double,
+  picture varchar(100),
+  rotationx double,
+  rotationy double,
+  rotationz double,
+  transparent boolean,
+  opacity double,
+  userdata varchar(400)
+) ENGINE=MyISAM DEFAULT CHARSET=gbk;>
+
+insert element(parkid,id,type,category,name,width,height,depth) values('LJZ_P1','LJZ_P1_F1','Floor','Build','B1',5000,5400,0);
+insert element(parkid,id,type,category,name,width,height,depth,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F2','Floor','Build','F1',1000,2000,330,2995,190,-1665);
+insert element(parkid,id,type,category,name,width,height,depth,positionx,positiony,positionz,transparent,opacity) values('LJZ_P1','LJZ_P1_F3','Floor','Build','floor01',500,2000,33,3255, 590, -1655,true,0.5);
+
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P1','LJZ_P1_F1','Pole','Build','Pole1',-1280, 35, -2600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P2','LJZ_P1_F1','Pole','Build','Pole2',-1280, 35, -1600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P3','LJZ_P1_F1','Pole','Build','Pole3',-1280, 35, -950);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P4','LJZ_P1_F1','Pole','Build','Pole4',-1280, 35, -320);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P5','LJZ_P1_F1','Pole','Build','Pole5',20, 35, -2600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P6','LJZ_P1_F1','Pole','Build','Pole6',20, 35, -1600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P7','LJZ_P1_F1','Pole','Build','Pole7',20, 35, -950);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P8','LJZ_P1_F1','Pole','Build','Pole8',20, 35, -320);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P9','LJZ_P1_F1','Pole','Build','Pole9',1320, 35, -2600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P10','LJZ_P1_F1','Pole','Build','Pole10',1320, 35, -1600);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P11','LJZ_P1_F1','Pole','Build','Pole11',1320, 35, -950);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_P12','LJZ_P1_F1','Pole','Build','Pole12',1320, 35, -320);
+
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W1','LJZ_P1_F1','Wall','Build','Wall1','path:-1000,4950,4000,4950,4000,2950;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W2','LJZ_P1_F1','Wall','Build','Wall2','path:0,0,3000,0,3000,2000,0,2000,0,0;inside:false;door:650,2300');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W3','LJZ_P1_F1','Wall','Build','Wall3','path:0,1000,3000,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W4','LJZ_P1_F1','Wall','Build','Wall4','path:400,0,400,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W5','LJZ_P1_F1','Wall','Build','Wall5','path:700,0,700,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W6','LJZ_P1_F1','Wall','Build','Wall6','path:1200,0,1200,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W7','LJZ_P1_F1','Wall','Build','Wall7','path:1500,0,1500,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W8','LJZ_P1_F1','Wall','Build','Wall8','path:1900,0,1900,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W9','LJZ_P1_F1','Wall','Build','Wall9','path:2400,0,2400,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W10','LJZ_P1_F1','Wall','Build','Wall10','path:0,500,100,500;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata) values('LJZ_P1','LJZ_P1_F1_W11','LJZ_P1_F1','Wall','Build','Wall11','path:0,1800,1500,1800,1500,1300,2000,1300,2000,1000;inside:true');
+insert element(parkid,id,parent,type,category,name,userdata,transparent,opacity,positiony) values('LJZ_P1','LJZ_P1_F1_W12','LJZ_P1_F1','Wall','Build','Wall12','path:3990,4950,5000,4950,5000,4800;inside:true',true,0.5,180);
+insert element(parkid,id,parent,type,category,name,userdata,transparent,opacity,positiony) values('LJZ_P1','LJZ_P1_F1_W13','LJZ_P1_F1','Wall','Build','Wall13','path:5000,4600,5000,2950,4500,2950;inside:true',true,0.5,180);
+insert element(parkid,id,parent,type,category,name,userdata,transparent,opacity,positiony) values('LJZ_P1','LJZ_P1_F1_W14','LJZ_P1_F1','Wall','Build','Wall14','path:4500,4950,5000,4950,5000,4800;inside:true',true,0.5,580);
+insert element(parkid,id,parent,type,category,name,userdata,transparent,opacity,positiony) values('LJZ_P1','LJZ_P1_F1_W15','LJZ_P1_F1','Wall','Build','Wall15','path:5000,4600,5000,2950,4500,2950;inside:true',true,0.5,580);
+
+insert element(parkid,id,parent,type,category,name,userdata,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_D1','LJZ_P1_F1','Door','Build','Door1','animation:split;type:metal',3100, 205, -1800);
+insert element(parkid,id,parent,type,category,name,userdata,positionx,positiony,positionz) values('LJZ_P1','LJZ_P1_F1_D2','LJZ_P1_F1','Door','Build','Door2','animation:split;type:metal',3100, 605, -1800);
+
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz,rotationy) values('LJZ_P1','LJZ_P1_S1',null,'Stair','Build','Stair1',2440, 10, -2490, -90);
+insert element(parkid,id,parent,type,category,name,positionx,positiony,positionz,width,height,depth,userdata) values('LJZ_P1','LJZ_P1_L1',null,'Lift','Build','Lift1',3610, 750, -2400, 200, 1500, 200,'repeat:2,10;peer:3610,925,-2400,170,250,170');
+
+select * from element;

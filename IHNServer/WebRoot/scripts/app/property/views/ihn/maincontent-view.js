@@ -1,7 +1,8 @@
 define([
   'text!templates/ihn/maincontent-template.html',
+  'collections/parkelement',
   'mono'
-], function (MainContentTemplate) {
+], function (MainContentTemplate,ParkElementCollection) {
 
   var MainContentView = Backbone.View.extend({
       
@@ -36,6 +37,14 @@ define([
 				var psId = that.$('#ihn-demo-park-id').val();
 				that.unpark(psId);
 			});
+			
+			this.$('#parkingBtn').on('click', function() {
+				that.loadRealEstate(that, that.box);
+			});
+			this.$('#parkSpaceBtn').on('click', function() {
+				that.loadRestElements(that, that.box);
+			});
+			
 		},
 		
 		draw: function() {
@@ -208,7 +217,7 @@ define([
       setup: function(htmlElementId){				
     	    var self=this;
     	  
-    	    debugger
+    	    //debugger
     	    var network = new mono.Network3D(this.box, camera, this.$el.find('#myCanvas')[0]);
     	    
     	    network.setClearColor('#39609B');
@@ -219,14 +228,10 @@ define([
     		
     		//DefaultInteraction交互模式包括可以在3D场景中旋转镜头，通过鼠标滚轮缩放镜头，键盘操作镜头等
     		var interaction = network.getDefaultInteraction();
-    		interaction.yLowerLimitAngle=Math.PI/180*2;
-    		interaction.yUpLimitAngle=Math.PI/2;
-    		interaction.maxDistance=15000;
-    		interaction.minDistance=50;
-    		interaction.zoomSpeed=1;
-    		interaction.panSpeed=0.2;
-
-				//从Client属性中找到bid属性为某个值的element element.setClient('bid', value)
+    		network.setInteractions([interaction]);
+    		network.setShowAxis(true);
+    		
+		    //从Client属性中找到bid属性为某个值的element element.setClient('bid', value)
     		this.bidFinder = new mono.QuickFinder(network.getDataBox(), 'bid', 'client');
     		network.isSelectable = function(element){return false;};		
     		mono.Utils.autoAdjustNetworkBounds(network,document.documentElement,'clientWidth','clientHeight');//自适应缩放
@@ -237,33 +242,116 @@ define([
 
     		this.setupLights(network.getDataBox());
 
-    		this.loadData(network.getDataBox());	
+    		//this.loadData(network.getDataBox());	
     	},
-
+    	
+    	loadRealEstate:function(view, box){
+    		var parkid='LJZ_P1';
+    		var parkElementCollection= new ParkElementCollection;
+    		parkElementCollection.url='/rest/park/elements?parkid='+parkid;
+    		parkElementCollection.fetch({
+			  reset : true,
+			  success : function(collection, response, options){
+				  collection.each(function(model){  
+					  var type=model.get('type');
+					  switch(type){
+					  	case 'Floor':
+					  		var floor=view.createFloor(box, model.get('width'), model.get('depth'), model.get('height'), model);
+					  		floor.setClient('nid', model.get('id'));
+					  		break;
+					  		
+					  	case 'Pole':
+					  		var pole=view.createPoleObject(box, model.get('positionx'), model.get('positionz'), model);
+					  		pole.setClient('nid', model.get('id') );
+					  		break;
+					  		
+					  	case 'Wall':
+					  		var userdata=model.get('userdata');
+					  		var pathInsideDoor=view.parseUserDataForWall(userdata);
+					  		var wall;
+					  		if(pathInsideDoor[2]){
+					  			var door={x:pathInsideDoor[2][0], z:pathInsideDoor[2][1]};
+					  			wall=view.createWall(box, pathInsideDoor[0], pathInsideDoor[1], door);
+					  		}else{
+					  			wall=view.createWall(box, pathInsideDoor[0], pathInsideDoor[1]);
+					  		}
+					  		var posY=model.get('positiony');
+					  		if(posY && posY!=-2015){
+					  			wall.setPositionY(posY);
+					  		}
+					  		var opacity=model.get('opacity');
+					  		if(opacity && opacity!=-2015){
+					  			wall.s({'m.transparent': model.get('transparent'), 'm.opacity':opacity});
+					  		}
+					  		wall.setClient('nid', model.get('id'));
+					  		break;
+					  		
+					  	case 'Door':
+					  		var userdata=model.get('userdata');
+					  		var animateType=view.parseUserDataForDoor(userdata);
+					  		var door=view.createDoor(box, null, model.get('positionx'), model.get('positiony'), model.get('positionz'), animateType[0], animateType[1]);
+					  		door.rotateFromAxis(new mono.Vec3(0, 1, 0), new mono.Vec3(3000, 0, -2300), Math.PI/2);
+					  		door.setClient('nid', model.get('id'));
+					  		break;
+					  	
+					  	case 'Stair':
+					  		var stair=view.createStair(box, model.get('positionx'), model.get('positiony'), model.get('positionz'), model.get('rotationy'));
+					  		stair.setClient('nid', model.get('id'));
+					  		break;
+					  	
+					  	case 'Lift':
+					  		var userdata=model.get('userdata');
+					  		var repeatPeer=view.parseUserDataForLift(userdata);
+					  		var lift=view.createLift(box, model.get('positionx'),model.get('positiony'),model.get('positionz'), model.get('width'), model.get('height'), model.get('depth'),
+					  				repeatPeer[0][0], repeatPeer[0][1], repeatPeer[0][2], repeatPeer[0][3], repeatPeer[0][4], repeatPeer[0][5],
+					  				repeatPeer[1][0], repeatPeer[1][1]); 
+					  		lift.setClient('nid', model.get('id'));
+					  		break;
+					  }   
+				  });
+				  
+				  //view.createLift(box);
+			  }, 
+			  error : function(collection, response, options){
+				  alert(response+","+options);
+			  }
+    		});
+    		
+    	},
+    	
+    	loadRestElements:function(view, box){
+    		view.loadData(box);
+    		view.createBeacon(box);
+    		view.createGateway(box);
+    		view.createCamera(box);
+    		view.createTempSensor(box);
+    	},
+    	
     	loadData: function(box){
-    		debugger
+    		//debugger
     		
     		this.createCar(box, -880, 70, -2290, Math.PI/180*5);
-    		this.createFloor(box, 5000, 0, 5400);
-    		this.createFloor(box, 1000, 330, 2000).setPosition(2995, 190, -1655);
-    		var floor01 = this.createFloor(box, 500, 330, 2000);
-    		floor01.s({'m.transparent':true,'m.opacity':0.5}).setPosition(3255, 590, -1655); //transparent原型对象透明度,opacity整体材质的透明度0.5
-    		floor01.setClient('bid', 'floor01');
+    		//this.createFloor(box, 5000, 0, 5400);//5400 is z depth
+    		//this.createFloor(box, 1000, 330, 2000).setPosition(2995, 190, -1655);
+    		//var floor01 = this.createFloor(box, 500, 330, 2000);
+    		//floor01.s({'m.transparent':true,'m.opacity':0.5}).setPosition(3255, 590, -1655); //transparent原型对象透明度,opacity整体材质的透明度0.5
+    		//floor01.setClient('bid', 'floor01');
+    		
     		this.createSpot(box, 0, -600, false, 'A0', 10);
     		this.createSpot(box, 0, -1300, true, 'B0', 10);
     		this.createSpot(box, 0, -2300, false, 'C0', 44);
-    		this.createPole(box);
-    		this.createWalls(box);
+    		//this.createPole(box);
+    		//this.createWalls(box);
     		this.createShop(box);
     		this.createTrail(box);
     		this.createWorker(box,1000, 2650, Math.PI/2);	
-    		this.createStair(box);
+    		//this.createStair(box);
     		this.createPlant(box, 2200, -2300);
     		this.createPlant(box, 2300, -2300);
     		this.createPlant(box, 2400, -2300);	
-    		this.createDoor(box, null, 3100, 205, -1800, 'split', 'metal').rotateFromAxis(new mono.Vec3(0, 1, 0), new mono.Vec3(3000, 0, -2300), Math.PI/2);
-    		this.createDoor(box, null, 3100, 605, -1800, 'split', 'metal').rotateFromAxis(new mono.Vec3(0, 1, 0), new mono.Vec3(3000, 0, -2300), Math.PI/2);
-    		this.createLift(box);
+    		//this.createDoor(box, null, 3100, 205, -1800, 'split', 'metal').rotateFromAxis(new mono.Vec3(0, 1, 0), new mono.Vec3(3000, 0, -2300), Math.PI/2);
+    		//this.createDoor(box, null, 3100, 605, -1800, 'split', 'metal').rotateFromAxis(new mono.Vec3(0, 1, 0), new mono.Vec3(3000, 0, -2300), Math.PI/2);
+    		//this.createLift(box);
     		this.createLine(box);	
     	},
 
@@ -311,21 +399,24 @@ define([
     		box.add(pin);
     	},
 
-    	createLift: function(box){
-    		// 电梯
-    		var cube=new mono.Cube(200, 1500, 200);  //new mono.Cube(width宽, height高, depth长,segmentsW, segmentsH, segmentsD);
-    		cube.setPosition(3610, cube.getHeight()/2, -2400); //在物体的自身的中心点,坐标为(0, 0, 0)时，立方体将有一半在水平坐标下方
+    	createLift: function(box
+    			,bottom_x,bottom_y,bottom_z,bottom_width,bottom_height,bottom_depth
+    			,top_x,top_y,top_z,top_width,top_height,top_depth,repeatx,repeaty){
+    		debugger
+    		// 楼梯
+    		var cube=new mono.Cube(200, 1500, 200);//bottom_width, bottom_height, bottom_depth); //(200, 1500, 200);  //new mono.Cube(width宽, height高, depth长,segmentsW, segmentsH, segmentsD);
+    		cube.setPosition(3610, cube.getHeight()/2, -2400);//bottom_x, bottom_y, bottom_z); //3610, cube.getHeight()/2, -2400); //在物体的自身的中心点,坐标为(0, 0, 0)时，立方体将有一半在水平坐标下方
     		cube.s({
     			'm.side': mono.DoubleSide,
     			'm.texture.image': 'images/grid.png',
     			'left.texture.visible': false,
     			'm.transparent': true,
-    			'm.texture.repeat': new mono.Vec2(2,10), //2*10层
+    			'm.texture.repeat': new mono.Vec2(2,10),//repeatx, repeaty), //(2,10), //2*10层
     		});
     		box.add(cube);
 
-    		cube=new mono.Cube(170, 250, 170);
-    		cube.setPosition(3610, cube.getHeight()/2+800, -2400);
+    		cube=new mono.Cube(170, 250, 170);//top_width, top_height, top_depth); //(170, 250, 170);
+    		cube.setPosition(3610, cube.getHeight()/2+800, -2400);//top_x, top_y, top_z);//(3610, cube.getHeight()/2+800, -2400);
     		cube.s({
     			'm.side': mono.DoubleSide,
     			'm.lightmap.image': 'images/outside_lightmap.jpg',
@@ -333,6 +424,7 @@ define([
     			'left.texture.visible': false,
     		});
     		box.add(cube);
+    		return cube;
     	},
 
     	createPlant: function(box, x, z){
@@ -390,7 +482,7 @@ define([
     		return plant;
     	},
 
-    	createStair: function(box){
+    	createStair: function(box,x,y,z,rotationy){
     		var parts=[];
     		var ops=[];
     		var count=20;
@@ -409,9 +501,18 @@ define([
     			ops.push('+');
     		}
     		var stair=new mono.ComboNode(parts, ops); //组合成一个group node
-    		stair.setPosition(2440, 10, -2490);
-    		stair.setRotationY(-Math.PI/2); //
+    		if(x){
+    			stair.setPosition(x, y, z);
+    		}else{
+    			stair.setPosition(2440, 10, -2490);//default value
+    		}
+    		if(rotationy){
+    			stair.setRotationY(rotationy); //
+    		}else{
+    			stair.setRotationY(-Math.PI/2); //default value
+    		}
     		box.add(stair);
+    		return stair;
     	},
 
     	createTrail : function(box){
@@ -578,7 +679,7 @@ define([
     	},
 
     	createWalls: function(box){
-    		this.createWallFloor(box, 3000, 2000, 0, 0, 1300);
+    		//this.createWallFloor(box, 3000, 2000, 0, 0, 1300);
     		this.createWall(box, [[-1000, 4950], [4000, 4950], [4000, 2950]]);
     		this.createWall(box, [[0, 0],[3000, 0],[3000, 2000],[0, 2000],[0,0]], false, {x: 650, z: 2300});
     		this.createWall(box, [[0, 1000],[3000, 1000]], true);
@@ -637,9 +738,9 @@ define([
     		return wall;
     	},
 
-    	createFloor:function (box, width, y, height){	
-    		var floor=new mono.Cube(width, 30, height); //长width,宽height
-    		floor.setPositionY(-floor.getHeight()/2+y);
+    	createFloor:function (box, width, y, height, additionalModel){	
+    		var floor=new mono.Cube(width, 30, height); //(长width/x,30-y,depth/z)
+    		floor.setPositionY(-floor.getHeight()/2+y); //y-15
     		floor.s({
     			'm.type': 'phong',
     			'm.color': '#CEE3F6',//'#BEC9BE',
@@ -651,12 +752,34 @@ define([
     			'top.m.polygonOffsetFactor':3,
     			'top.m.polygonOffsetUnits':3,
     		});
+    		
+    		if(additionalModel){
+    			var model=additionalModel;
+	    		var positionx=model.get('positionx');
+	    		//debugger
+		  		if(positionx && positionx!=-2015){
+		  			floor.setPosition(positionx, model.get('positiony'), model.get('positionz'));
+		  		}
+		  		var transparent=model.get('transparent');
+		  		if(transparent){
+		  			floor.s({'m.transparent':transparent});
+		  		}
+		  		var opacity=model.get('opacity');
+		  		if(opacity && opacity!=-2015){
+		  			floor.s({'m.opacity':opacity});
+		  		}
+		  		var name=model.get('name');
+		  		if(name){
+		  			floor.setClient('bid', model.get('name'));
+		  		}
+    		}
+    		
     		box.add(floor);
     		return floor;
     	},
 
     	createWallFloor:function(box, width, height, x, y, z){
-    		var floor=new mono.Cube(width, 1, height);
+    		var floor=new mono.Cube(width, 1, height); //3000,1,2000
     		floor.s({
     			'm.type': 'phong',
     			'm.color': '#BEC9BE',
@@ -668,7 +791,7 @@ define([
     			'top.m.polygonOffsetFactor':3,
     			'top.m.polygonOffsetUnits':3,
     		});
-    		floor.setPosition(x, y, z);
+    		floor.setPosition(x, y, z);//0, 0, 1300
     		box.add(floor);
     	},
 
@@ -745,7 +868,7 @@ define([
     		return area;
     	},
 
-    	createPoleObject:function(box, x, z){
+    	createPoleObject:function(box, x, z, additionalModel){
     		var cube=new mono.Cube(45, 70, 45);//下段
     		cube.s({
     			'm.type': 'phong',
@@ -758,6 +881,7 @@ define([
     			'top.m.ambient': '#E6EEF6',//'#BEC9BE',
     		});
     		cube.setPositionY(cube.getHeight()/2);
+    		cube.setSelectable(true);
     		
     		var cube2=new mono.Cube(40, 300, 40);//上段
     		cube2.s({
@@ -768,19 +892,22 @@ define([
     			'm.texture.repeat': new mono.Vec2(1, 5),
     		});
     		cube2.setPositionY(cube2.getHeight()/2);
+    		cube2.setSelectable(true);
     		
     		var pole=new mono.ComboNode([cube, cube2], ['+']); //上下2段
     		pole.setPositionX(x);
     		pole.setPositionZ(z);
+    		pole.setSelectable(true);
     		box.add(pole);
+    		return pole;
     	},
 
     	createPole:function(box){
     		for(var i=0;i<3;i++){ //3排,每排4根柱子
-    			this.createPoleObject(box, -1280+i*1300, -2600);//x,z,第2根柱子在O心,i=1,x接近0
-    			this.createPoleObject(box, -1280+i*1300, -1600);
-    			this.createPoleObject(box, -1280+i*1300, -950);
-    			this.createPoleObject(box, -1280+i*1300, -320);
+    			this.createPoleObject(box, -1280+i*1300, -2600, null);//x,z,第2根柱子在O心,i=1,x接近0
+    			this.createPoleObject(box, -1280+i*1300, -1600, null);
+    			this.createPoleObject(box, -1280+i*1300, -950, null);
+    			this.createPoleObject(box, -1280+i*1300, -320, null);
     		}
     	},
 
@@ -857,9 +984,10 @@ define([
 
     				}).play();
     			}else{
+    				var that=this;
     				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
     					if(element.getClient('animation')){
-    						this.playAnimation(element, element.getClient('animation'));
+    						that.playAnimation(element, element.getClient('animation'));
     					}				
     				});
     			}
@@ -1112,9 +1240,138 @@ define([
     		box.add(right);	
 
     		return frame;
+    	},
+    	
+    	createBeacon: function(box, model){
+    		var node=new mono.Sphere(20);
+    		node.setPosition(400, 10 , 400);
+    		box.add(node);
+    		return node;
+    	},
+    	
+    	createGateway: function(box, model){
+    		var node=new mono.Cube(30,30,30);
+    		node.setPosition(580, node.getHeight()/2, 580);
+    		box.add(node);
+    		return node;
+    	},
+    	
+    	createCamera: function(box, model){
+    		var node=new mono.Cube(30,30,30);
+    		node.setPosition(750, node.getHeight()/2, 750);
+    		box.add(node);
+    		return node;
+    	},
+
+    	createTempSensor: function(box, model){
+    		var node=new mono.Cube(30,30,30);
+    		node.setPosition(1000, node.getHeight()/2, 1000);
+    		box.add(node);
+    		return node;
+    	},
+
+    	
+    	/***
+    	 * result[0] is path, result[1] is inside flag; result[2] is door
+    	 */
+    	parseUserDataForWall : function(userdata){
+    		var result=new Array(3);
+    		var fields=userdata.split(";"); //'path:5000,4600,5000,2950,4500,2950;inside:true';
+    		for(var i=0; i<fields.length; i++){
+    			var propmap=fields[i].split(":"); 
+    			var propname=propmap[0];
+    			var propvalue=propmap[1]; //5000,4600,5000,2950,4500,2950
+    			switch(propname){
+	    			case 'path':
+	    				var posXY=propvalue.split(",");
+	    				var len=posXY.length/2;
+	    				var posArray=new Array(len);
+	    				for(var j=0; j<len; j++){
+	    					var pos=new Array();
+	    					pos[0]=Number(posXY[2*j+0]);
+	    					pos[1]=Number(posXY[2*j+1]);
+	    					posArray[j]=pos;
+	    				}
+	    				result[0]=posArray;
+	    				break;
+	    			case 'inside':
+	    				if(propvalue=="true")
+	    					result[1]=true;
+	    				else if(propvalue=="false")
+	    					result[1]=false;
+	    				else
+	    					result[1]=null;
+	    				break;
+	    			case 'door': //x123,y234
+	    				var posXY=propvalue.split(",");
+	    				var doorPos=new Array(2);
+	    				doorPos[0]=Number(posXY[0]);
+	    				doorPos[1]=Number(posXY[1]);
+	    				result[2]=doorPos;
+	    				break;
+	    			}
+    		}
+    		return result;
+    	},
+    	
+    	/**
+    	 * result[0]: animation result[1]: type
+    	 */
+    	parseUserDataForDoor : function(userdata){
+    		var result=new Array(3);
+    		var fields=userdata.split(";"); //'animation:split;type:metal';
+    		for(var i=0; i<fields.length; i++){
+    			var propmap=fields[i].split(":"); 
+    			var propname=propmap[0];
+    			var propvalue=propmap[1]; //split
+    			switch(propname){
+	    			case 'animation':
+	    				result[0]=propvalue;
+	    				break;
+	    			case 'type':
+	    				result[1]=propvalue;
+	    				break;
+	    			}
+    		}
+    		return result;
+    	},
+    	
+    	/***
+    	 * result[0]: repeat, result[1]: peer cube
+    	 */
+    	parseUserDataForLift : function(userdata){
+    		var result=new Array(2);
+    		var fields=userdata.split(";"); //'repeat:2,10;peer:170,250,170,3610,925,-2400'
+    		for(var i=0; i<fields.length; i++){
+    			var propmap=fields[i].split(":"); 
+    			var propname=propmap[0];
+    			var propvalue=propmap[1]; //2,10
+    			switch(propname){
+    				case 'peer': //3610,925,-2400,170,250,170
+	    				var peers=propvalue.split(",");
+	    				var peer=new Array(6);
+	    				peer[0]=Number(peers[0]); //x
+	    				peer[1]=Number(peers[1]); //y
+	    				peer[2]=Number(peers[2]); //z
+	    				peer[3]=Number(peers[3]); //width
+	    				peer[4]=Number(peers[4]); //height
+	    				peer[5]=Number(peers[5]); //depth
+	    				result[0]=peer;
+	    				break;
+    				case 'repeat':
+	    				var repeatXY=propvalue.split(",");
+	    				var repeat=new Array(2);
+	    				repeat[0]=Number(repeatXY[0]);
+	    				repeat[1]=Number(repeatXY[1]);
+	    				result[1]=repeat;
+	    				break;
+	    			
+	    			}
+    		}
+    		return result;
     	}
 		
-	});
+  });
 
   return MainContentView;
 });
