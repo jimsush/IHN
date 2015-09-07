@@ -24,21 +24,24 @@
   	    var camera = new mono.PerspectiveCamera(30, 1.5, 30, 30000);
 		camera.setPosition(-8000,1000,2000);
 		
+		var myCanvas=document.getElementById('myCanvas');
   	    var network = new mono.Network3D(this.box, camera, myCanvas);
   		network.setClearColor('#39609B');
-  		
-  		var interaction = network.getDefaultInteraction();
+  
+  		var interaction = new mono.DefaultInteraction(network);		
   		interaction.yLowerLimitAngle=Math.PI/180*2;
   		interaction.yUpLimitAngle=Math.PI/2;
   		interaction.maxDistance=15000;
   		interaction.minDistance=50;
   		interaction.zoomSpeed=1;
   		interaction.panSpeed=0.2;
+			var interaction2 = new mono.SelectionInteraction(network);
+			var interactions = [interaction, interaction2];
+			network.setInteractions(interactions);
 
   		this.bidFinder = new mono.QuickFinder(network.getDataBox(), 'bid', 'client');
   		this.floorFinder = new mono.QuickFinder(network.getDataBox(), 'floor', 'client');
-  		network.isSelectable = function(element){return false;};		
-  		//document.getElementById(htmlElementId).appendChild(network.getRootView());
+  		network.isSelectable = function(element){ return true; };		
   		mono.Utils.autoAdjustNetworkBounds(network,document.documentElement,'clientWidth','clientHeight');
   		
   		network.getRootView().addEventListener('dblclick', function(e){
@@ -56,93 +59,115 @@
   		var F1 = this.createFloor(box, 1000, 330, 2000);
   		F1.setPosition(2995, 190, -1655);
   		F1.setClient('floor', 'F1');
+  		
   		decorateFloor(box, F1, function(box, floor) {
-	 		var door = this.createDoor(box, null, -750, 0, -550, 'split', 'metal');
-	 		door.setRotationY(-Math.PI/2);
-	 		door.setParent(floor);
-  		});
+		 		var door = this.createDoor(box, null, -750, 0, -550, 'split', 'metal');
+		 		door.setRotationY(-Math.PI/2);
+		 		door.setParent(floor);
+	  		});
   		
   		var F2 = this.createFloor(box, 500, 330, 2000);
   		F2.s({'m.transparent':true,'m.opacity':0.5}).setPosition(3255, 590, -1655);
   		F2.setClient('floor', 'F2');
   		decorateFloor(box, F2, function(box, floor) {
-	 		var door = this.createDoor(box, null, -750, 0, -300, 'split', 'metal');
-	 		door.setRotationY(-Math.PI/2);
-	 		door.setParent(floor);
-  		});
+		 		var door = this.createDoor(box, null, -750, 0, -300, 'split', 'metal');
+		 		door.setRotationY(-Math.PI/2);
+		 		door.setParent(floor);
+	  		});
   		 
   		var B1 = this.createFloor(box, 5000, 0, 5400);
   		B1.setClient('floor', 'B1');
   		decorateFloor(box, B1, function(box, floor) {
-  			var floorPositionY = floor.getPositionY();
-  			
-	 		//this.createWalls(box);
-	 		var shop = this.createShop(box);
-	 		shop.setParent(floor);
+	  		var floorPositionY = floor.getPositionY();
+	  			
+		 		//this.createWalls(box);
+		 		var shop = this.createShop(box, floor);
+		 		shop.setParent(floor);
+		 		
+		 		var stair = this.createStair(box, floor);
+		 		stair.setParent(floor);
+		 		
+		 	  var lift = this.createLift(box, floor);
+		 		lift.setParent(floor);
+		 	    
+		 		var plant1 = this.createPlant(box, 2200, -2300 );
+		 		var plant2 = this.createPlant(box, 2300, -2300);
+		 		var plant3 = this.createPlant(box, 2400, -2300);
+		 		plant1.setParent(floor);
+		 		plant2.setParent(floor);
+		 		plant3.setParent(floor);
+		 		var plants = new mono.ComboNode([plant1, plant2, plant3], ['+']);
+		 		plants.setParent(floor);
+		 		
+		 		var worker = this.createWorker(box,1000, 2650, Math.PI/2, floor);	
+		 		
+		 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 10, floor);
+		 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 10, floor);
+		 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 44,floor);
+		 		spot1.setParent(floor);
+		 		spot2.setParent(floor);
+		 		spot3.setParent(floor);
+		 		var spots = new mono.ComboNode([spot1, spot2, spot3], ['+']);
+		 		spots.setParent(floor);
 	 		
-	 		var stair = this.createStair(box);
-	 		stair.setParent(floor);
-	 	    var lift = this.createLift(box);
-	 		lift.setParent(floor);
-	 	    
-	 		var plant1 = this.createPlant(box, 2200, -2300);
-	 		var plant2 = this.createPlant(box, 2300, -2300);
-	 		var plant3 = this.createPlant(box, 2400, -2300);
-	 		var plants = new mono.ComboNode([plant1, plant2, plant3], ['+']);
-	 		plants.setParent(floor);
-	 		
-	 		var worker = this.createWorker(box,1000, 2650, Math.PI/2);	
-	 		
-	 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 10);
-	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 10);
-	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 44);
-	 		var spots = new mono.ComboNode([spot1, spot2, spot3], ['+']);
-	 		spots.setParent(floor);
-	 		
-	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600]);
-	 		poleNodes.setParent(floor);
-	 		
-	 		this.createCar(box, -880, 70, -2290, Math.PI/180*5);
-	 		
-	 		this.createTrail(box);
-	 		this.createLine(box);	
+		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600]);
+		 		poleNodes.setParent(floor);
+		 		
+		 		this.createCar(box, -880, 70, -2290, Math.PI/180*5, floor);
+		 		
+		 		this.createTrail(box, floor);
+
+		 		this.createLine(box, floor);	
   		});
   		
   		var B2 = this.createFloor(box, 5000, -400, 5400);
   		B2.setClient('floor', 'B2');
   		decorateFloor(box, B2, function(box, floor) {
-  			var floorPositionY = floor.getPositionY();
-  			
-	 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01);
-	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01);
-	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01);
-	 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01);
-	 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01);
-	 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01);
-	 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
-	 		spots.setParent(floor);
-	 		
-	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
-	 		poleNodes.setParent(floor);
-  		});
+	  		var floorPositionY = floor.getPositionY();
+	  			
+		 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01, floor);
+		 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01, floor);
+		 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01, floor);
+		 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01, floor);
+		 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01, floor);
+		 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01, floor);
+		 		spot1.setParent(floor);
+		 		spot2.setParent(floor);
+		 		spot3.setParent(floor);
+		 		spot4.setParent(floor);
+		 		spot5.setParent(floor);
+		 		spot6.setParent(floor);
+		 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
+		 		spots.setParent(floor);
+		 		
+		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
+		 		poleNodes.setParent(floor);
+	  		});
   		
   		var B3 = this.createFloor(box, 5000, -800, 5400);
   		B3.setClient('floor', 'B3');
   		decorateFloor(box, B3, function(box, floor) {
-  			var floorPositionY = floor.getPositionY();
-  			
-  			var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01);
-	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01);
-	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01);
-	 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01);
-	 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01);
-	 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01);
-	 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
-	 		spots.setParent(floor);
-	 		
-	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
-	 		poleNodes.setParent(floor);
-  		});
+	  		var floorPositionY = floor.getPositionY();
+	  			
+	  		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01, floor);
+		 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01, floor);
+		 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01, floor);
+		 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01, floor);
+		 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01, floor);
+		 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01, floor);
+		 		spot1.setParent(floor);
+		 		spot2.setParent(floor);
+		 		spot3.setParent(floor);
+		 		spot4.setParent(floor);
+		 		spot5.setParent(floor);
+		 		spot6.setParent(floor);
+		 		
+		 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
+		 		spots.setParent(floor);
+		 		
+		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
+		 		poleNodes.setParent(floor);
+	  	});
   		
   	};
   	
@@ -152,9 +177,10 @@
   		}
   	};
   	
-  	var createLift = function(box){
+  	var createLift = function(box, floor){
   		var cube1=new mono.Cube(200, 1500, 200);
   		cube1.setPosition(3610, cube1.getHeight()/2, -2400);
+  		cube1.setParent(floor);
   		cube1.s({
   			'm.side': mono.DoubleSide,
   			'm.texture.image': 'images/grid.png',
@@ -166,6 +192,7 @@
 
   		var cube2=new mono.Cube(170, 250, 170);
   		cube2.setPosition(3610, cube2.getHeight()/2+800, -2400);
+  		cube2.setParent(floor);
   		cube2.s({
   			'm.side': mono.DoubleSide,
   			'm.lightmap.image': 'images/outside_lightmap.jpg',
@@ -235,13 +262,14 @@
   		return plant;
   	};
 
-  	var createStair = function(box){
+  	var createStair = function(box, floor){
   		var parts=[];
   		var ops=[];
   		var count=20;
   		for(var i=0;i<count;i++){
   			var cube=new mono.Cube(300,10,500-20*i);
   			cube.setPosition(0, i*10, 20*(count-i)/2);
+  			cube.setParent(floor);
   			cube.s({
   				'm.type': 'phong',
   				'm.color': '#AABAC9',//'#BEC9BE',
@@ -256,11 +284,12 @@
   		var stair=new mono.ComboNode(parts, ops);
   		stair.setPosition(2440, 10, -2490);
   		stair.setRotationY(-Math.PI/2);
+  		stair.setParent(floor);
   		box.add(stair);
   		return stair;
   	};
 
-  	var createLine = function(box){
+  	var createLine = function(box, floor){
   		var path=new mono.Path();
   		path.moveTo(-580,0,-2180);
   		path.lineTo(-500,0,-1800);
@@ -289,6 +318,7 @@
   		cable.setEndCap('plain');
   		cable.setPositionY(20);
   		cable.setClient('bid', 'cable01');
+  		cable.setParent(floor);
   		box.add(cable);
 
   		var pin=new mono.Billboard();
@@ -300,10 +330,11 @@
   		pin.setScale(200,0.1,1);
   		pin.setPosition(3130,600,-1200);
   		pin.setClient('bid','pin02');
+  		pin.setParent(floor);
   		box.add(pin);
   	};
   	
-  	var createTrail = function(box){
+  	var createTrail = function(box, floor){
   		var points=[[1000, 2700], [1000, 2500],[-2000, 2500],[-2000,-1800],[-600,-1800],[-600,-2200]];
 
   		var path=new mono.Path();
@@ -324,6 +355,7 @@
   		trail.setRotationX(Math.PI);
   		trail.setPositionY(5);
   		trail.setClient('bid','trail01');
+  		trail.setParent(floor);
   		box.add(trail);
 
   		var pin=new mono.Billboard();
@@ -335,22 +367,24 @@
   		pin.setScale(200,0.1,1);
   		pin.setPosition(-600, 0, -2200);
   		pin.setClient('bid','pin01');
+  		pin.setParent(floor);
   		box.add(pin);
   		
   		return trail;
   	};
 
-  	var createWorker = function(box, x, z, rotation){
+  	var createWorker = function(box, x, z, rotation, floor){
   		var obj='images/worker.obj';
   		var mtl='images/worker.mtl';               
   			
   		var loader = new mono.OBJMTLLoader();
-  		loader.load(obj, mtl, {'worker': 'images/worker.png',}, function (object) {                    			
-  			object.setScale(3,3,3);		
-  			object.setPosition(x,0,z);
-  			object.setRotationY(rotation);
-  			object.setClient('type', 'person');	
-  			box.addByDescendant(object);
+  		loader.load(obj, mtl, {'worker': 'images/worker.png',}, function (object1) {                    			
+  			object1.setScale(3,3,3);		
+  			object1.setPosition(x,0,z);
+  			object1.setRotationY(rotation);
+  			object1.setClient('type', 'person');
+  			object1.setParent(floor);	
+  			box.addByDescendant(object1);
   			
   			var updater=function(element){
   				if(element && element.getChildren()){
@@ -360,11 +394,11 @@
   					});
   				}
   			}
-  			updater(object);
+  			updater(object1);
   		});
   	};
 
-  	var createCar = function(box, x, y, z, rotation){
+  	var createCar = function(box, x, y, z, rotation, floor){
   		var obj='car/car.obj';
   		var mtl='car/car.mtl';               
   			
@@ -376,10 +410,12 @@
   			'WheelD': 'car/WheelD.png',
   			'WheelN': 'car/WheelN.png',
   		};
-  		loader.load(obj, mtl, pics, function (object) {                    			
-  			object.setPosition(x,y,z);
-  			object.setRotationY(rotation);
-  			box.addByDescendant(object);		
+  		loader.load(obj, mtl, pics, function (object1) {                    			
+  			object1.setPosition(x-floor.getPositionX(), y-floor.getPositionY(), z-floor.getPositionZ());
+  			object1.setRotationY(rotation);
+  		  object1.setParent(floor);
+  		  object1.setSelectable(true);
+  			box.addByDescendant(object1);		
 
   			var updater=function(element){
   				if(element && element.getChildren()){
@@ -391,11 +427,11 @@
   					});
   				}
   			}
-  			updater(object);
+  			updater(object1);
   		});
   	};
 
-  	var createShop = function(box){
+  	var createShop = function(box, floor){
   		var path=new mono.Path();
   	 
   		path.moveTo(0,0);
@@ -418,6 +454,7 @@
   		});
   		node1.setPositionX(-1480);
   		node1.setPositionZ(1280);
+  		node1.setParent(floor);
   		box.add(node1);
 
   		var pin=new mono.Billboard();
@@ -453,6 +490,7 @@
   			'm.normalmap.image': 'images/normalmap.jpg',
   		});
   		node2.setPosition(930, 0, 2280);
+  		node2.setParent(floor);
   		box.add(node2);
 
   		var pin=new mono.Billboard();
@@ -564,9 +602,8 @@
   		box.add(floor);
   	};
 
-  	var createSpot = function(box, x, y, z, reversed, prefix, id){
+  	var createSpot = function(box, x, y, z, reversed, prefix, id, floor){
   		var carspot = new mono.Cube();
-  		
   		var cube=new mono.Cube(2600, 1, 600);
   		cube.s({
   			'm.type': 'phong',
@@ -580,7 +617,7 @@
   			'm.color': '#E4F6F6',
   		});	
   		var area=new mono.ComboNode([cubeBorder, cube, cube], ['-', '+']);
-  		area.setPosition(x, y+15, z);
+  		area.setPosition(x-floor.getPositionX(), y+15-floor.getPositionY(), z-floor.getPositionZ());
   		if(reversed){
   			area.setRotationY(Math.PI);
   		}
@@ -641,6 +678,7 @@
   			ps.setParent(carspot);
   		}
 
+			carspot.setParent(floor);
   		return carspot;
   	};
 
@@ -797,7 +835,11 @@
   		
   		var children = isCombine ? element.combos : element.getChildren();
   		children.forEach(function(child) {
-  			changePositionY(child, value, child.combos && child.combos.length > 0);
+  			if(child.getParent()){
+  				// do nothing because the parent has moved.
+  			}else{
+  			     changePositionY(child, value, child.combos && child.combos.length > 0);
+  		  }
 		});
   	};
   	
@@ -1077,4 +1119,17 @@
         <canvas id="myCanvas"/>
     </div>
 </body>
+</html></div>
+    <div>
+        <canvas id="myCanvas"/>
+    </div>
+</body>
+</html>��" name="clear" />
+        <input type="button" value="建立车位" name="create" />
+    </div>
+    <div>
+        <canvas id="myCanvas"/>
+    </div>
+</body>
 </html>
+</html>>

@@ -1,0 +1,90 @@
+tooltip:
+network.getRootView().addEventListener('mousemove', function(e){
+var element, point;
+                var es = network.getElementsByMouseEvent(e);
+                if(es && es.length > 0){
+                    point  = es[0].point;
+                    element = es[0].element;
+                }
+
+
+...
+if(!tipDiv){
+                    tipDiv = document.createElement('div');
+                    tipDiv.style.position = 'absolute';
+                    tipDiv.setAttribute('id', 'alex');
+                    network.getRootView().appendChild(tipDiv);
+                }
+                tipDiv.style.display = 'block';
+                tipDiv.innerHTML = element.getClient("tooltip");
+                tipDiv.style.left = document.documentElement.clientWidth/2+point.x+'px';
+                tipDiv.style.top = document.documentElement.clientHeight/2+point.y+'px';
+-------------------
+right click menu:
+var popupMenu = new twaver.controls.PopupMenu(network.getRootView());
+            initPopupMenu(popupMenu, network);
+
+--------------
+attachment
+-----------------
+alarm
+
+var alarmBox = box.getAlarmBox();
+            var i = 0;
+            while (i++ < 10) {
+                var alarm = new mono.Alarm(i, node.getId(), randomSeverity());
+                alarmBox.add(alarm);
+            }
+        
+
+var alarmBox = box.getAlarmBox();
+            alarmBox.getDatas().toList().forEach(function(alarm){
+                alarmBox.remove(alarm);
+            });
+//            alarmBox.clear();
+            
+
+
+--------------==============
+可移动
+testlink
+var interaction = new mono.DefaultInteraction(network);
+            var interaction2 = new mono.SelectionInteraction(network);
+            var interacion3 = new mono.EditInteraction(network);
+
+box.addDataPropertyChangeListener(function(event) {
+                if(event.source instanceof mono.Cube && (event.property === "position")) {
+                    var line = event.source.getClient("line");
+                    var fromNode = line.getClient("fromNode");
+拖动，link跟着变化
+
+===============
+单击事件
+
+===============
+选中标记
+var interaction = new mono.DefaultInteraction(network);
+var interaction2 = new mono.SelectionInteraction(network);
+var interacion3 = new mono.EditInteraction(network);
+interacion3.setShowHelpers(false);
+var interactions = [interaction, interaction2, interacion3];
+
+或者:
+var interaction = new mono.DefaultInteraction(network);
+network.setInteractions([new mono.SelectionInteraction(network), interaction]);
+
+network.isSelectable = function(element){ return true; };		
+================
+多层操作
+任何设置了Position的element都需要设置setParent(floor)
+workflow/index.html
+=================
+
+
+
+
+
+
+
+
+
