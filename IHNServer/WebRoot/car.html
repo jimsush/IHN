@@ -2,12 +2,17 @@
 <html>
 <head>
     <title>Garage Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/t.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/mono.js"></script>
+    
     <script type="text/javascript">
     
     //attributes
-    var isDetail = false;
+    var isDetail = false,
+        navigationEnabled = false;
     
     var envmap = ['images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg','images/room.jpg'],
     	bidFinder = null,
@@ -42,7 +47,9 @@
 
   		this.setupLights(network.getDataBox());
 
-  		this.loadData(network.getDataBox());	
+  		this.loadData(network.getDataBox());
+  		
+  		setEvents(network.getDataBox());
   	};
 
   	var loadData = function(box){
@@ -92,7 +99,7 @@
 	 		var spots = new mono.ComboNode([spot1, spot2, spot3], ['+']);
 	 		spots.setParent(floor);
 	 		
-	 		var poleNodes = this.createPole(box);
+	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600]);
 	 		poleNodes.setParent(floor);
 	 		
 	 		this.createCar(box, -880, 70, -2290, Math.PI/180*5);
@@ -106,18 +113,36 @@
   		decorateFloor(box, B2, function(box, floor) {
   			var floorPositionY = floor.getPositionY();
   			
-	 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 10);
-	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 10);
-	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 44);
-	 		var spots = new mono.ComboNode([spot1, spot2, spot3], ['+']);
+	 		var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01);
+	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01);
+	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01);
+	 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01);
+	 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01);
+	 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01);
+	 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
 	 		spots.setParent(floor);
 	 		
-	 		var poleNodes = this.createPole(box);
+	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
 	 		poleNodes.setParent(floor);
   		});
   		
   		var B3 = this.createFloor(box, 5000, -800, 5400);
   		B3.setClient('floor', 'B3');
+  		decorateFloor(box, B3, function(box, floor) {
+  			var floorPositionY = floor.getPositionY();
+  			
+  			var spot1 = this.createSpot(box, 0, floorPositionY, -600, false, 'A0', 01);
+	 		var spot2 = this.createSpot(box, 0, floorPositionY, -1300, true, 'B0', 01);
+	 		var spot3 = this.createSpot(box, 0, floorPositionY, -2300, false, 'C0', 01);
+	 		var spot4 = this.createSpot(box, 0, floorPositionY, 2300, true, 'D0', 01);
+	 		var spot5 = this.createSpot(box, 0, floorPositionY, 1300, false, 'E0', 01);
+	 		var spot6 = this.createSpot(box, 0, floorPositionY, 600, true, 'F0', 01);
+	 		var spots = new mono.ComboNode([spot1, spot2, spot3, spot4, spot5, spot6], ['+']);
+	 		spots.setParent(floor);
+	 		
+	 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
+	 		poleNodes.setParent(floor);
+  		});
   		
   	};
   	
@@ -576,9 +601,10 @@
   				'top.m.visible': true,
   				'top.m.texture.image': 'images/spot.png',		
   			});
-  			spot.setPosition(i*250-1100, y+16, 0);
   			spot.setParent(area);
   			spot.setClient('bid', prefix+(id+i));
+  			spot.setPositionX(i*250-1100);
+  			spot.setPositionY(spot.getPositionY()+1);
   			box.add(spot);
 
   			var block=new mono.Cylinder(5, 5, width * 0.6);
@@ -593,8 +619,8 @@
   				'm.specularStrength': 20,
   			});
   			block.setParent(spot);
+  			block.setPositionY(block.getPositionY()+5);
   			block.setRotationZ(Math.PI/2);
-  			block.setPositionY(y+20);//block.getHeight());
   			block.setPositionZ(-215);
   			box.add(block);
 
@@ -632,7 +658,7 @@
   		});
   		cube.setPositionY(cube.getHeight()/2);
 
-  		var cube2=new mono.Cube(40, 300, 40);
+  		var cube2=new mono.Cube(40, 330, 40);
   		cube2.s({
   			'm.type': 'phong',
   			'm.texture.image': 'images/floor.jpg',
@@ -649,13 +675,12 @@
   		return pole;
   	};
 
-  	var createPole = function(box){
+  	var createPole = function(box, positionZs){
   		var poles = [];
   		for(var i=0;i<3;i++){
-  			poles.push(this.createPoleObject(box, -1280+i*1300, -2600));
-  			poles.push(this.createPoleObject(box, -1280+i*1300, -1600));
-  			poles.push(this.createPoleObject(box, -1280+i*1300, -950));
-  			poles.push(this.createPoleObject(box, -1280+i*1300, -320));
+  			for(var j in positionZs) {
+  				poles.push(this.createPoleObject(box, -1280+i*1300, positionZs[j]));
+  			}
   		}
   		var poleNodes = new mono.ComboNode(poles, ['+']);
   		box.add(poleNodes);
@@ -1020,10 +1045,35 @@
   		return frame;
   	};
   	
+  	var setEvents = function(box) {
+  		$('.menu input').on('click', function() {
+  			var name = this.name;
+  			switch(name) {
+  			case 'navigation':
+  				$(this).val('停用导航');
+  				this.name='disNavigation';
+  				break;
+  			case 'disNavigation':
+  				$(this).val('启用导航');
+  				this.name='navigation';
+  				break;
+  			case 'clear':
+  				break;
+  			case 'create':
+  				break;
+  			}
+  		});
+  	};
+  	
     </script>
 </head>
-<body onload = 'setup()'>
-    <div id = "mainDiv">
+<body onload='setup()'>
+    <div class="menu">
+        <input type="button" value="启用导航" name="navigation" />
+        <input type="button" value="清空车位" name="clear" />
+        <input type="button" value="建立车位" name="create" />
+    </div>
+    <div>
         <canvas id="myCanvas"/>
     </div>
 </body>
