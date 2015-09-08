@@ -22,7 +22,10 @@
     	var self=this;
     	this.mybox._nodeList._as.forEach(function(e){
     		 if(e._selected){
-    			 self.mybox.remove(e);
+    		 	 var name=e.getClient('name');
+    		 	 if(name && name.endsWith('_Car')){
+    			     self.mybox.remove(e);
+    			  }
     		}
     	 });
     };
