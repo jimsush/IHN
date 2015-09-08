@@ -18,6 +18,15 @@
     
     var mybox=null;
     
+    var leaveParking=function(){
+    	var self=this;
+    	this.mybox._nodeList._as.forEach(function(e){
+    		 if(e._selected){
+    			 self.mybox.remove(e);
+    		}
+    	 });
+    };
+    
     var startParking=function(){
     	 var floorName=this.$('#create_park_floor').val();
     	 var spotName=this.$('#create_park_spot').val();
@@ -1162,10 +1171,10 @@
 				<input type="button" value="停车" name="createCar" onclick="startParking()" />
         <input type="text" value="B1" id="create_park_floor" />
         <input type="text" value="A010" id="create_park_spot" />
+        <input type="button" value="离开车库" name="leaveParking" onclick="leaveParking()" />
     </div>
     <div>
         <canvas id="myCanvas"/>
     </div>
 </body>
 </html>
-
