@@ -80,6 +80,12 @@ network.isSelectable = function(element){ return true; };
 workflow/index.html
 =================
 
+spot的name存spot number和floor
+输入一个Floor和Spot Number，然后查找到spot和floor
+然后clone这个position，create一个car
+
+
+
 
 
 
