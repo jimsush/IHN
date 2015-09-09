@@ -7,6 +7,7 @@
     <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/t.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/mono.js"></script>
+    <script type="text/javascript" src = "resources/fonts/helvetiker_bold.typeface.js"></script>
     
     <script type="text/javascript">
     
@@ -156,9 +157,18 @@
 		 		var temperatureProbePositions = [[-800, -1800], [800, -1800], [-800, 0], [800, 0], [-800, 1800], [800, 1800]];
 		 		for(var i in temperatureProbePositions) {
 		 			var position = temperatureProbePositions[i];
-		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B1_Temperature'+(i+1));
+		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B1_Temperature_'+(i+1));
 			 		tp.setParent(floor);
 		 		}
+		 		
+		 		var exit1 = this.createDoor(box, null, 1800, 0, 2600, 'split', 'metal', true, 'Exit');
+		 		exit1.setClient('name', 'B1_Exit_1');
+		 		exit1.setParent(floor);
+		 		
+		 		var exit2 = this.createDoor(box, null, -1700, 0, 2200, 'split', 'metal', true, 'Exit');
+		 		exit2.setRotationY(-Math.PI/2);
+		 		exit2.setClient('name', 'B1_Exit_2');
+		 		exit2.setParent(floor);
   		});
   		
   		var B2 = this.createFloor(box, 5000, -400, 5400);
@@ -189,9 +199,18 @@
 		 		var temperatureProbePositions = [[-800, -1800], [800, -1800], [-800, 0], [800, 0], [-800, 1800], [800, 1800]];
 		 		for(var i in temperatureProbePositions) {
 		 			var position = temperatureProbePositions[i];
-		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B1_Temperature'+(i+1));
+		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B2_Temperature_'+(i+1));
 			 		tp.setParent(floor);
 		 		}
+		 		
+		 		var exit1 = this.createDoor(box, null, 1800, 0, 2600, 'split', 'metal', true, 'Exit');
+		 		exit1.setClient('name', 'B2_Exit_1');
+		 		exit1.setParent(floor);
+		 		
+		 		var exit2 = this.createDoor(box, null, -1700, 0, 2200, 'split', 'metal', true, 'Exit');
+		 		exit2.setRotationY(-Math.PI/2);
+		 		exit2.setClient('name', 'B1_Exit_2');
+		 		exit2.setParent(floor);
 	  		});
   		
   		var B3 = this.createFloor(box, 5000, -800, 5400);
@@ -219,6 +238,15 @@
 		 		
 		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
 		 		poleNodes.setParent(floor);
+		 		
+		 		var exit1 = this.createDoor(box, null, 1800, 0, 2600, 'split', 'metal', true, 'Exit');
+		 		exit1.setClient('name', 'B3_Exit_1');
+		 		exit1.setParent(floor);
+		 		
+		 		var exit2 = this.createDoor(box, null, -1700, 0, 2200, 'split', 'metal', true, 'Exit');
+		 		exit2.setRotationY(-Math.PI/2);
+		 		exit2.setClient('name', 'B1_Exit_2');
+		 		exit2.setParent(floor);
 	  	});
   		
   	};
@@ -795,8 +823,8 @@
   	};
   	
   	var createTemperatureProbe = function(box, x, z, name) {
-  		var tp=new mono.Sphere(60, 40, 40, 0, Math.PI*2, Math.PI/2, Math.PI/2);
-  		tp.setPosition(x, -8, z);
+  		var tp=new mono.Sphere(50, 40, 40, 0, Math.PI*2, Math.PI/2, Math.PI/2);
+  		tp.setPosition(x, -10, z);
   		tp.setRotationY(Math.PI);
   		tp.setStyle('m.texture.image', 'images/temperature.jpg')
   		tp.setClient('name', name);
@@ -1101,7 +1129,7 @@
   		return parseInt(Math.random()*max);
   	};
 
-  	var createDoor = function(box, wall, x, y, z, animation, type){	
+  	var createDoor = function(box, wall, x, y, z, animation, type, doorframe, label){	
   		var width=205, height=180, depth=26;	
   		var frameEdge=10, frameBottomEdge=2;
   		
@@ -1134,46 +1162,55 @@
   			box.add(cutwall);
   		}
   		
-  		var left=new mono.Cube((width-frameEdge)/2-2, height-frameEdge/2-frameBottomEdge-2, 2);
-  		left.setPosition(x-(width-frameEdge)/4, frameBottomEdge+1+left.getHeight()/2+y, z);
-  		left.s({
-  			'm.color': 'orange',
-  			'm.ambient': 'orange',
-  			'm.type': 'phong',
-  			'm.transparent': true,
-  			'front.m.texture.image': 'images/door_left.png',					
-  			'back.m.texture.image': 'images/door_right.png',					
-  			'm.specularStrength': 100,
-  			'm.envmap.image': this.envmap,
-  			'm.specularmap.image': 'images/white.png',	
-  		});		
-  		if(type==='metal'){
-  			left.s({
-  				'm.color': '#A4A4A4',
-  				'm.ambient': '#A4A4A4',
-  				'm.transparent': false,
-  				'm.texture.image': 'images/metal.jpg',					
-  				'm.specularStrength': 30,
-  				'm.envmap.image': null,
-  			});	
+  		if(!doorframe) {
+  			var left=new mono.Cube((width-frameEdge)/2-2, height-frameEdge/2-frameBottomEdge-2, 2);
+  	  		left.setPosition(x-(width-frameEdge)/4, frameBottomEdge+1+left.getHeight()/2+y, z);
+  	  		left.s({
+  	  			'm.color': 'orange',
+  	  			'm.ambient': 'orange',
+  	  			'm.type': 'phong',
+  	  			'm.transparent': true,
+  	  			'front.m.texture.image': 'images/door_left.png',					
+  	  			'back.m.texture.image': 'images/door_right.png',					
+  	  			'm.specularStrength': 100,
+  	  			'm.envmap.image': this.envmap,
+  	  			'm.specularmap.image': 'images/white.png',	
+  	  		});		
+  	  		if(type==='metal'){
+  	  			left.s({
+  	  				'm.color': '#A4A4A4',
+  	  				'm.ambient': '#A4A4A4',
+  	  				'm.transparent': false,
+  	  				'm.texture.image': 'images/metal.jpg',					
+  	  				'm.specularStrength': 30,
+  	  				'm.envmap.image': null,
+  	  			});	
+  	  		}
+  	  		left.setClient('animation', 'rotate.left.-90');
+  	  		if(animation==='split'){
+  	  			left.setClient('animation', 'move.-x');
+  	  		}
+  	  		left.setParent(frame);
+  	  		box.add(left);
+  	  		
+	  	  	var right=left.clone();
+	  		right.setPositionX(x+(width-frameEdge)/4);
+	  		right.setRotationY(Math.PI);
+	  		right.setParent(frame);
+	  		right.setClient('animation', 'rotate.left.90');
+	  		if(animation==='split'){
+	  			right.setClient('animation', 'move.x');
+	  		}
+	  		box.add(right);	
   		}
-  		left.setClient('animation', 'rotate.left.-90');
-  		if(animation==='split'){
-  			left.setClient('animation', 'move.-x');
-  		}
-  		left.setParent(frame);
-
-  		box.add(left);
-
-  		var right=left.clone();
-  		right.setPositionX(x+(width-frameEdge)/4);
-  		right.setRotationY(Math.PI);
-  		right.setParent(frame);
-  		right.setClient('animation', 'rotate.left.90');
-  		if(animation==='split'){
-  			right.setClient('animation', 'move.x');
-  		}
-  		box.add(right);	
+  		
+  		if(label){
+			var textNode = new mono.TextNode(label,40,2,'helvetiker','bold');
+			textNode.setSelectable(false);
+			textNode.setParent(frame);
+			textNode.setPosition(x, textNode.getPositionY()+200, z);
+			box.add(textNode);
+		}  
 
   		return frame;
   	};
@@ -1205,7 +1242,7 @@
         <input type="button" value="启用导航" name="navigation" />
         <input type="button" value="清空车位" name="clear" />
         <input type="button" value="建立车位" name="create" />
-				<input type="button" value="停车" name="createCar" onclick="startParking()" />
+		<input type="button" value="停车" name="createCar" onclick="startParking()" />
         <input type="text" value="B1" id="create_park_floor" />
         <input type="text" value="A010" id="create_park_spot" />
         <input type="button" value="离开车库" name="leaveParking" onclick="leaveParking()" />
