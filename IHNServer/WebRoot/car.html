@@ -57,8 +57,8 @@
   		network.setClearColor('#39609B');
   
   		var interaction = new mono.DefaultInteraction(network);		
-  		interaction.yLowerLimitAngle=Math.PI/180*2;
-  		interaction.yUpLimitAngle=Math.PI/2;
+  		//interaction.yLowerLimitAngle=Math.PI/180*2;
+  		//interaction.yUpLimitAngle=Math.PI/2;
   		interaction.maxDistance=15000;
   		interaction.minDistance=50;
   		interaction.zoomSpeed=1;
@@ -152,6 +152,13 @@
 		 		this.createTrail(box, floor);
 
 		 		this.createLine(box, floor);	
+		 		
+		 		var temperatureProbePositions = [[-800, -1800], [800, -1800], [-800, 0], [800, 0], [-800, 1800], [800, 1800]];
+		 		for(var i in temperatureProbePositions) {
+		 			var position = temperatureProbePositions[i];
+		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B1_Temperature'+(i+1));
+			 		tp.setParent(floor);
+		 		}
   		});
   		
   		var B2 = this.createFloor(box, 5000, -400, 5400);
@@ -178,6 +185,13 @@
 		 		
 		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600, 320, 900, 1600, 2600]);
 		 		poleNodes.setParent(floor);
+		 		
+		 		var temperatureProbePositions = [[-800, -1800], [800, -1800], [-800, 0], [800, 0], [-800, 1800], [800, 1800]];
+		 		for(var i in temperatureProbePositions) {
+		 			var position = temperatureProbePositions[i];
+		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B1_Temperature'+(i+1));
+			 		tp.setParent(floor);
+		 		}
 	  		});
   		
   		var B3 = this.createFloor(box, 5000, -800, 5400);
@@ -728,7 +742,7 @@
   	};
 
   	var createPoleObject = function(box, x, z){
-  		var cube=new mono.Cube(45, 70, 45);
+  		var cube=new mono.Cube(45, 100, 45);
   		cube.s({
   			'm.type': 'phong',
   			'm.texture.image': 'images/pole.png',
@@ -741,7 +755,7 @@
   		});
   		cube.setPositionY(cube.getHeight()/2);
 
-  		var cube2=new mono.Cube(40, 330, 40);
+  		var cube2=new mono.Cube(40, 380, 40);
   		cube2.s({
   			'm.type': 'phong',
   			'm.texture.image': 'images/floor.jpg',
@@ -770,6 +784,26 @@
   		return poleNodes;
   	};
 
+  	var createCam = function(box, x, z, name) {
+  		var cam=new mono.Sphere(60, 40, 40, 0, Math.PI*2, Math.PI/2, Math.PI/2);
+  		cam.setPosition(x, -10, z);
+  		cam.setRotationY(Math.PI);
+  		cam.setStyle('m.texture.image', 'images/cam.jpg')
+  		cam.setClient('name', name);
+  		box.add(cam);
+  		return cam;
+  	};
+  	
+  	var createTemperatureProbe = function(box, x, z, name) {
+  		var tp=new mono.Sphere(60, 40, 40, 0, Math.PI*2, Math.PI/2, Math.PI/2);
+  		tp.setPosition(x, -8, z);
+  		tp.setRotationY(Math.PI);
+  		tp.setStyle('m.texture.image', 'images/temperature.jpg')
+  		tp.setClient('name', name);
+  		box.add(tp);
+  		return tp;
+  	};
+  	
   	var generateAssetImage = function(text, textColor, fillColor){         
   		var width=512, height=256;
 
