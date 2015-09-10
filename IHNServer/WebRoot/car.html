@@ -44,6 +44,27 @@
     	
     };
     
+    var createNewSpot=function(){
+    	 var direction=this.$('#spotdirection').val();
+    	 var prefix=this.$('#spotprefix').val();
+    	 var numberOfSpot=this.$('#spotnumber').val();
+    	 var floorName='B1';
+    	 
+    	 var areaspot=this.mybox.getSelectionModel().getFirstData();
+    	 if(!areaspot){
+    	 	   alert("请选择1个空的区域");
+    	     return;
+    	 }else if('Area'!=areaspot.getClient('name')){
+    	 		alert("请选择1个空的区域");
+    	     return;
+    	 }
+    	 console.log(areaspot.getClient('name'));
+    	 //var width=areaspot.getWidth();
+    	 for(var i=0; i<numberOfSpot; i++){
+    	 	    this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i+1), -980+250*i, 250, 500);
+    	 }
+    };
+    
     var setup = function(htmlElementId){				
   	   var self=this;
   	    
@@ -145,6 +166,9 @@
 		 		var spots = new mono.ComboNode([spot1, spot2, spot3], ['+']);
 		 		spots.setParent(floor);
 	 		
+	 		  var carspot4 = new mono.Cube();
+  		  var area4=this.createSpotArea(box, carspot4, 1600, 800, -200, floorPositionY, 1700, true, floor);
+  		  
 		 		var poleNodes = this.createPole(box, [-320, -900, -1600, -2600]);
 		 		poleNodes.setParent(floor);
 		 		
@@ -686,31 +710,22 @@
   	var createSpot = function(box, x, y, z, reversed, prefix, id, floor){
   		var floorName=floor.getClient('name');
   		var carspot = new mono.Cube();
-  		var cube=new mono.Cube(2600, 1, 600);
-  		cube.s({
-  			'm.type': 'phong',
-  			'm.color': '#0B6138',
-  			'm.ambient': '#0B6138',
-  			'm.specularStrength': 20,
-  		});
-  		var border=20;
-  		var cubeBorder=new mono.Cube(cube.getWidth()+border*2, 1, cube.getDepth()+border*2);
-  		cubeBorder.s({
-  			'm.color': '#E4F6F6',
-  		});	
-  		var area=new mono.ComboNode([cubeBorder, cube, cube], ['-', '+']);
-  		area.setPosition(x, y+15, z);
-  		if(reversed){
-  			area.setRotationY(Math.PI);
-  		}
-  		box.add(area);
-  		area.setParent(carspot);
-
+  		
+  		var area=this.createSpotArea(box, carspot, 2600, 600, x,y,z, reversed, floor);
+  		
   		var width=250;
   		var height=500;
-
   		for(var i=0;i<10;i++){
-  			var spot=new mono.Cube(width, 1, height);
+  			var spotName=prefix+(id+i);
+  			var spotX=i*250-1100;
+  			this.createSingleSpot(box, carspot, area, floorName, spotName, spotX, width, height);
+  		}
+
+			return carspot;
+  	};
+		
+		var createSingleSpot=function(box, carspot, area, floorName, spotName, x, width, height){
+			var spot=new mono.Cube(width, 1, height);
   			spot.s({
   				'm.visible': false,
   			});
@@ -723,11 +738,11 @@
   			spot.setSelectable(true);
   			spot.setParent(area);
   			
-  			var spotName1=prefix+(id+i);
-  			spot.setClient('bid', spotName1);
-  			spot.setClient('name', floorName+"_"+spotName1);
+  			//var spotName=prefix+(id+i);
+  			spot.setClient('bid', spotName);
+  			spot.setClient('name', floorName+"_"+spotName);
   			
-  			spot.setPositionX(i*250-1100);
+  			spot.setPositionX(x); //i*250-1100;
   			spot.setPositionY(spot.getPositionY()+1);
   			box.add(spot);
 
@@ -749,7 +764,7 @@
   			box.add(block);
 
   			var label=new mono.Cube(150,2,75);		
-  			var canvas=this.generateAssetImage(prefix+(id+i), '#E6E6E6');
+  			var canvas=this.generateAssetImage(spotName, '#E6E6E6');
   			label.setStyle('m.visible', false);
   			label.s({
   				'top.m.visible': true,
@@ -763,10 +778,34 @@
   			
   			var ps = new mono.ComboNode([spot, block, label], ['+']);
   			ps.setParent(carspot);
-  		}
+		};
 
-			carspot.setParent(floor);
-  		return carspot;
+	  var createSpotArea = function(box, carspot, width, height, x, y, z, reversed, floor){
+	  	carspot.setParent(floor);
+  		carspot.setClient('name','CarSpot');
+  		
+  		var cube=new mono.Cube(width, 1, height);
+  		cube.s({
+  			'm.type': 'phong',
+  			'm.color': '#0B6138',
+  			'm.ambient': '#0B6138',
+  			'm.specularStrength': 20,
+  		});
+  		var border=20;
+  		var cubeBorder=new mono.Cube(cube.getWidth()+border*2, 1, cube.getDepth()+border*2);
+  		cubeBorder.s({
+  			'm.color': '#E4F6F6',
+  		});	
+  		var area=new mono.ComboNode([cubeBorder, cube, cube], ['-', '+']);
+  		area.setParent(carspot);
+  		area.setPosition(x, y+15, z);
+  		area.setClient('name','Area');
+  		
+  		if(reversed){
+  			area.setRotationY(Math.PI);
+  		}
+  		box.add(area);
+  		return area;
   	};
 
   	var createPoleObject = function(box, x, z){
@@ -1219,6 +1258,7 @@
   	};
   	
   	var setEvents = function(box) {
+  		var self=this;
   		$('.menu input').on('click', function() {
   			var name = this.name;
   			switch(name) {
@@ -1233,6 +1273,7 @@
   			case 'clear':
   				break;
   			case 'create':
+  			  self.createNewSpot();
   				break;
   			}
   		});
@@ -1241,6 +1282,7 @@
   	
     </script>
 </head>
+
 <body onload='setup()'>
     <div class="menu">
         <input type="button" value="启用导航" name="navigation" />
@@ -1260,4 +1302,5 @@
         <canvas id="myCanvas"/>
     </div>
 </body>
+
 </html>

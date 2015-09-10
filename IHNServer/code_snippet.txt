@@ -84,6 +84,17 @@ spot的name存spot number和floor
 输入一个Floor和Spot Number，然后查找到spot和floor
 然后clone这个position，create一个car
 
+this.mybox.getSelectionModel().getFirstData/getLastData();
+this.mybox.getSelectionModel()._selectionList._as
+
+====================
+创建area，可以选中；
+创建车位：编号A0, 几个, 方向，横着还是竖着
+
+
+
+
+
 
 
 
