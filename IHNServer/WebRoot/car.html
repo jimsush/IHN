@@ -32,16 +32,14 @@
     	{name: 'p10', position: new Array(1600,3000),distance:{p7:3200, p9:700}}
     );
     
-    var 
-    
     var getNearestPoint=function(x,y){
-        var minDistance=Math.pow((lanePoints[0].position[0]-x),2)+Math.pow((lanePoints[0].position[1]-y),2);
-        var minPoint=lanePoints[0];
+        var minDistance=Math.pow((this.lanePoints[0].position[0]-x),2)+Math.pow((this.lanePoints[0].position[1]-y),2);
+        var minPoint=this.lanePoints[0];
         
-        for(var i=1; i<lanePoints.length; i++){
-            var distance=Math.pow((lanePoints[i].position[0]-x),2)+Math.pow((lanePoints[i].position[1]-y),2);
+        for(var i=1; i<this.lanePoints.length; i++){
+            var distance=Math.pow((this.lanePoints[i].position[0]-x),2)+Math.pow((this.lanePoints[i].position[1]-y),2);
             if(distance<minDistance){
-                minPoint=lanePoints[i];
+                minPoint=this.lanePoints[i];
                 minDistance=distance;
             }
         }
@@ -109,13 +107,23 @@
     	// hide the existing path
     	
     	// 
+    	var g = new Graph();
+    	//var vertexs=new Array();
+    	for(var i=0; i<this.lanePoints.length; i++){
+    		g.addVertex(this.lanePoints[i].name, this.lanePoints[i].distance);
+    	}
+    	var finalPath=g.shortestPath(sourceNearestPos.name, this.lanePoints[0].name);
+    	
     	
     	// person position
-    	var destX=1000, destY=2650;
+    	//var destX=1000, destY=2650;
     	
     	var path=new mono.Path();
   		path.moveTo(sourceNearestPos.position[0], 0, sourceNearestPos.position[1]);
-  		path.lineTo(destX,0,destY);
+  		for(var i=0; i<finalPath.length; i++){
+  		    var posixy=this.getVertexPosition(finalPath[i]);
+  		    path.lineTo(posixy[0], 0, posixy[1]);
+  		}
   		path = mono.PathNode.prototype.adjustPath(path, 100);
   		var cable=new mono.PathNode(path, 100, 10);
   		cable.s({
@@ -132,6 +140,14 @@
   		cable.setPositionY(20);
   		cable.setClient('name', 'cable');
   		this.mybox.add(cable);
+    };
+    
+    var getVertexPosition=function(vertexName){
+    	for(var i=0; i<this.lanePoints.length; i++){
+    		if(this.lanePoints[i].name==vertexName){
+    			return this.lanePoints[i].position;
+    		}
+    	}
     };
     
     var getShortestPath=function(source, destination){
