@@ -141,7 +141,7 @@
     	var abs_pos=new Array(0,0,0);
     	while(currentElement){
     		var rotaY=currentElement.getRotationY();
-    		if(rotaY==Math.PI)
+    		if(rotaY==Math.PI || rotaY==-Math.PI)
     		    abs_pos[0]-=currentElement.getPositionX();
     		else
     			  abs_pos[0]+=currentElement.getPositionX();
