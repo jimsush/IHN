@@ -3,8 +3,10 @@
 <head>
     <title>Garage Demo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="styles/jquery-ui.css">
     
     <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
+    <script type="text/javascript" src = "scripts/libs/jquery/jquery-ui-min.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/t.js"></script>
     <script type="text/javascript" src = "scripts/libs/twaver/mono.js"></script>
     <script type="text/javascript" src = "resources/fonts/helvetiker_bold.typeface.js"></script>
@@ -1066,7 +1068,22 @@
   				
   				isDetail = !isDetail;
   			}else if(element.getClient('type') && element.getClient('type') == 'temperature') {
-  	  			alert("temperature probe!")
+  				var name = element.getClient('name');
+  				var floor = element.getParent().getClient('name');
+  				
+  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div></div>';
+  	  			$('body').innerHTML = dialog;
+  	  			
+  	  			$(dialog).dialog({
+  	  				title: '温度探测器 ',
+	                autoOpen: true,
+	                height: 200,
+	                width: 300,
+	                modal: true,
+	                close: function() {
+	                  $(this).dialog( "close" );
+	                }
+	            });
   			}else{
   				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
   					if(element.getClient('animation')){
