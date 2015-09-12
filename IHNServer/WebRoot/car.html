@@ -19,24 +19,27 @@
     
     var mybox=null;
     
-    var lanePoints=new Array(new Array(-1600,-2000),
-    new Array(1600,-2000),
-    new Array(-1600,-950),
-    new Array(1600,-950),
-    new Array(-1600,-200),
-    new Array(900,-200),
-    new Array(1600,-200),
-    new Array(-1600,3000),
-    new Array(900,3000),
-    new Array(1600,3000)
+    var lanePoints=new Array( 
+    	{name: 'p1', position: new Array(-1600,-2000), distance:{p2:3200,p3:1050} },
+    	{name: 'p2', position: new Array(1600,-2000), distance:{p1:3200,p4:1050}},
+    	{name: 'p3', position: new Array(-1600,-950), distance:{p1:1050, p4: 3200, p5:750}},
+    	{name: 'p4', position: new Array(1600,-950), distance:{p2:1050, p3:3200, p7:750} },
+    	{name: 'p5', position: new Array(-1600,-200), distance:{p3:750, p6:2500, p8:3200}},
+    	{name: 'p6', position: new Array(900,-200), distance:{p5:2500, p7:700,p9: 3200}},
+    	{name: 'p7', position: new Array(1600,-200), distance:{p4:750, p6:700, p10:3200}},
+    	{name: 'p8', position: new Array(-1600,3000), distance:{p5:3200, p9:2500}},
+    	{name: 'p9', position: new Array(900,3000), distance:{p6:3200, p8:2500, p10:700}},
+    	{name: 'p10', position: new Array(1600,3000),distance:{p7:3200, p9:700}}
     );
     
+    var 
+    
     var getNearestPoint=function(x,y){
-        var minDistance=Math.pow((lanePoints[0][0]-x),2)+Math.pow((lanePoints[0][1]-y),2);
+        var minDistance=Math.pow((lanePoints[0].position[0]-x),2)+Math.pow((lanePoints[0].position[1]-y),2);
         var minPoint=lanePoints[0];
         
         for(var i=1; i<lanePoints.length; i++){
-            var distance=Math.pow((lanePoints[i][0]-x),2)+Math.pow((lanePoints[i][1]-y),2);
+            var distance=Math.pow((lanePoints[i].position[0]-x),2)+Math.pow((lanePoints[i].position[1]-y),2);
             if(distance<minDistance){
                 minPoint=lanePoints[i];
                 minDistance=distance;
@@ -111,7 +114,7 @@
     	var destX=1000, destY=2650;
     	
     	var path=new mono.Path();
-  		path.moveTo(sourceNearestPos[0],0,sourceNearestPos[1]);
+  		path.moveTo(sourceNearestPos.position[0], 0, sourceNearestPos.position[1]);
   		path.lineTo(destX,0,destY);
   		path = mono.PathNode.prototype.adjustPath(path, 100);
   		var cable=new mono.PathNode(path, 100, 10);
