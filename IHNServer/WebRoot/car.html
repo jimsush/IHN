@@ -19,6 +19,32 @@
     
     var mybox=null;
     
+    var lanePoints=new Array(new Array(-1600,-2000),
+    new Array(1600,-2000),
+    new Array(-1600,-950),
+    new Array(1600,-950),
+    new Array(-1600,-200),
+    new Array(900,-200),
+    new Array(1600,-200),
+    new Array(-1600,3000),
+    new Array(900,3000),
+    new Array(1600,3000)
+    );
+    
+    var getNearestPoint=function(x,y){
+        var minDistance=Math.pow((lanePoints[0][0]-x),2)+Math.pow((lanePoints[0][1]-y),2);
+        var minPoint=lanePoints[0];
+        
+        for(var i=1; i<lanePoints.length; i++){
+            var distance=Math.pow((lanePoints[i][0]-x),2)+Math.pow((lanePoints[i][1]-y),2);
+            if(distance<minDistance){
+                minPoint=lanePoints[i];
+                minDistance=distance;
+            }
+        }
+        return minPoint;
+    };
+    
     var leaveParking=function(){
     	var self=this;
     	this.mybox._nodeList._as.forEach(function(e){
@@ -61,8 +87,70 @@
     	 console.log(areaspot.getClient('name'));
     	 //var width=areaspot.getWidth();
     	 for(var i=0; i<numberOfSpot; i++){
-    	 	    this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i+1), -980+250*i, 250, 500);
+    	 	    this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i+1), 250*i-700, 250, 500);
     	 }
+    };
+    
+    var searchShop=function(){
+    	var shopname=this.$('#shopname').val();
+    	var startElement=this.mybox.getSelectionModel().getFirstData();
+    	
+    	var newPos=this.getAbsolutedPosition(startElement);
+    	console.log(newPos);
+    	
+    	// get current floor
+    	var floor=null;
+    	
+    	var sourceNearestPos=this.getNearestPoint(newPos[0], newPos[2]);
+    	
+    	// hide the existing path
+    	
+    	// 
+    	
+    	// person position
+    	var destX=1000, destY=2650;
+    	
+    	var path=new mono.Path();
+  		path.moveTo(sourceNearestPos[0],0,sourceNearestPos[1]);
+  		path.lineTo(destX,0,destY);
+  		path = mono.PathNode.prototype.adjustPath(path, 100);
+  		var cable=new mono.PathNode(path, 100, 10);
+  		cable.s({
+  			'm.type': 'phong',
+  			'm.specularStrength': 30,
+  			'm.color': '#B43104',
+  			'm.ambient': '#B43104',
+  			'm.texture.repeat': new mono.Vec2(150, 1),
+  			'm.texture.image': 'images/wall.jpg',
+  			'm.visible': true
+  		});
+  		cable.setStartCap('plain');
+  		cable.setEndCap('plain');
+  		cable.setPositionY(20);
+  		cable.setClient('name', 'cable');
+  		this.mybox.add(cable);
+    };
+    
+    var getShortestPath=function(source, destination){
+    	var points=new Array();
+    	return points;
+    };
+    
+    var getAbsolutedPosition=function(element){
+    	var currentElement=element;
+    	var abs_pos=new Array(0,0,0);
+    	while(currentElement){
+    		var rotaY=currentElement.getRotationY();
+    		if(rotaY==Math.PI)
+    		    abs_pos[0]-=currentElement.getPositionX();
+    		else
+    			  abs_pos[0]+=currentElement.getPositionX();
+    		abs_pos[1]+=currentElement.getPositionY();
+    		abs_pos[2]+=currentElement.getPositionZ();
+    		currentElement=currentElement.getParent();
+    	}
+    	
+    	return abs_pos;
     };
     
     var setup = function(htmlElementId){				
@@ -744,6 +832,7 @@
   			
   			spot.setPositionX(x); //i*250-1100;
   			spot.setPositionY(spot.getPositionY()+1);
+  			spot.setRotationY(spot.getParent().getRotationY());
   			box.add(spot);
 
   			var block=new mono.Cylinder(5, 5, width * 0.6);
@@ -915,7 +1004,10 @@
   			
   			
   			var elementName=element.getClient('name');
-  			console.log(elementName);
+  			console.log(elementName+',pos=('+element.getPositionX()+","+element.getPositionY()+","+element.getPositionZ()+')');
+  			var newPos=this.getAbsolutedPosition(element);
+  			console.log(elementName+',new pos=('+newPos[0]+','+newPos[1]+','+newPos[2]+')');
+  			
   			if(elementName){
   				var fs=elementName.split('_');
   				if(fs && fs.length==2){
@@ -1265,15 +1357,22 @@
   			case 'navigation':
   				$(this).val('停用导航');
   				this.name='disNavigation';
+  				self.searchShop();
   				break;
   			case 'disNavigation':
-  				$(this).val('启用导航');
+  				$(this).val('搜索商家');
   				this.name='navigation';
   				break;
   			case 'clear':
   				break;
   			case 'create':
   			  self.createNewSpot();
+  				break;
+  			case 'createCar':
+  				self.startParking();
+  				break;
+  			case 'leaveParking':
+  				self.leaveParking();
   				break;
   			}
   		});
@@ -1285,18 +1384,22 @@
 
 <body onload='setup()'>
     <div class="menu">
-        <input type="button" value="启用导航" name="navigation" />
+        <input type="button" value="搜索商家" name="navigation" />
+        <input type="text" value="关键字" id="shopname" style="width:80px;" />
+        
         <input type="button" value="清空车位" name="clear" />
         
         <input type="button" value="建立车位" name="create" />
-        <input type="text" value="landscape" id="spotdirection" />
-        <input type="text" value="6" id="spotnumber" />
-        <input type="text" value="H0" id="spotprefix" />
+        <input type="text" value="landscape" id="spotdirection" style="width:60px;" />
+        <input type="text" value="6" id="spotnumber" style="width:60px;" />
+        <input type="text" value="H0" id="spotprefix" style="width:60px;" />
+
+				<input type="button" value="停车" name="createCar" />
+        <input type="text" value="B1" id="create_park_floor" style="width:40px;" />
+        <input type="text" value="A010" id="create_park_spot" style="width:60px;" />
+        <input type="button" value="离开车库" name="leaveParking" />
         
-				<input type="button" value="停车" name="createCar" onclick="startParking()" />
-        <input type="text" value="B1" id="create_park_floor" />
-        <input type="text" value="A010" id="create_park_spot" />
-        <input type="button" value="离开车库" name="leaveParking" onclick="leaveParking()" />
+        
     </div>
     <div>
         <canvas id="myCanvas"/>
