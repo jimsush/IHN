@@ -51,14 +51,30 @@
     
     var leaveParking=function(){
     	var self=this;
+    	//remove according to the selected car
     	this.mybox._nodeList._as.forEach(function(e){
     		 if(e._selected){
     		 	 var name=e.getClient('name');
     		 	 if(name && name.endsWith('_Car')){
+    		 		 e.getChildren().forEach(function(child) {
+    	    			 self.mybox.remove(child);
+    	    		 });
     			     self.mybox.remove(e);
     			  }
     		}
     	 });
+    	
+    	 //remove according to the selected spot where car landed
+    	 var floorName=this.$('#create_park_floor').val();
+    	 var spotName=this.$('#create_park_spot').val();
+		 var carName = floorName+"_"+spotName+"_Car";
+    	 var car=this.nameFinder.findFirst(carName);
+    	 if(car){
+    		 car.getChildren().forEach(function(child) {
+    			 self.mybox.remove(child);
+    		 });
+    		 self.mybox.remove(car);
+    	 }
     };
     
     var startParking=function(){
@@ -207,6 +223,9 @@
   		
   		network.getRootView().addEventListener('dblclick', function(e){
   			self.handleDoubleClick(e, network);
+  		});	
+  		network.getRootView().addEventListener('click', function(e){
+  			self.handleClick(e, network);
   		});	
 
   		this.setupLights(network.getDataBox());
@@ -851,6 +870,7 @@
   			//var spotName=prefix+(id+i);
   			spot.setClient('bid', spotName);
   			spot.setClient('name', floorName+"_"+spotName);
+  			spot.setClient('type', 'spot');
   			
   			spot.setPositionX(x); //i*250-1100;
   			spot.setPositionY(spot.getPositionY()+1);
@@ -1103,7 +1123,7 @@
 	                close: function() {
 	                  $(this).dialog( "close" );
 	                }
-	            });
+  	  			});
   			}else{
   				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
   					if(element.getClient('animation')){
@@ -1118,6 +1138,25 @@
   		}
   	};
 
+  	var handleClick = function(e, network) {
+  		var camera=network.getCamera();
+  		var interaction=network.getDefaultInteraction();
+  		var firstClickObject=this.findFirstObjectByMouse(network,e);
+  		if(firstClickObject){
+  			var element=firstClickObject.element;					
+  			var newTarget=firstClickObject.point;
+  			var oldTarget=camera.getTarget();
+  			
+  			var type = element.getClient('type'),
+  			    name = element.getClient('name');
+  			
+  			if(type == 'spot') {
+		    	this.$('#create_park_floor').val(name.split('_')[0]);
+		    	this.$('#create_park_spot').val(name.split('_')[1]);
+  			}
+  		}
+  	};
+  	
   	var changePositionY = function(element, value, isCombine) {
   		if(!isCombine) {
   			element.setPositionY(element.getPositionY()+value);
@@ -1391,14 +1430,8 @@
   		$('.menu input').on('click', function() {
   			var name = this.name;
   			switch(name) {
-  			case 'navigation':
-  				$(this).val('停用导航');
-  				this.name='disNavigation';
+  			case 'searchshop':
   				self.searchShop();
-  				break;
-  			case 'disNavigation':
-  				$(this).val('搜索商家');
-  				this.name='navigation';
   				break;
   			case 'clear':
   				break;
@@ -1421,22 +1454,20 @@
 
 <body onload='setup()'>
     <div class="menu">
-        <input type="button" value="搜索商家" name="navigation" />
-        <input type="text" value="关键字" id="shopname" style="width:80px;" />
+        <input type="button" value="搜索商家" name="searchshop" />
+        <input type="text" value="关键字" id="shopname" style="width:80px; margin-right: 20px;" />
         
         <input type="button" value="清空车位" name="clear" />
         
         <input type="button" value="建立车位" name="create" />
         <input type="text" value="landscape" id="spotdirection" style="width:60px;" />
         <input type="text" value="6" id="spotnumber" style="width:60px;" />
-        <input type="text" value="H0" id="spotprefix" style="width:60px;" />
+        <input type="text" value="H0" id="spotprefix" style="width:60px; margin-right: 20px;" />
 
-				<input type="button" value="停车" name="createCar" />
+		<input type="button" value="停车" name="createCar" />
         <input type="text" value="B1" id="create_park_floor" style="width:40px;" />
         <input type="text" value="A010" id="create_park_spot" style="width:60px;" />
         <input type="button" value="离开车库" name="leaveParking" />
-        
-        
     </div>
     <div>
         <canvas id="myCanvas"/>
