@@ -219,6 +219,32 @@
     	return abs_pos;
     };
     
+    var addAlarm=function(){
+    	var startElement=this.mybox.getSelectionModel().getFirstData();
+    	if(startElement){
+    	  var alarmBox = this.mybox.getAlarmBox();
+    	  var alarm = new mono.Alarm(Math.random(), startElement.getId(), this.randomSeverity());
+    	  debugger
+    	  alarmBox.add(alarm);
+      }
+    };
+    
+    var randomSeverity=function() {
+       var severities = mono.AlarmSeverity.severities;
+       return severities.get(this.randomInt(severities.size()));
+    };
+
+    var randomInt=function(n) {
+       return Math.floor(Math.random() * n);
+    };
+        
+    var clearAlarm=function(){
+    	var alarmBox = this.mybox.getAlarmBox();
+    	alarmBox.getDatas().toList().forEach(function(alarm){
+          alarmBox.remove(alarm);
+      });
+    };
+    
     var setup = function(htmlElementId){				
   	   var self=this;
   	    
@@ -347,6 +373,12 @@
 		 		exit2.setRotationY(-Math.PI/2);
 		 		exit2.setClient('name', 'B1_Exit_2');
 		 		exit2.setParent(floor);
+		 		
+		 		var beacon1=this.createBeaconDevice(box, 0, -220, 'B1', floor);
+		 		var beacon2=this.createBeaconDevice(box, 700, -220, 'B2', floor);
+		 		
+		 		var gateway1=this.createGatewayDevice(box, 0, -1800, 'G1', floor);
+		 		
   		});
   		
   		var B2 = this.createFloor(box, 5000, -400, 5400, 'B2');
@@ -1029,6 +1061,46 @@
   		return tp;
   	};
   	
+  	var createBeaconDevice=function(box, x, z, beaconId, parent){
+  	  var beacon=new mono.Cube(80, 20, 80);
+  		beacon.setPosition(x, beacon.getHeight()/2, z);
+  		beacon.s({
+  			'm.texture.image': 'images/bluetooth2.png',
+  			'top.m.texture.image': 'images/bluetooth1.png',
+  			'bottom.m.texture.image': 'images/bluetooth1.png'
+  			});
+  		beacon._id=parent.getId()+"_Beacon"+beaconId;
+  		beacon.setClient('type', 'beacon');
+  		beacon.setClient('name', beacon.getId());
+  		beacon.setClient('mac','0F-12-34-56-78-'+beaconId);
+  		beacon.setClient('uuid','00001101-0000-1000-8000-00805F9B'+beaconId);
+  		beacon.setClient('status','Green');
+  		beacon.setParent(parent);
+  		
+  		box.add(beacon);
+  		return beacon;
+  	};
+  	
+  	var createGatewayDevice=function(box, x, z, gatewayId, parent){
+  	  var beacon=new mono.Cube(80, 20, 80);
+  		beacon.setPosition(x, beacon.getHeight()/2, z);
+  		beacon.s({
+  			'm.texture.image': 'images/gateway2.png',
+  			'top.m.texture.image': 'images/gateway1.png',
+  			'bottom.m.texture.image': 'images/gateway1.png'
+  			});
+  		beacon._id=parent.getId()+"_Gateway"+gatewayId;
+  		beacon.setClient('type', 'gateway');
+  		beacon.setClient('name', beacon.getId());
+  		beacon.setClient('mac','0F-12-34-56-78-'+gatewayId);
+  		beacon.setClient('uuid','00001101-0000-1000-8000-00805F9B'+gatewayId);
+  		beacon.setClient('status','Green');
+  		beacon.setParent(parent);
+  		
+  		box.add(beacon);
+  		return beacon;
+  	};
+  	  	
   	var generateAssetImage = function(text, textColor, fillColor){         
   		var width=512, height=256;
 
@@ -1150,6 +1222,52 @@
 	                  $(this).dialog( "close" );
 	                }
   	  			});
+  			}else if(element.getClient('type') && element.getClient('type') == 'beacon') {
+  				var name = element.getClient('name');
+  				var floor = element.getParent().getClient('name');
+  				var uuid = element.getClient('uuid');
+  				var mac = element.getClient('mac');
+  				
+  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div>'
+  	  			+'<div>UUID:'+uuid+'</div>'
+  	  			+'<div>MAC:'+mac+'</div>'
+  	  			+'</div>';
+  	  			$('body').innerHTML = dialog;
+  	  			
+  	  			$(dialog).dialog({
+  	  				title: '蓝牙信标',
+	                autoOpen: true,
+	                height: 300,
+	                width: 500,
+	                modal: true,
+	                close: function() {
+	                  $(this).dialog( "close" );
+	                }
+  	  			});
+  				
+  			}else if(element.getClient('type') && element.getClient('type') == 'gateway') {
+  				var name = element.getClient('name');
+  				var floor = element.getParent().getClient('name');
+  				var uuid = element.getClient('uuid');
+  				var mac = element.getClient('mac');
+  				
+  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div>'
+  	  			+'<div>UUID:'+uuid+'</div>'
+  	  			+'<div>MAC:'+mac+'</div>'
+  	  			+'</div>';
+  	  			$('body').innerHTML = dialog;
+  	  			
+  	  			$(dialog).dialog({
+  	  				title: '蓝牙网关',
+	                autoOpen: true,
+	                height: 300,
+	                width: 500,
+	                modal: true,
+	                close: function() {
+	                  $(this).dialog( "close" );
+	                }
+  	  			});
+  				
   			}else{
   				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
   					if(element.getClient('animation')){
@@ -1470,6 +1588,13 @@
   			case 'leaveParking':
   				self.leaveParking();
   				break;
+  			case 'addAlarm':
+  			  self.addAlarm();
+  			  break;
+  			case 'clearAlarm':
+  			  self.clearAlarm();
+  			  break;
+  			  
   			}
   		});
   		
@@ -1494,6 +1619,8 @@
         <input type="text" value="A010" id="create_park_spot" style="width:60px;" />
         <input type="button" value="停车" name="createCar" />
         <input type="button" value="离开车库" name="leaveParking" />
+        <input type="button" value="模拟告警" name="addAlarm" />
+        <input type="button" value="清除告警" name="clearAlarm" />
     </div>
     <div>
         <canvas id="myCanvas"/>
