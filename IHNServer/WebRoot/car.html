@@ -281,6 +281,9 @@
   		network.getRootView().addEventListener('click', function(e){
   			self.handleClick(e, network);
   		});	
+  		network.getRootView().addEventListener('mousemove', function(e){
+  			self.handleMouseMove(e, network);
+  		});
 
   		this.setupLights(network.getDataBox());
 
@@ -365,6 +368,13 @@
 			 		tp.setParent(floor);
 		 		}
 		 		
+		 		var cameraPositions = [[-1000, -2200], [0, -2200], [1000, -2200], [-1000, -1000], [0, -1000], [1000, -1000], [-1000, 1000], [0, 1000], [1000, 1000], [-1000, 2200], [0, 2200], [1000, 2200]];
+		 		for(var i in cameraPositions) {
+		 			var position = cameraPositions[i];
+		 			var cam = this.createCamera(box, position[0], position[1], 'B1_Camera_'+(i+1));
+		 			cam.setParent(floor);
+		 		}
+		 		
 		 		var exit1 = this.createDoor(box, null, 1800, 0, 2600, 'split', 'metal', true, 'Exit');
 		 		exit1.setClient('name', 'B1_Exit_1');
 		 		exit1.setParent(floor);
@@ -410,6 +420,13 @@
 		 			var position = temperatureProbePositions[i];
 		 			var tp = this.createTemperatureProbe(box, position[0], position[1], 'B2_Temperature_'+(i+1));
 			 		tp.setParent(floor);
+		 		}
+		 		
+		 		var cameraPositions = [[-1000, -2200], [0, -2200], [1000, -2200], [-1000, -1000], [0, -1000], [1000, -1000], [-1000, 1000], [0, 1000], [1000, 1000], [-1000, 2200], [0, 2200], [1000, 2200]];
+		 		for(var i in cameraPositions) {
+		 			var position = cameraPositions[i];
+		 			var cam = this.createCamera(box, position[0], position[1], 'B2_Camera_'+(i+1));
+		 			cam.setParent(floor);
 		 		}
 		 		
 		 		var exit1 = this.createDoor(box, null, 1800, 0, 2600, 'split', 'metal', true, 'Exit');
@@ -1040,11 +1057,12 @@
   		return poleNodes;
   	};
 
-  	var createCam = function(box, x, z, name) {
-  		var cam=new mono.Sphere(60, 40, 40, 0, Math.PI*2, Math.PI/2, Math.PI/2);
-  		cam.setPosition(x, -10, z);
+  	var createCamera = function(box, x, z, name) {
+  		var cam=new mono.Cylinder(50, 50, 100, 20, 1, false, false,Math.PI,0);
+  		cam.setPosition(x, -50, z);
   		cam.setRotationY(Math.PI);
-  		cam.setStyle('m.texture.image', 'images/cam.jpg')
+  		cam.setStyle('m.texture.image', 'images/cam.png');
+  		cam.setClient('type', 'camera');
   		cam.setClient('name', name);
   		box.add(cam);
   		return cam;
@@ -1268,6 +1286,23 @@
 	                }
   	  			});
   				
+  			}else if(element.getClient('type') && element.getClient('type') == 'camera') {
+  				var name = element.getClient('name');
+  				var floor = element.getParent().getClient('name');
+  				
+  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div><div style="content: url(images/play.png); margin: 10px 80px;"></div></div>';
+  	  			$('body').innerHTML = dialog;
+  	  			
+  	  			$(dialog).dialog({
+  	  				title: '摄像头',
+	                autoOpen: true,
+	                height: 240,
+	                width: 300,
+	                modal: true,
+	                close: function() {
+	                  $(this).dialog( "close" );
+	                }
+  	  			});
   			}else{
   				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
   					if(element.getClient('animation')){
@@ -1299,6 +1334,44 @@
 		    	this.$('#create_park_spot').val(name.split('_')[1]);
   			}
   		}
+  	};
+  	
+  	var handleMouseMove = function(e, network) {
+  		if(tooltip) {
+  			tooltip.style.left = "-200px";
+  		}
+  		
+  		var camera=network.getCamera();
+  		var interaction=network.getDefaultInteraction();
+  		var firstClickObject=this.findFirstObjectByMouse(network,e);
+  		if(firstClickObject){
+  			var element=firstClickObject.element;					
+  			var type = element.getClient('type');
+  			
+  			var p = new mono.Vec3(element.getPositionX(),element.getPositionY(),element.getPositionZ());
+  			/* var point = {};
+  			var es = network.getElementsByMouseEvent(e);
+            if(es && es.length > 0){
+                var p = es[0].point;
+                point.left = document.documentElement.clientWidth/2+p.z+'px';
+                point.top = document.documentElement.clientHeight/2+p.y+'px';
+            }
+  			
+			if(type == 'spot') {
+				createTooltip(point);
+			} */
+  		}
+  	};
+  	
+  	var createTooltip = function(point, content) {
+  		tooltip = document.getElementById("tooltip")
+  		tooltip.style.left = point.left;
+  		tooltip.style.top = point.top;
+  		tooltip.style.zIndex = "999";
+  		
+  		var tipCtx = tooltip.getContext("2d");
+        tipCtx.clearRect(0, 0, tooltip.width, tooltip.height);
+        tipCtx.fillText('Hello', 5, 15);
   	};
   	
   	var changePositionY = function(element, value, isCombine) {
