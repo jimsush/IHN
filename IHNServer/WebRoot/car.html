@@ -4,6 +4,7 @@
     <title>Garage Demo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="styles/jquery-ui.css">
+    <link rel="stylesheet" href="styles/ihn.css">
     
     <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
     <script type="text/javascript" src = "scripts/libs/jquery/jquery-ui-min.js"></script>
@@ -22,6 +23,7 @@
     
     var mybox=null;
     var currentPath=null;
+    var tooltip = null;
     
     var lanePoints=new Array( 
     	{name: 'p1', position: new Array(-1600,-1900), distance:{p2:3200,p3:950} },
@@ -1061,7 +1063,7 @@
   		var cam=new mono.Cylinder(50, 50, 100, 20, 1, false, false,Math.PI,0);
   		cam.setPosition(x, -50, z);
   		cam.setRotationY(Math.PI);
-  		cam.setStyle('m.texture.image', 'images/cam.png');
+  		cam.setStyle('m.texture.image', 'images/cam.jpg');
   		cam.setClient('type', 'camera');
   		cam.setClient('name', name);
   		box.add(cam);
@@ -1290,18 +1292,23 @@
   				var name = element.getClient('name');
   				var floor = element.getParent().getClient('name');
   				
-  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div><div style="content: url(images/play.png); margin: 10px 80px;"></div></div>';
-  	  			$('body').innerHTML = dialog;
-  	  			
-  	  			$(dialog).dialog({
-  	  				title: '摄像头',
+  	  			var dialog = '<div><div>楼层：'+floor+'</div><div>位置：'+name.split('_')[2]+'</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+	  			$('body').innerHTML = dialog;
+	  			
+	  			$(dialog).dialog({
+	  				title: '摄像头',
 	                autoOpen: true,
-	                height: 240,
-	                width: 300,
+	                height: 350,
+	                width: 430,
 	                modal: true,
 	                close: function() {
 	                  $(this).dialog( "close" );
 	                }
+	  			});
+  	  			
+	  			$('.ihn-vedio-play-start').on('click', function() {
+  	  				$('.ihn-vedio-play').empty();
+  	  				$('.ihn-vedio-play').html('<video width="400" controls>Your browser does not support HTML5 video.</video>');
   	  			});
   			}else{
   				this.animateCamera(camera, interaction, oldTarget, newTarget, function(){
