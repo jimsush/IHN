@@ -88,15 +88,22 @@
     	 
     	 if(spot){
     	 	  var parent=spot.getParent();
-    	 	  this.createCar(this.mybox, spot.getPositionX(), 70, spot.getPositionZ(), Math.PI/180*5, parent, floorName+"_"+spotName+"_Car");
+    	 	  //debugger
+    	 	  var direction=spot.getClient('direction');
+    	 	  var rotationY=Math.PI/180*5;
+    	 	  if(direction && direction=='LANDSCAPE'){
+    	 	  	rotationY=Math.PI/2;
+    	 	  }
+    	 	  this.createCar(this.mybox, spot.getPositionX(), 70, spot.getPositionZ(), rotationY, parent, floorName+"_"+spotName+"_Car");
     	 }
     	
     };
     
     var createNewSpot=function(){
-    	 var direction=this.$('#spotdirection').val();
+    	 var direction=this.$('#spotdirection').val().toUpperCase();
     	 var prefix=this.$('#spotprefix').val();
-    	 var numberOfSpot=this.$('#spotnumber').val();
+    	 var rows=parseInt(this.$('#spotrows').val());
+    	 var columns=parseInt(this.$('#spotcolumns').val());
     	 var floorName='B1';
     	 
     	 var areaspot=this.mybox.getSelectionModel().getFirstData();
@@ -107,10 +114,22 @@
     	 		alert("请选择1个空的区域");
     	     return;
     	 }
-    	 console.log(areaspot.getClient('name'));
-    	 //var width=areaspot.getWidth();
-    	 for(var i=0; i<numberOfSpot; i++){
-    	 	    this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i+1), 250*i-700, 250, 500);
+    	 
+    	 //console.log(areaspot.getClient('name'));
+    	 //debugger
+    	 var width=areaspot.combos[1].getWidth();
+    	 var leftDistance=width/2-250/2;
+    	 //var height=areaspot.combos[1].getHeight();
+    	 
+    	 for(var i=0; i<rows; i++){
+	    	 for(var j=0; j<columns; j++){
+	    	 	    if(direction=='PORTRAIT')
+	    	 	    {
+	    	 	        this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i*columns+j+1), leftDistance-250*j, -i*500, 250, 500, direction);
+	    	 	    }else{
+	    	 	    	  this.createSingleSpot(this.mybox, areaspot.getParent(), areaspot, floorName, prefix+(i*columns+j+1), leftDistance-130-500*j, -i*250+245, 500, 250, direction);
+	    	 	    }
+	    	 }
     	 }
     };
     
@@ -226,7 +245,7 @@
     	if(startElement){
     	  var alarmBox = this.mybox.getAlarmBox();
     	  var alarm = new mono.Alarm(Math.random(), startElement.getId(), this.randomSeverity());
-    	  debugger
+    	  //debugger
     	  alarmBox.add(alarm);
       }
     };
@@ -292,6 +311,16 @@
   		this.loadData(network.getDataBox());
   		
   		setEvents(network.getDataBox());
+  		
+  		// prevent the alarm propagate to parent
+  		this.mybox._alarmStatePropagator.propagateToTop=function(e){
+  			this.propagateToParent(null,e);
+  			//while(e&&e.getParent()){
+  				//this.propagateToParent(e,e.getParent());
+  				//e=e.getParent();
+  			//}
+  		};
+  		
   	};
 
   	var loadData = function(box){
@@ -924,13 +953,13 @@
   		for(var i=0;i<10;i++){
   			var spotName=prefix+(id+i);
   			var spotX=i*250-1100;
-  			this.createSingleSpot(box, carspot, area, floorName, spotName, spotX, width, height);
+  			this.createSingleSpot(box, carspot, area, floorName, spotName, spotX, 0, width, height);
   		}
 
 			return carspot;
   	};
 		
-		var createSingleSpot=function(box, carspot, area, floorName, spotName, x, width, height){
+		var createSingleSpot=function(box, carspot, area, floorName, spotName, x, z, width, height, direction){
 			var spot=new mono.Cube(width, 1, height);
   			spot.s({
   				'm.visible': false,
@@ -949,9 +978,13 @@
   			spot.setClient('name', floorName+"_"+spotName);
   			spot.setClient('type', 'spot');
   			
-  			spot.setPositionX(x); //i*250-1100;
+  			spot.setPositionX(x);
+  			spot.setPositionZ(z);
   			spot.setPositionY(spot.getPositionY()+1);
   			spot.setRotationY(spot.getParent().getRotationY());
+  			if(direction && direction=='LANDSCAPE'){
+  				spot.setClient('direction','LANDSCAPE');
+  			}
   			box.add(spot);
 
   			var block=new mono.Cylinder(5, 5, width * 0.6);
@@ -967,8 +1000,15 @@
   			});
   			block.setParent(spot);
   			block.setPositionY(block.getPositionY()+5);
-  			block.setRotationZ(Math.PI/2);
-  			block.setPositionZ(-215);
+  			if(direction && direction=='LANDSCAPE'){
+  				block.setPositionX(250);
+  				block.setPositionZ(0);
+  				block.setRotationX(Math.PI/2);
+  			}else{
+  				block.setRotationZ(Math.PI/2);
+  				block.setPositionZ(-215);
+  			}
+  			
   			box.add(block);
 
   			var label=new mono.Cube(150,2,75);		
@@ -980,7 +1020,14 @@
   				'm.transparent': true,
   				'm.texture.anisotropy': 32,
   			});
-  			label.setPositionZ(200);
+  			if(direction && direction=='LANDSCAPE'){
+  				label.setPositionZ(0);
+  				label.setPositionX(200);
+  				label.setRotationY(Math.PI/2);
+  			}else{
+  				label.setPositionZ(200);
+  			}
+  			
   			label.setParent(spot);
   			box.add(label);
   			
@@ -1691,9 +1738,10 @@
         <input type="button" value="清空车位" name="clear" />
         
         <input type="button" value="建立车位" name="create" />
-        <input type="text" value="landscape" id="spotdirection" style="width:60px;" />
-        <input type="text" value="6" id="spotnumber" style="width:60px;" />
-        <input type="text" value="H0" id="spotprefix" style="width:60px; margin-right: 20px;" />
+        <input type="text" value="portrait" id="spotdirection" style="width:60px;" />
+        <input type="text" value="1" id="spotrows" style="width:20px;" />行
+        <input type="text" value="6" id="spotcolumns" style="width:20px;" />列
+        <input type="text" value="H0" id="spotprefix" style="width:30px; margin-right: 20px;" />
 
         <input type="text" value="B1" id="create_park_floor" style="width:40px;" />
         <input type="text" value="A010" id="create_park_spot" style="width:60px;" />
