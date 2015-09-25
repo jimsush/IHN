@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>3D Room</title>
-        <meta charset="UTF-8">   
+        <title>3D Parking</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
         <style>
             html, body {
                 padding: 0px;
@@ -32,6 +32,7 @@
         <script src="../../../../lib/plugin/ht-form.js"></script> 
         <script src="../../../../lib/plugin/ht-obj.js"></script> 
         <script src="3droom.js"></script> 
+        <script src="parkview.js"></script> 
         <script>
             function getRawText(obj){
                 var text = String(obj); 
@@ -58,10 +59,8 @@
 
 
             rawS3=null;
+            
             function init(){ 
-                
-                rawS3=loadMTL();
-                
                 ht.Default.setImage('alarm', {
                   "width": 120,
                   "height": 130,
@@ -98,7 +97,7 @@
 
                 items = [ 
                     {
-                        label: 'White',
+                        label: '白',
                         groupId: 'headLightColor',
                         selected: true,
                         action: function(){                             
@@ -106,21 +105,21 @@
                         }
                     },        
                     {
-                        label: 'Red',
+                        label: '红',
                         groupId: 'headLightColor',
                         action: function(){                             
                             g3d.setHeadlightColor('red');
                         }
                     }, 
                     {
-                        label: 'Blue',
+                        label: '蓝',
                         groupId: 'headLightColor',
                         action: function(){                             
                             g3d.setHeadlightColor('blue');
                         }
                     },        
                     {
-                        label: 'Yellow',
+                        label: '黄',
                         groupId: 'headLightColor',        
                         action: function(){                             
                             g3d.setHeadlightColor('yellow');
@@ -142,14 +141,14 @@
                     },
                     'separator', 
                     {
-                        label: 'Fog',
+                        label: '雾模式',
                         type: 'check',                        
                         action: function(){
                             g3d.setFogDisabled(!this.selected);
                         }
                     },
                     {
-                        label: 'White',
+                        label: '白',
                         groupId: 'fogColor',
                         selected: true,
                         action: function(){                             
@@ -157,14 +156,14 @@
                         }
                     },                     
                     {
-                        label: 'Red',
+                        label: '红',
                         groupId: 'fogColor',
                         action: function(){                             
                             g3d.setFogColor('red');
                         }
                     },        
                     {
-                        label: 'Yellow',
+                        label: '黄',
                         groupId: 'fogColor',        
                         action: function(){                             
                             g3d.setFogColor('yellow');
@@ -172,7 +171,7 @@
                     },
                     {                       
                         unfocusable: true,
-                        label: 'FogNear',
+                        label: '近雾',
                         slider: {
                             width: 70,
                             min: 10,
@@ -185,7 +184,7 @@
                     },                        
                     {                       
                         unfocusable: true,
-                        label: 'FogFar',
+                        label: '远雾',
                         slider: {
                             width: 70,
                             min: 5000,
@@ -198,96 +197,69 @@
                     },                    
                     'separator', 
                     {
-                        id: 'movable',
-                        label: 'Movable',
-                        type: 'check',
-                        selected: false                
-                    }, 
-                    {
-                        label: 'Editable',
-                        type: 'check',
-                        selected: false,
-                        action: function(item){
-                            g3d.setEditable(item.selected);
-                        }
-                    },
-                    {
-                        label: 'Wireframe',
-                        type: 'check',
-                        selected: false,
-                        action: function(item){
-                            if(item.selected){
-                                dataModel.each(function(data){
-                                    data.s({
-                                        'wf.visible': 'selected',
-                                        'wf.color': 'red'                                        
-                                    });
-                                });                                
-                            }else{
-                                dataModel.each(function(data){
-                                    data.s({
-                                        'wf.visible': false                                       
-                                    });
-                                });                               
-                            }                            
-                        }
-                    },
-                    {
                         type: 'toggle',
-                        label: 'Orthographic Projection',                        
+                        label: '投影视图',                        
                         action: function(item){  
                             g3d.setOrtho(item.selected);                           
                         }                    
                     },
+                    
                     {
                         type: 'toggle',
                         selected: false,
-                        label: 'First Person Mode',
+                        label: '第1人模式',
                         action: function(item){
                             g3d.setFirstPersonMode(item.selected);  
                             g3d.reset();
                         }
-                    },                                                       
-                    'separator',                      
+                    },
+                    'separator',
                     {
-                        type: 'check',
-                        label: 'Origin Axis',
+                        label: ' 显示楼层: ',
+                    }, 
+                    {
+                        label: 'B1',
+                        selected: true,
+                        action: function(item){                             
+                            item.selected=!item.selected;
+                        }
+                    }, 
+                    {
+                        label: 'B2',
                         selected: false,
-                        action: function(item){
-                            g3d.setOriginAxisVisible(item.selected);                           
+                        action: function(item){                             
+                            item.selected=!item.selected;
                         }
-                    },   
+                    }, 
                     {
-                        type: 'check',
-                        label: 'Center Axis',
-                        selected: false,
-                        action: function(item){
-                            g3d.setCenterAxisVisible(item.selected);                           
+                        label: 'F1',
+                        selected: true,
+                        action: function(item){                             
+                            item.selected=!item.selected;
                         }
-                    },                             
+                    }, 
                     {
-                        type: 'check',
-                        label: 'Grid',
-                        selected: false,
-                        action: function(item){
-                            g3d.setGridVisible(item.selected);                           
+                        label: 'F2',
+                        selected: true,
+                        action: function(item){                             
+                            item.selected=!item.selected;
                         }
-                    },                    
-                    {
-                        label: 'Export Image',
-                        action: function(){                             
-                            var w = window.open();
-                            w.document.open();                            
-                            w.document.write("<img src='" + g3d.toDataURL(g3d.getView().style.background) + "'/>");
-                            w.document.close();
-                        }
-                    }                    
+                    }                                                 
+                                     
                 ];
                 
-                toolbar = new ht.widget.Toolbar(items);                                                                                                
+                toolbar = new ht.widget.Toolbar(items);
+                
                 dataModel = new ht.DataModel();
-                g3d = new ht.graph3d.Graph3dView(dataModel);    
+                
+                g3d = new ht.graph3d.Graph3dView(dataModel); 
+                //g2d = new ht.graph.GraphView(dataModel);   
                 g3d.getView().style.background = 'black';
+                
+                //g2d.translate(1000, 1000);
+                //g2d.setZoom(0.4, true);
+                //g2d.setEditable(true); 
+                  
                 g3d.setGridSize(100);
                 g3d.setGridGap(100); 
                 g3d.setFar(30000);
@@ -300,8 +272,16 @@
                 borderPane = new ht.widget.BorderPane();
                 borderPane.setTopView(toolbar);
                 borderPane.setCenterView(g3d);       
-
-                view = borderPane.getView();  
+								
+								accordionView = new ht.widget.AccordionView();
+								rightFormPane = new ht.widget.FormPane();
+								accordionView.add('操作控制台', rightFormPane, true);
+								
+								mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+								initFormPane(g3d, rightFormPane);
+								
+                //view = borderPane.getView();  
+                view = mainSplit.getView();
                 view.className = 'main';
                 document.body.appendChild(view);    
                 window.addEventListener('resize', function (e) {
@@ -317,7 +297,7 @@
                     return data !== floor1;
                 }); 
                 g3d.setMovableFunc(function(data){
-                    return toolbar.v('movable');
+                    return rightFormPane.v('movable');
                 });
                 anim = null;
                 g3d.onDataDoubleClicked = function(data, e, dataInfo){
@@ -331,7 +311,7 @@
                     toggleData(data, dataInfo.name);
                 };  
             } 
-            
+
             function toggleData(data, name){
                 var angle = data.angle,
                     pop = data.pop;
@@ -390,6 +370,9 @@
                 g3d.setCenter([0, 0, -1500]);                  
             }
             function initModel(){
+                
+                rawS3=loadMTL(); //load mtl objects
+                
                 redLight = new ht.Light();
                 redLight.p3(-1600, 200, -2200);
                 redLight.s({
@@ -417,8 +400,9 @@
                 });
                 dataModel.add(greenLight);                
                 
+                
                 createFloor1();
-                createFloor2();
+                //createFloor2();
                 createFloor3();
                 createFloor4();
             }
@@ -664,8 +648,6 @@
             	      'all.uv.scale': [2,10]
             	  });
             }
-            
-            
         </script>
     </head>
     <body onload="init();">                  
