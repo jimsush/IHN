@@ -59,6 +59,7 @@
 
 
             rawS3=null;
+            hideFloors=new Array();
             
             function init(){ 
                 ht.Default.setImage('alarm', {
@@ -217,32 +218,47 @@
                     {
                         label: ' ÏÔÊ¾Â¥²ã: ',
                     }, 
-                    {
+                    {   
+                        id: 'B1',
                         label: 'B1',
                         selected: true,
                         action: function(item){                             
                             item.selected=!item.selected;
+                            hideFloor('B1', !item.selected);
+                            g3d.reset();
                         }
                     }, 
                     {
+                        id: 'B2',
                         label: 'B2',
                         selected: false,
                         action: function(item){                             
                             item.selected=!item.selected;
+                            
+                            hideFloor('B2', !item.selected);
+                            g3d.reset();
                         }
                     }, 
                     {
+                        id: 'F1',
                         label: 'F1',
-                        selected: true,
+                        selected: false,
                         action: function(item){                             
                             item.selected=!item.selected;
+                            
+                            hideFloor('F1', !item.selected);
+                            g3d.reset();
                         }
                     }, 
                     {
+                        id: 'F2',
                         label: 'F2',
-                        selected: true,
+                        selected: false,
                         action: function(item){                             
                             item.selected=!item.selected;
+                            
+                            hideFloor('F2', !item.selected);
+                            g3d.reset();
                         }
                     }                                                 
                                      
@@ -268,7 +284,26 @@
                 g3d.setFogFar(8000);
                 g3d.reset = reset;
                 g3d.reset();
-                g3d.enableToolTip();                                 
+                g3d.enableToolTip();
+                  
+                //g3d.setSelectableFunc(function(data){
+                //    return true;
+                //});                   
+                
+                g3d.setVisibleFunc(function(data){
+                    var floor=data.a('floor');
+                    if(!floor){
+                    	  return true;
+                    }
+                    
+                    for(var i=0; i<hideFloors.length; i++){
+                       if(floor==hideFloors[i]){
+                           return false;
+                       }
+                    }
+                    return true;
+                });
+                
                 borderPane = new ht.widget.BorderPane();
                 borderPane.setTopView(toolbar);
                 borderPane.setCenterView(g3d);       
@@ -400,15 +435,19 @@
                 });
                 dataModel.add(greenLight);                
                 
+                hideFloor('B2', true);
+                hideFloor('F1', true);
+                hideFloor('F2', true);
                 
-                createFloor1();
-                //createFloor2();
-                createFloor3();
-                createFloor4();
+                createFloor1('B1');
+                createFloor2('B2');
+                createFloor3('F1');
+                createFloor4('F2');
             }
             
             function createFloor1(){
-                floor1 = createNode('B1',[0, -5, -1500], [4000, 10, 4200],'#F0F0F0');
+                var floorName='B1';
+                floor1 = createNode('B1', [0, -5, -1500], [4000, 10, 4200],'#F0F0F0');
                 floor1.s({
                     'label': 'B1',
                     'label.position' : 24,
@@ -417,78 +456,96 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                var f1spot1=createSpots('B1_A',0,0,-1600);
-                var f1spot2=createSpots('B1_B',0,0,-2400);
-                var f1spot3=createSpots('B1_C',0,0,-3200);
+                floor1.a({'type' : 'Floor', 'floor' : 'B1'});
+                
+                var f1spot1=createSpots(floorName, 'B1_A', 0, 0, -1600);
+                var f1spot2=createSpots(floorName, 'B1_B', 0, 0, -2400);
+                var f1spot3=createSpots(floorName, 'B1_C', 0, 0, -3200);
                 
                 var f1BlankCarSpot=createNode('B1_D1#S', [400, 0, -900], [1200, 1, 600], '#3CB371');
-            	  var f1BlankArea=createSpotArea('B1_D1#A', 400, 0, -900, 1200, 1, 600, f1BlankCarSpot);
+                f1BlankCarSpot.a({'type' : 'Spots', 'floor' : 'B1'});
+                
+            	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 0, -900, 1200, 1, 600, f1BlankCarSpot);
             	  f1BlankCarSpot.s({'label': 'D',
             	  	'label.face': 'top',
             	  	'label.position': 45,
             	  	'label.font': '100px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
-            	  	
+            	  
             	  var wallThickness=40;	
-            	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'});
-                var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'});
+            	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                
+                var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName});
                 w2.s({
-                'note': 'StarBucks Coffee',
+                    'front.color':'yellow',
+                    'note': 'StarBucks Coffee',
                     'note.face': 'top',
                     'note.position': 7,
                     'note.t3': [0, 0, 10],
                     'note.font': '30px arial, sans-serif',
                     'note.autorotate': true
                     });
-                createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'});
-                createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'});
-                createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'});
-                createNode('W6', [-500, 100, 100], [1400+wallThickness, 200, wallThickness], '#E0FFFF').s({'back.color':'yellow'});
-                var door1=createDoor(-200, 100, -80, 100, 100, 170, Math.PI);
                 
-                createStair(1700, 23, -3300, 60, 200, 40, 8);
+                createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                createNode('W6', [-500, 100, 100], [1400+wallThickness, 200, wallThickness], '#E0FFFF').s({'back.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                
+                var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
+                
+                createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
             }
             
             function createFloor2(){
-                var floor2 = createNode('B2',[0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
+                var floorName='B2';
+                var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
                 floor2.s({
-                    'label': 'B2',
+                    'label': floorName,
                     'label.position' : 24,
                     'label.t3' : [-200, 100, 0],
                     'label.face': 'top',
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                var f2spot1=createSpots('B2_A',0,-1000,-1600, 2700, 600);
-                var f2spot2=createSpots('B2_B',0,-1000,-2400, 2700, 600);
-                var f2spot3=createSpots('B2_C',0,-1000,-3200, 2700, 600);
+                floor2.a({'type' : 'Floor', 'floor' : floorName});
+                
+                var f2spot1=createSpots(floorName, 'B2_A',0,-1000,-1600, 2700, 600);
+                var f2spot2=createSpots(floorName, 'B2_B',0,-1000,-2400, 2700, 600);
+                var f2spot3=createSpots(floorName, 'B2_C',0,-1000,-3200, 2700, 600);
             }
             
             function createFloor3(){
-                var floor3 = createNode('F1',[2345, 322, -3100], [800, 10, 1400], '#F0F0F0');
+                var floorName='F1';
+                var floor3 = createNode(floorName, [2345, 322, -3100], [800, 10, 1400], '#F0F0F0');
                 floor3.s({
-                    'label': 'F1',
+                    'label': floorName,
                     'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
+                    'label.t3' : [-200, 5, 0],
                     'label.face': 'top',
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                var wall1 = createNode('F1_W1',[2345-400, 322/2, -3100], [6, 322, 1400], '#F0F0F0');
-                createLift(2850, 600+322-20, -3000, 200, 200, 600*2);
+                floor3.a({'type' : 'Floor', 'floor' : floorName});
+                
+                var wall1 = createNode('F1_W1', [2345-400, 322/2, -3100], [6, 322, 1400], '#F0F0F0');
+                wall1.a({'type' : 'Wall', 'floor': floorName});
+                                
+                createLift(floorName, 2850, 600+322-20, -3000, 200, 200, 600*2);
             }
             
             function createFloor4(){
-                var f2 = createNode('F2',[2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
+                var floorName='F2';
+                var f2 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
                 f2.s({
-                    'label': 'F2',
+                    'label': floorName,
                     'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
+                    'label.t3' : [-200, 5, 0],
                     'label.face': 'top',
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
+                f2.a({'type' : 'Floor', 'floor' : floorName});
             }
             
             function createNode(id, p3, s3, color1){
@@ -508,23 +565,25 @@
                 return node;
             }
             
-            function createSpots(prefix, x, y, z, width, height){
+            function createSpots(floorName, prefix, x, y, z, width, height){
             	  //x=0,y=0,z=-2300,-1300,-600, w=2700, h=600
             	  var carSpot=createNode('P_'+prefix, [x,y,z], [width, 1, height], '#3CB371');
-            	  var area1=createSpotArea(prefix, x, y, z, width, 1, height, carSpot);
+            	  carSpot.a({'type': 'Spots', 'floor': floorName });
+            	  
+            	  var area1=createSpotArea(floorName, prefix, x, y, z, width, 1, height, carSpot);
             	  
             	  var s_width=250;
             	  var s_height=550;
             	  for(var i=0; i<10; i++){
             	  	  var spotName=prefix+i;
             	  	  var spotX=i*258-1160;
-            	  	  var spot=createSingleSpot(carSpot, spotName, spotX, y+1, z, s_width, s_height);
+            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+1, z, s_width, s_height);
             	  }            	  
             	  
-            	  var poles=createPoles(prefix, x, y+1, z, width, height);
+            	  var poles=createPoles(floorName, prefix, x, y+1, z, width, height);
             }
             
-            function createSpotArea(prefix, x, y, z, width, depth, height, carSpot){
+            function createSpotArea(floorName, prefix, x, y, z, width, depth, height, carSpot){
             	  var border=20;
             	  
             	  var leftSide=createNode('A_'+prefix+'_1',[x-width/2+border/2,y,z],[border, depth, height],  'white');
@@ -532,20 +591,27 @@
             	  var rightSide=createNode('A_'+prefix+'_3',[x+width/2-border/2,y,z],[border, depth, height], 'white');
             	  var bottomSide=createNode('A_'+prefix+'_4',[x,y,z+height/2-border/2],[width, depth, border],'white');
             	  
+            	  leftSide.a({'type':'SpotArea', 'floor': floorName});
+            	  topSide.a({'type':'SpotArea', 'floor': floorName});
+            	  rightSide.a({'type':'SpotArea', 'floor': floorName});
+            	  bottomSide.a({'type':'SpotArea', 'floor': floorName});
+            	  
             	  leftSide.setHost(carSpot);
             	  topSide.setHost(carSpot);
             	  rightSide.setHost(carSpot);
             	  bottomSide.setHost(carSpot);
             }
             
-            function createSingleSpot(carSpot, spotName, spotX, spotY, spotZ, width, height){
-            	  var spot = createNode('SP_'+spotName,[spotX, spotY, spotZ],[width, 1, height], '#006400'); //10
-            	  spot.s({'label':spotName,
+            function createSingleSpot(floorName, carSpot, spotName, spotX, spotY, spotZ, width, height){
+                var spotId='SP_'+spotName;
+            	  var spot = createNode(spotId, [spotX, spotY, spotZ],[width, 1, height], '#006400'); //10
+            	  spot.s({'label': spotName,
             	  	'label.face':'top',
             	  	'label.position': 50,
             	  	'label.font':'60px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
+            	  spot.a({'type' : 'Spot', 'floor' : floorName});
 
 								var border=20;
             	  var block=createNode('D_'+spotName,[spotX, spotY+border, spotZ-height/2+border],[border*2, width, border*2],'yellow');
@@ -556,35 +622,47 @@
                         'shape3d.bottom.visible': false,
                         'shape3d.image': 'pole.png'
             	  	});
+            	  block.a({'type':'SpotBlock', 'floor': floorName});
             	  block.r3(0,0,Math.PI/2);
             	  block.setHost(spot);
             	  
             	  // random to create cars
-            	  if(spotX%3!=0)
-            	      createCar(spotX, spotY+100, spotZ, rawS3);
+            	  if(spotX%3!=0){
+            	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
+            	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
+            	  }
             	  
                 return spot;
             }
             
-            function createPoles(prefix, x, y, z,width,height){
+            function createPoles(floorName, prefix, x, y, z,width,height){
             	var border=30;
             	var hBottom=100;
             	var hTop=200;
             	
             	var block1=createNode('P_'+prefix+"_1",[x-width/2, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
             	block1.s({'all.image': 'pole.png'});
+            	block1.a({'type': 'Pole', 'floor' : floorName});
+            	
             	var block11=createNode('P_'+prefix+"_11",[x-width/2, y+hBottom+hTop/2, z-height/2],[border, hTop, border],'white');
             	block1.setHost(block11);
+            	block11.a({'type': 'Pole', 'floor' : floorName});
             	
             	var block2=createNode('P_'+prefix+"_2",[x, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
             	block2.s({'all.image': 'pole.png'});
+            	block2.a({'type': 'Pole', 'floor' : floorName});
+            	
             	var block22=createNode('P_'+prefix+"_22",[x, y+hBottom+hTop/2, z-height/2],[border, hTop, border],'white');
             	block2.setHost(block22);
+            	block22.a({'type': 'Pole', 'floor' : floorName});
             	
             	var block3=createNode('P_'+prefix+"_3",[x+width/2, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
             	block3.s({'all.image': 'pole.png'});
+            	block3.a({'type': 'Pole', 'floor' : floorName});
+            	
             	var block33=createNode('P_'+prefix+"_33",[x+width/2, y+hBottom+hTop/2, z-height/2],[border, hTop, border],'white');
             	block3.setHost(block33);
+            	block33.a({'type': 'Pole', 'floor' : floorName});
             }
             
             function loadMTL(){
@@ -613,15 +691,18 @@
                     'scale.value': 1,
                     'scale.s3': rawS3
                 });
-                dataModel.add(car);    
+                dataModel.add(car);  
+                return car;  
             }
             
-            function createDoor(x1, y1, x2, y2, tall, angle){
+            function createDoor(floorName, x1, y1, x2, y2, tall, angle){
                 var node = new ht.Shape();
                 node.s({
                     'all.image': 'door',
                     'all.reverse.cull': true
                 });                
+                node.a({'type':'Door', 'floor':floorName});
+                
                 node.open = false;                
                 node.angle = angle == null ? Math.PI/2 : angle;
                 node.addPoint({x: x1, y: y1});
@@ -632,22 +713,48 @@
                 node.setElevation(node.getTall()/2+20);
                 node.setThickness(50);
                 node.setToolTip('Double click to open the door');
+                
                 dataModel.add(node);
                 return node;                
             }
             
-            function createStair(x, y, z, stepWidthX, stepWidthY, stepHeightZ, stepNumber){
+            function createStair(floorName, x, y, z, stepWidthX, stepWidthY, stepHeightZ, stepNumber){
             	  for(var i=0; i<stepNumber; i++){
             	  	   var step=createNode('ST_'+i, [x+30*i, y+40*i, z], [stepWidthX*(stepNumber-i), stepHeightZ, stepWidthY], '#E6E6FA');
+            	  	   step.a({'type' : 'Stair', 'floor' : floorName});
             	  }
             }
             
-            function createLift(x, y, z, stepWidthX, stepWidthY, stepHeightZ){
+            function createLift(floorName, x, y, z, stepWidthX, stepWidthY, stepHeightZ){
             	  var lift=createNode('LF1', [x, y, z], [stepWidthX, stepHeightZ, stepWidthY], '#E6E6FA');
             	  lift.s({'all.image': 'grid.png',
             	      'all.uv.scale': [2,10]
             	  });
+            	  lift.a({'type' : 'Lift', 'floor' : floorName});
             }
+            
+            function hideFloor(floorName, hideFlag){
+                if(hideFlag){
+                    for(var i=0; i<hideFloors.length; i++){
+                        if(floorName==hideFloors[i]){
+                            return;
+                        }
+                    }
+                    hideFloors.push(floorName);
+                }else{
+                    var pos=-1;
+                    for(var i=0; i<hideFloors.length; i++){
+                        if(floorName==hideFloors[i]){
+                            pos=i;
+                            break;
+                        }
+                    }
+                    if(pos!=-1){
+                        hideFloors.splice(pos, 1);
+                    }
+                }
+            }
+            
         </script>
     </head>
     <body onload="init();">                  
