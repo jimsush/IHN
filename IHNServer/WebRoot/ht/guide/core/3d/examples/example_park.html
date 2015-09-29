@@ -238,9 +238,9 @@
                 });
                 floor2.a({'type' : 'Floor', 'floor' : floorName});
                 
-                var f2spot1=createSpots(floorName, 'B2_A',0,-1000,-1600, 2700, 600);
-                var f2spot2=createSpots(floorName, 'B2_B',0,-1000,-2400, 2700, 600);
-                var f2spot3=createSpots(floorName, 'B2_C',0,-1000,-3200, 2700, 600);
+                var f2spot1=createSpots(floorName, 'B2_A', 0, -1000, -1600, 2700, 600);
+                var f2spot2=createSpots(floorName, 'B2_B', 0, -1000, -2400, 2700, 600);
+                var f2spot3=createSpots(floorName, 'B2_C', 0, -1000, -3200, 2700, 600);
             }
             
             function createFloor3(){
@@ -305,7 +305,7 @@
             	  for(var i=0; i<10; i++){
             	  	  var spotName=prefix+i;
             	  	  var spotX=i*258-1160;
-            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+1, z, s_width, s_height);
+            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+1, z, s_width, s_height, 'Portait', false, i%3==0);
             	  }            	  
             	  
             	  var poles=createPoles(floorName, prefix, x, y+1, z, width, height);
@@ -330,7 +330,7 @@
             	  bottomSide.setHost(carSpot);
             }
             
-            function createSingleSpot(floorName, carSpot, spotName, spotX, spotY, spotZ, width, height){
+            function createSingleSpot(floorName, carSpots, spotName, spotX, spotY, spotZ, width, height, direction, reversed, createCarFlag){
                 var spotId='SP_'+spotName;
             	  var spot = createNode(spotId, [spotX, spotY, spotZ], [width, 1, height], '#006400'); //10
             	  spot.s({'label': spotName,
@@ -339,10 +339,15 @@
             	  	'label.font':'60px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
-            	  spot.a({'type' : 'Spot', 'floor' : floorName, 'direction':'portrait', 'reversed': false});
+            	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction':'portrait', 'reversed': reversed});
 
 								var border=20;
-            	  var block=createNode('D_'+spotName, [spotX, spotY+border, spotZ-height/2+border], [border*2, width, border*2], 'yellow');
+            	  var block=null;
+            	  if(!reversed){
+            	  	block=createNode('D_'+spotName, [spotX, spotY+border, spotZ-height/2+border], [border*2, width, border*2], 'yellow');
+            	  }else{
+            	  	block=createNode('D_'+spotName, [spotX, spotY+border, spotZ+height/2-border], [border*2, width, border*2], 'yellow');
+            	  }
             	  block.s({'shape3d':'cylinder',
             	  	      'shape3d.color': 'yellow',
             	  	      'shape3d.side': 0,
@@ -350,12 +355,12 @@
                         'shape3d.bottom.visible': false,
                         'shape3d.image': 'pole.png'
             	  	});
-            	  block.a({'type':'SpotBlock', 'floor': floorName});
+            	  block.a({'type':'SpotBlock', 'floor': floorName, 'Spots' : carSpots.getId()});
             	  block.r3(0,0,Math.PI/2);
             	  block.setHost(spot);
             	  
             	  // random to create cars
-            	  if(spotX%7!=0){
+            	  if(createCarFlag==true){
             	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
             	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
             	  }
@@ -535,6 +540,7 @@
             	  var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
                     console.log("没有选中任何节点");
+                    alert("请先选择一个物体作为起点！");
                     return;
                 }
                 
@@ -616,6 +622,35 @@
           	}
           }
           
+          function createNewSpots(direction, prefixId, rows, columns){
+              var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("请选择一块新的停车区域！");
+                    return;
+                }
+                
+                var type=node.getAttr('type');
+                if('Spots'==type){
+                	  var floorName=node.getAttr('floor');
+                	  var pos3d=node.getPosition3d();
+                	  
+                	  var s_width=250;
+                	  var s_height=550;
+                	  var cnt=0;
+                	  for(var i=0; i<rows; i++){
+                	  	  for(var j=0; j<columns; j++){
+                	  	      var spotName=prefixId+cnt;
+                	  	      var spotX=pos3d[0]+j*258-node.getWidth()/2+s_width/2;
+                	  	      var spotZ=pos3d[2]+i*550;
+                	  	      cnt++;
+                	  	      var spot=createSingleSpot(floorName, node, spotName, spotX, pos3d[1]+1, spotZ, s_width, s_height, direction, false, false);
+                	  	  }
+                	  }
+                }else{
+                	alert("请选择一块新的停车区域！");
+                }
+          }
+          
           function printPosition(){
           	  var node=dataModel.getSelectionModel().getLastData();
               if(!node){
@@ -625,7 +660,7 @@
 
 							//debugger;
               var srcPos=node.getPosition();
-              console.log("x:"+srcPos.x+",y:"+srcPos.y);
+              console.log("x:"+srcPos.x+",y:"+srcPos.y+","+node.getAttr('type'));
            }
                 
         </script>

@@ -183,13 +183,13 @@ function initFormPane(g3d, rightFormPane){
     {
       id: 'rows',
       textField: {
-          text: '行数'
+          text: '行数:1'
       }
     },
     {
       id: 'columns',
       textField: {
-          text: '列数'
+          text: '列数:3'
       }
     }
     ], [80, 0.1+80, 0.1]);
@@ -199,6 +199,19 @@ function initFormPane(g3d, rightFormPane){
             label: '创建',
             onClicked: function(){
                 printPosition();
+                
+                var directionSelected=rightFormPane.v('direction');
+                var direction;
+                if(directionSelected==true){
+                    direction='Portait';
+                }else{
+                	  direction='Landscape';
+                }
+                
+                var prefixId=rightFormPane.v('prefixId');
+                var rows=rightFormPane.v('rows');
+                var columns=rightFormPane.v('columns');
+                createNewSpots(direction, prefixId, rows, columns);
             }
         }
     }
