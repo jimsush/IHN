@@ -54,27 +54,39 @@
             currentPath=null;
             start=null;
             end=null;
+            anchors=new Array();
             
             lanePoints=new Array( 
-            	{name: 'p1', position: new Array(-1500,-2850), distance:{p2:3000, p3:800, p12: 1500} },
-            	{name: 'p12', position: new Array(0,-2850), distance:{p1:1500, p2:1500} },
-            	{name: 'p2', position: new Array(1500,-2850), distance:{p1:3000,p4:800, p12: 1500}},
+            	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
+            	{name: 'p121', position: new Array(-750,-2850), distance:{p1:750, p122:750} },
+            	{name: 'p122', position: new Array(0,-2850), distance:{p121:750, p123:750} },
+            	{name: 'p123', position: new Array(750,-2850), distance:{p122:750, p2:750} },
+            	{name: 'p2', position: new Array(1500,-2850), distance:{p4:800, p123: 750} },
             	
-            	{name: 'p3', position: new Array(-1500,-2050), distance:{p1:800, p4: 3000, p5:800, p34:1500}},
-            	{name: 'p34', position: new Array(0,-2050), distance:{p3:1500, p4: 1500}},
-            	{name: 'p4', position: new Array(1500,-2050), distance:{p2:800, p3:3000, p6:800, p34:1500} },
+            	{name: 'p3', position: new Array(-1500,-2050), distance:{p1:800, p5:800, p341:750} },
+            	{name: 'p341', position: new Array(-750,-2050), distance:{p3:750, p342: 750} },
+            	{name: 'p342', position: new Array(0,-2050), distance:{p341:750, p343: 750} },
+            	{name: 'p343', position: new Array(750,-2050), distance:{p342:750, p4: 1500} },
+            	{name: 'p4', position: new Array(1500,-2050), distance:{p2:800, p6:800, p343:750} },
             	
-            	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p6:3000, p7:800, p56: 1500}},
-            	{name: 'p56', position: new Array(0, -1250), distance:{p5:1500, p6:1500}},
-            	{name: 'p6', position: new Array(1500, -1250), distance:{p5:3000, p4:800, p8: 800, p56: 1500}},
+            	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
+            	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
+							{name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+							{name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+							{name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+            	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
-            	{name: 'p7', position: new Array(-1500, -540), distance:{p5:800, p8:3000, p9:800, p78:1500}},
-            	{name: 'p78', position: new Array(0, -540), distance:{p7:1500, p8:1500}},
-            	{name: 'p8', position: new Array(1500,-540), distance:{p6:800, p7:3000, p10:800, p78:1500}},
+            	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
+            	{name: 'p781', position: new Array(-750, -560), distance:{p7:750, p782:530, p561:790} },
+            	{name: 'p782', position: new Array(-220, -560), distance:{p781:530, p783:970, p562:790} },
+            	{name: 'p783', position: new Array(750, -560), distance:{p782:970, p8:750} },
+            	{name: 'p8', position: new Array(1500,-560), distance:{p6:800, p10:800, p783:750} },
             	
-            	{name: 'p9', position: new Array(-1500,350), distance:{p7:800, p10:3000, p9a:1500}},
-            	{name: 'p9a', position: new Array(0,350), distance:{p9:1500, p10:1500}},
-            	{name: 'p10', position: new Array(1500,350),distance:{p8:800, p9:3000, p9a:1500}}
+            	{name: 'p9', position: new Array(-1500,350), distance:{p7:800, p9a1:750} },
+            	{name: 'p9a1', position: new Array(-750,350), distance:{p9:750, p9a2:750} },
+            	{name: 'p9a2', position: new Array(0,350), distance:{p9a1:750, p9a3:750} },
+            	{name: 'p9a3', position: new Array(750,350), distance:{p9a2:750, p10:750} },
+            	{name: 'p10', position: new Array(1500,350),distance:{p8:800, p9a3:750} }
             );
             
             function init(){ 
@@ -102,8 +114,6 @@
                 g3d.enableToolTip();
                   
                 g3d.setVisibleFunc(function(data){
-                	//if(data)
-                	//return true;
                     var floor=data.a('floor');
                     if(!floor){
                     	  return true;
@@ -218,13 +228,19 @@
                 });
                 floor1.a({'type' : 'Floor', 'floor' : 'B1'});
                 
-                var f1spot1=createSpots(floorName, 'B1_A', 0, 0, -1600);
-                var f1spot2=createSpots(floorName, 'B1_B', 0, 0, -2400);
-                var f1spot3=createSpots(floorName, 'B1_C', 0, 0, -3200);
+                var f1spot1=createSpots(floorName, 'B1_A', 0, 0, -1600, 2700, 600);
+                var f1spot2=createSpots(floorName, 'B1_B', 0, 0, -2400, 2700, 600);
+                var f1spot3=createSpots(floorName, 'B1_C', 0, 0, -3200, 2700, 600);
                 
                 var f1BlankCarSpot=createNode('B1_D1#S', [400, 0, -900], [1200, 1, 600], '#3CB371');
                 f1BlankCarSpot.a({'type' : 'Spots', 'floor' : 'B1'});
-                
+                f1BlankCarSpot.setToolTip('<pre>编号:'+f1BlankCarSpot.getId()
+            	                       +'<p>类别:车位区域'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:400, 0, -900'
+	            	  	                 +'<p>大小:1200, 1, 600'
+	            	  	                 +'</pre>');
+	            	  	                 
             	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 0, -900, 1200, 1, 600, f1BlankCarSpot);
             	  f1BlankCarSpot.s({'label': 'D',
             	  	'label.face': 'top',
@@ -232,7 +248,7 @@
             	  	'label.font': '100px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
-            	  
+  
             	  var wallThickness=40;	
             	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName});
                 
@@ -339,17 +355,23 @@
             
             function createSpots(floorName, prefix, x, y, z, width, height){
             	  //x=0,y=0,z=-2300,-1300,-600, w=2700, h=600
-            	  var carSpot=createNode('P_'+prefix, [x,y,z], [width, 1, height], '#3CB371');
+            	  var carSpot=createNode('P_'+prefix, [x,y+1,z], [width, 2, height], '#3CB371');
             	  carSpot.a({'type': 'Spots', 'floor': floorName });
-            	  
-            	  var area1=createSpotArea(floorName, prefix, x, y, z, width, 1, height, carSpot);
+            	  carSpot.setToolTip('<pre>编号:'+carSpot.getId()
+            	                       +'<p>类别:车位区域'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:'+x+' '+(y+1)+' '+z
+	            	  	                 +'<p>大小:'+width+' 2 '+height
+	            	  	                 +'</pre>');
+	            	                 
+            	  var area1=createSpotArea(floorName, prefix, x, y+1, z, width, 2, height, carSpot);
             	  
             	  var s_width=250;
             	  var s_height=550;
             	  for(var i=0; i<10; i++){
             	  	  var spotName=prefix+i;
             	  	  var spotX=i*258-1160;
-            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+1, z, s_width, s_height, 'Portait', false, i%3==0);
+            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+2, z, s_width, s_height, 'Portait', false, i%3==0);
             	  }            	  
             	  
             	  var poles=createPoles(floorName, prefix, x, y+1, z, width, height);
@@ -383,7 +405,15 @@
             	  	'label.font':'60px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
-            	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction':'portrait', 'reversed': reversed});
+            	  spot.setToolTip('<pre>编号:'+spotId
+            	                       +'<p>类别:车位'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:'+spotX+' '+spotY+' '+spotZ
+	            	  	                 +'<p>大小:'+width+' 1 '+height
+	            	  	                 +'<p>横纵排列:'+direction
+	            	  	                 +'<p>前后方向:'+reversed
+	            	  	                 +'</pre>');
+            	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction': direction, 'reversed': reversed});
 
 								var border=20;
             	  var block=null;
@@ -607,20 +637,21 @@
                 var destX, destZ, destVertexName;
                 var srcPos=node.getPosition();
             	  var sourceNearestPos=getNearestPoint(srcPos.x, srcPos.y);
+            	  console.log('sourceNearestPos: '+sourceNearestPos.name);
             	  if(shopname.indexOf('COFFEE')>=0 || shopname.indexOf('CAFE')>=0 
               	   || shopname.indexOf('咖啡')>=0 || shopname.indexOf('饮料')>=0){
               	    destX=-800;
               		  destZ=-500;
-              		  destVertexName='p78';
+              		  destVertexName='p782';
               	}else if(shopname.indexOf('FOOD')>=0 || shopname.indexOf('KFC')>=0 
               	        || shopname.indexOf('肯德基')>=0 || shopname.indexOf('餐厅')>=0 
               	        || shopname.indexOf('吃饭')>=0 || shopname.indexOf('食品')>=0){
-              	    destX=-800;
-              		  destZ=-500;
-              		  destVertexName='p78';
+              	    destX=-400;
+              		  destZ=-300;
+              		  destVertexName='p782';
               	}else{
               		  destX=1500;
-              		  destZ=-3200;
+              		  destZ=-3100;
               		  destVertexName='p2';
               	}
               	
@@ -630,6 +661,7 @@
               		g.addVertex(lanePoints[i].name, lanePoints[i].distance);
               	}
               	var finalPath=g.shortestPath(sourceNearestPos.name, destVertexName).reverse();
+              	console.log("finalPath: "+finalPath);
               	
               	var pathPoints=new Array();
               	pathPoints.push({x:srcPos.x, y:srcPos.y+node.getHeight()/2});
@@ -658,9 +690,8 @@
                     'repeat.uv.length': 32
                 });    
                 
-                start=createNode('start', [srcPos.x+10, node.getPosition3d()[1]-20, srcPos.y+node.getHeight()/2+10], [10, 50, 10], '#E6E6FA');
-            	  start.a({'all.transparent' : true,'all.opacity':0});
-                start.addStyleIcon('search', {
+                start=createNode('start', [srcPos.x+10, node.getPosition3d()[1]-18, srcPos.y+node.getHeight()/2+10], [10, 50, 10], '#E6E6FA');
+            	  start.addStyleIcon('search', {
                         names: ['start.png'],
                         autorotate: true,
                         face: 'top',
@@ -668,9 +699,8 @@
                         t3: [0, 60, 0],
                         discardSelectable: false
                     });
-                end=createNode('end', [destX+10, node.getPosition3d()[1]-20, destZ-200], [10, 50, 10], '#E6E6FA');
-            	  end.a({'all.transparent' : true,'all.opacity':1});
-                end.addStyleIcon('search', {
+                end=createNode('end', [destX+80, node.getPosition3d()[1]-18, destZ], [10, 50, 10], '#E6E6FA');
+            	  end.addStyleIcon('search', {
                         names: ['end.png'],
                         autorotate: true,
                         face: 'top',
