@@ -170,6 +170,23 @@
                 		return;
                 	}
                 	
+					if(type && type == 'TemperatureProbe') {
+						var dialog = '<div><div>Â¥²ã£º</div><div>Î»ÖÃ£º</div><div>×´Ì¬£ºÕý³£</div></div>';
+		  	  			$('body').innerHTML = dialog;
+		  	  			
+		  	  			$(dialog).dialog({
+		  	  				title: 'ÎÂ¶ÈÌ½²âÆ÷ ',
+			                autoOpen: true,
+			                height: 200,
+			                width: 300,
+			                modal: true,
+			                close: function() {
+			                  $(this).dialog( "close" );
+			                }
+		  	  			});
+		  	  			return;
+                	}
+                	
                     if(data.face){
                         data.getHost().getAttaches().each(function(attach){
                             if(attach.pop){
@@ -253,6 +270,11 @@
                 
                 createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
                 createCameras(floorName);
+                
+                createTemperatureProbe(floorName, 'T_Probe1', 800, 300);
+                createTemperatureProbe(floorName, 'T_Probe2', 800, -1000);
+                createTemperatureProbe(floorName, 'T_Probe3', -800, 300);
+                createTemperatureProbe(floorName, 'T_Probe4', -800, -1000);
             }
             
             var createCameras = function(floorName) {
@@ -264,6 +286,17 @@
                     'front.transparent': true
 	          	});
 	          	camera.setToolTip('This is camera. Double click to see the vedio.');
+            }
+            
+            var createTemperatureProbe = function(floorName, probeName, x, z) {
+	          	var probe=createNode(floorName+'_'+probeName, [x, -50, z], [100, 100, 10]);
+	          	probe.a({'type': 'TemperatureProbe', 'floor': floorName });
+	          	probe.s({
+	          		'all.color': '#fff',
+                    'front.image': 'temperature.png',
+                    'front.transparent': true
+	          	});
+	          	probe.setToolTip('This is temperatre probe. Double click to see the detail.');
             }
             
             function createFloor2(){
