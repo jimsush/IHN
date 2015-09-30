@@ -531,7 +531,7 @@
             function startParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    console.log("没有选中任何节点");
+                    alert("没有选择任何车位!");
                     return;
                 }
                 
@@ -541,6 +541,7 @@
                 	  var car=createCar(pos[0], pos[1]+100, pos[2], rawS3);
                 	  car.a({'type' : 'Car', 'floor' : node.getAttr('floor'), 'spotId' : node.getId()});
                 }else{
+                	alert("选中的节点必须是Spot,而目前是"+type);
                 	console.log("选中的节点必须是Spot,而目前是"+type);
                 }
             }
@@ -548,7 +549,7 @@
             function leaveParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    console.log("没有选中任何节点");
+                    alert("没有选择任何车辆!");
                     return;
                 }
                 
@@ -557,21 +558,33 @@
                 	  dataModel.remove(node);
                 }else{
                 	console.log("选中的节点必须是Car,而目前是"+type);
+                	alert("没有选择任何车辆!");
                 }
             }
             
             function clearSpots(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    console.log("没有选中任何节点");
+                    alert("没有选择任何车位区域!");
                     return;
                 }
                 
                 var type=node.getAttr('type');
                 if('Spots'==type){
-                	  debugger
+                	  var spotsId=node.getId();
+                	  var children2=new Array();
+                	  dataModel.getDatas().each(function(node){ 
+                	  	 var spotsAttr=node.getAttr('Spots');
+                	  	 if(spotsId==spotsAttr){
+                	  	 	  children2.push(node);
+                	  	 }
+                	   });
+                	   for(var i=0; i<children2.length; i++){
+                	       dataModel.remove(children2[i]);
+                	   }
                 }else{
                 	console.log("选中的节点必须是Spots,而目前是"+type);
+                	alert("没有选择任何车位区域!");
                 }
             }
             
@@ -580,8 +593,7 @@
             	      dataModel.remove(currentPath);
             	  var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    console.log("没有选中任何节点");
-                    alert("请先选择一个物体作为起点！");
+                    alert("请先选择一个物体作为起点!");
                     return;
                 }
                 
@@ -622,7 +634,7 @@
             		}
             		pathPoints.push({x:destX, y:destZ});
               	
-              	currentPath = new ht.Shape();
+              	currentPath = new ht.Polyline();
                 dataModel.add(currentPath);                   
                 currentPath.setPoints(pathPoints);               
                 currentPath.setTall(40);
@@ -633,10 +645,29 @@
                     'shape3d': 'cylinder',   
                     'shape3d.reverse.color': 'yellow',   
                     'shape3d.top.visible': false,
+                    'shape.border.join' : 'round',
                     'shape3d.bottom.color': '#E74C3C',
                     'shape.border.width': 6,
                     'shape3d.uv.scale': [1, 6],
-                    'repeat.uv.length': 32
+                    'repeat.uv.length': 32,
+                    'icons': {
+                        fromArrow: {
+                            position: 15,
+                            names: ['arrow'],
+                            rotation: Math.PI,
+                            keepOrien: true,
+                            offsetX: 15,
+                            offsetY: 10,
+                            width: 200,
+                            height: 100
+                        },
+                        toArrow: {
+                            position: 19,
+                            names: ['arrow'],
+                            keepOrien: true,
+                            offsetX: 	-27
+                        }
+                     }
                 });      
                 
             }
