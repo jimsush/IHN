@@ -52,6 +52,9 @@
         	  rawS3=null;
             hideFloors=new Array();
             currentPath=null;
+            start=null;
+            end=null;
+            
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p2:3000, p3:800, p12: 1500} },
             	{name: 'p12', position: new Array(0,-2850), distance:{p1:1500, p2:1500} },
@@ -589,8 +592,11 @@
             }
             
             function searchShop(keywords){
-            	  if(currentPath)
+            	  if(currentPath){
             	      dataModel.remove(currentPath);
+            	      dataModel.remove(start);
+            	      dataModel.remove(end);
+            	  }
             	  var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
                     alert("请先选择一个物体作为起点!");
@@ -634,7 +640,7 @@
             		}
             		pathPoints.push({x:destX, y:destZ});
               	
-              	currentPath = new ht.Polyline();
+              	currentPath = new ht.Shape();
                 dataModel.add(currentPath);                   
                 currentPath.setPoints(pathPoints);               
                 currentPath.setTall(40);
@@ -649,27 +655,29 @@
                     'shape3d.bottom.color': '#E74C3C',
                     'shape.border.width': 6,
                     'shape3d.uv.scale': [1, 6],
-                    'repeat.uv.length': 32,
-                    'icons': {
-                        fromArrow: {
-                            position: 15,
-                            names: ['arrow'],
-                            rotation: Math.PI,
-                            keepOrien: true,
-                            offsetX: 15,
-                            offsetY: 10,
-                            width: 200,
-                            height: 100
-                        },
-                        toArrow: {
-                            position: 19,
-                            names: ['arrow'],
-                            keepOrien: true,
-                            offsetX: 	-27
-                        }
-                     }
-                });      
+                    'repeat.uv.length': 32
+                });    
                 
+                start=createNode('start', [srcPos.x+10, node.getPosition3d()[1]-20, srcPos.y+node.getHeight()/2+10], [10, 50, 10], '#E6E6FA');
+            	  start.a({'all.transparent' : true,'all.opacity':0});
+                start.addStyleIcon('search', {
+                        names: ['start.png'],
+                        autorotate: true,
+                        face: 'top',
+                        position: 17,
+                        t3: [0, 60, 0],
+                        discardSelectable: false
+                    });
+                end=createNode('end', [destX+10, node.getPosition3d()[1]-20, destZ-200], [10, 50, 10], '#E6E6FA');
+            	  end.a({'all.transparent' : true,'all.opacity':1});
+                end.addStyleIcon('search', {
+                        names: ['end.png'],
+                        autorotate: true,
+                        face: 'top',
+                        position: 17,
+                        t3: [0, 60, 0],
+                        discardSelectable: false
+                    });
             }
 
             function getNearestPoint(x, y){
