@@ -28,6 +28,11 @@
                 }
             };
         </script> 
+        <link rel="stylesheet" href="../../../../../styles/jquery-ui.css">
+	    <link rel="stylesheet" href="../../../../../styles/ihn.css">
+	    
+	    <script type="text/javascript" src = "../../../../../scripts/libs/jquery/jquery-min.js"></script>
+	    <script type="text/javascript" src = "../../../../../scripts/libs/jquery/jquery-ui-min.js"></script>
         <script src="../../../../lib/core/ht.js"></script>   
         <script src="../../../../lib/plugin/ht-form.js"></script> 
         <script src="../../../../lib/plugin/ht-obj.js"></script> 
@@ -141,6 +146,30 @@
                 });
                 anim = null;
                 g3d.onDataDoubleClicked = function(data, e, dataInfo){
+					var type = data && data.getAttr('type');
+                	
+                	if(type && type == 'Camera') {
+                		var dialog = '<div><div>Â¥²ã£º</div><div>Î»ÖÃ£º</div><div>×´Ì¬£ºÕý³£</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+        	  			$('body').innerHTML = dialog;
+        	  			
+        	  			$(dialog).dialog({
+        	  				title: 'ÉãÏñÍ·',
+        	                autoOpen: true,
+        	                height: 350,
+        	                width: 430,
+        	                modal: true,
+        	                close: function() {
+        	                  $(this).dialog( "close" );
+        	                }
+        	  			});
+          	  			
+        	  			$('.ihn-vedio-play-start').on('click', function() {
+          	  				$('.ihn-vedio-play').empty();
+          	  				$('.ihn-vedio-play').html('<video width="400" controls>Your browser does not support HTML5 video.</video>');
+          	  			});
+                		return;
+                	}
+                	
                     if(data.face){
                         data.getHost().getAttaches().each(function(attach){
                             if(attach.pop){
@@ -223,6 +252,18 @@
                 var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
                 
                 createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
+                createCameras(floorName);
+            }
+            
+            var createCameras = function(floorName) {
+	          	var camera=createNode('B1_C1', [0, -60, 0], [100, 120, 10]);
+	          	camera.a({'type': 'Camera', 'floor': floorName });
+	          	camera.s({
+	          		'all.color': '#fff',
+                    'front.image': 'cam.png',
+                    'front.transparent': true
+	          	});
+	          	camera.setToolTip('This is camera. Double click to see the vedio.');
             }
             
             function createFloor2(){
