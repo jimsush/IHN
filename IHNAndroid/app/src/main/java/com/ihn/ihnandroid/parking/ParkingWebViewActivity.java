@@ -38,7 +38,15 @@ public class ParkingWebViewActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String url=editText.getText().toString();
-                webView.loadUrl(url);
+
+                try {
+                    if (url == null || url.length() == 0)
+                        webView.loadUrl("file:///android_asset/car.html");
+                    else
+                        webView.loadUrl(url);
+                }catch(Throwable th){
+                    th.printStackTrace();
+                }
             }
         });
 

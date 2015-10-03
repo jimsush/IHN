@@ -1,0 +1,27 @@
+#wrapper {
+    position:relative;
+    width:300px;
+    height:150px;
+}
+#tooltip {
+    background-color:white;
+    border:1px solid blue;
+    position:absolute;
+    left:-200px;
+    top:100px;
+}
+.ihn-vedio-play .ihn-vedio-play-start
+{
+    width: 94px;
+	height: 94px;
+	margin: 50px 142px;
+    background:url(../images/media-btn.png) -90px 4px no-repeat;
+}
+.ihn-vedio-play .ihn-vedio-play-start:hover
+{
+	cursor: pointer;
+}
+.ihn-vedio-play .ihn-vedio-play-stop
+{
+    background:url(../images/media-btn.png) -90px -92px no-repeat;
+}
