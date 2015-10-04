@@ -46,15 +46,19 @@
         </script>                 
         <script src="car_mtl.js"></script> 
         <script src="car_obj.js"></script>  
+        <script src="people_mtl.js"></script> 
+        <script src="people_obj.js"></script>  
         <script>
         	     
-        	  rawS3=null;
+        	rawS3=null;
+        	peopleS3=null;
             hideFloors=new Array();
             currentPath=null;
             start=null;
             end=null;
             anchors=new Array();
             bluetooths=new Array();
+            pathPoints=new Array();
             
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -202,7 +206,7 @@
             
             function initModel(){
                 
-                rawS3=loadMTL(); // load mtl objects
+                loadMTL(); // load mtl objects
                 
                 //initLights_parkview();               
                 
@@ -517,14 +521,21 @@
             }
             
             function loadMTL(){
-            	  var params = {
+            	var params = {
                     s3: [1, 1, 1],
                     cube: true,
                     shape3d: 'car'
                 }; 
                 var modelMap = ht.Default.parseObj(car_obj, car_mtl, params);                
-                var rawS3 = params.rawS3;
-                return rawS3;
+                rawS3 = params.rawS3;
+                
+                var params2 = {
+                    s3: [1, 1, 1],
+                    cube: true,
+                    shape3d: 'people'
+                }; 
+                var modelMap2 = ht.Default.parseObj(people_obj, people_mtl, params2);                
+                peopleS3 = params2.rawS3;
             }
             
             function createCar(x, y, z, rawS3){
@@ -543,6 +554,25 @@
                 });
                 dataModel.add(car);  
                 return car;  
+            }
+            
+            function createPeople(x, y, z){
+            	peopleS3 = [100, 200, 100];
+                var people = new ht.Node();
+                people.p3(x, y, z);                 
+                people.s3(peopleS3); 
+                people.s({
+                   'shape3d': 'people',
+                   'scale.value': 1
+                });
+                people.a({
+                    'screen.color': 'red',                                                               
+                    'scale.shrink': false,
+                    'scale.value': 1,
+                    'scale.s3': peopleS3
+                });
+                dataModel.add(people);  
+                return people;  
             }
             
             function createDoor(floorName, x1, y1, x2, y2, tall, angle){
@@ -707,7 +737,7 @@
               	var finalPath=g.shortestPath(sourceNearestPos.name, destVertexName).reverse();
               	console.log("finalPath: "+finalPath);
               	
-              	var pathPoints=new Array();
+              	pathPoints=new Array();
               	pathPoints.push({x:srcPos.x, y:srcPos.y+node.getHeight()/2});
             		pathPoints.push({x:sourceNearestPos.position[0], y:sourceNearestPos.position[1]});
             		for(var i=0; i<finalPath.length; i++){
@@ -752,6 +782,8 @@
                         t3: [0, 60, 0],
                         discardSelectable: false
                     });
+            	  
+            	  walk(pathPoints, 1);
             }
 
             function getNearestPoint(x, y){
@@ -829,6 +861,25 @@
               }
               
           }     
+          
+          function walk(points, interval) {
+        	  if(!points) return;
+        	  
+        	  var i = 0;
+        	  var showPeopleInter = setInterval(function() {
+        		  if(i >= points.length) {
+        			  clearInterval(showPeopleInter);
+        		  };
+        		  
+        		  dataModel.removeDataByTag('People');
+        		  var people = createPeople(points[i].x, 50, points[i].y);
+        		  people.a({'type' : 'People'});
+        		  people.setTag('People');
+        		  i++;
+        		  
+        	  }, interval*1000);
+          }
+          
         </script>
     </head>
     
