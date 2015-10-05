@@ -33,18 +33,18 @@ function object2String(obj, separator){
 
 
 function initFormPane(g3d, rightFormPane){
-    rightFormPane.addRow(['ï¿½ï¿½ï¿½ï¿½:',
+    rightFormPane.addRow(['¿ª¹Ø:',
     {
       id: 'movable',
       checkBox: {
-          label: 'ï¿½ï¿½ï¿½Æ¶ï¿½',
+          label: '¿ÉÒÆ¶¯',
           selected: false
       }
     },
     {
       id: 'editable',
       checkBox: {
-          label: 'ï¿½É±à¼­',
+          label: '¿É±à¼­',
           selected: false,
           onClicked : function(){
               var selected=rightFormPane.v('editable')
@@ -58,7 +58,7 @@ function initFormPane(g3d, rightFormPane){
     {
       id: 'centerAxis',
       checkBox: {
-          label: 'ï¿½ï¿½ï¿½ï¿½',
+          label: 'ÖÐÖáÏß',
           selected: false,
           onClicked : function(){
               var selected=rightFormPane.v('centerAxis')
@@ -69,7 +69,7 @@ function initFormPane(g3d, rightFormPane){
     {
       id: 'wireframe',
       checkBox: {
-          label: 'ï¿½ß¿ï¿½Í¼',
+          label: 'Ïß¿ò',
           selected: false,
           onClicked: function(){
                 var selected=rightFormPane.v('wireframe')
@@ -96,7 +96,7 @@ function initFormPane(g3d, rightFormPane){
     {
       id: 'originAxis',
       checkBox: {
-          label: 'ï¿½ï¿½ï¿½ï¿½ï¿½',
+          label: '×ø±êÖá',
           selected: false,
           onClicked: function(){
               var selected=rightFormPane.v('originAxis')
@@ -107,7 +107,7 @@ function initFormPane(g3d, rightFormPane){
     {
       id: 'grid',
       checkBox: {
-          label: 'ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½',
+          label: 'Íø¸ñ',
           selected: false,
           onClicked: function(){
               var selected=rightFormPane.v('grid')
@@ -118,10 +118,10 @@ function initFormPane(g3d, rightFormPane){
     ], [80, 0.1+80, 0.1]);
     
     rightFormPane.addRow();
-    rightFormPane.addRow(['ï¿½ï¿½ï¿½ï¿½:',
+    rightFormPane.addRow(['²Ù×÷:',
     {
         button: {
-            label: 'ï¿½ï¿½ÎªÍ¼Æ¬',
+            label: 'µ¼³öÍ¼Æ¬',
             onClicked: function(){
                 var w = window.open();
                 w.document.open();                            
@@ -132,7 +132,7 @@ function initFormPane(g3d, rightFormPane){
     },
     {
         button: {
-            label: 'ï¿½ï¿½ï¿½Î»',
+            label: 'Çå³ý³µÎ»',
             onClicked: function(){ 
             	  clearSpots();
             }
@@ -143,7 +143,7 @@ function initFormPane(g3d, rightFormPane){
     rightFormPane.addRow([null,
     {
         button: {
-            label: 'Í£ï¿½ï¿½Õ¼Î»',
+            label: 'Í£³µ',
             onClicked: function(){
             	 startParking();
             }
@@ -151,7 +151,7 @@ function initFormPane(g3d, rightFormPane){
     },
     {
         button: {
-            label: 'ï¿½ë¿ªï¿½ï¿½Î»',
+            label: 'Àë¿ª',
             onClicked: function(){ 
             	  leaveParking();
             }
@@ -162,7 +162,7 @@ function initFormPane(g3d, rightFormPane){
     rightFormPane.addRow([null,
     {
         button: {
-            label: 'Ä£ï¿½ï¿½æ¾¯',
+            label: 'Ä£Äâ¸æ¾¯',
             onClicked: function(){
             	  mockAlarm(true);
             }
@@ -170,7 +170,7 @@ function initFormPane(g3d, rightFormPane){
     },
     {
         button: {
-            label: 'ï¿½ï¿½ï¿½æ¾¯',
+            label: 'Çå³ý¸æ¾¯',
             onClicked: function(){ 
             	  mockAlarm(false);
             }
@@ -179,17 +179,17 @@ function initFormPane(g3d, rightFormPane){
     ], [80, 0.1+80, 0.1]);
     
     rightFormPane.addRow();
-    rightFormPane.addRow(['ï¿½ï¿½ï¿½ï¿½ï¿½Ì¼ï¿½:',
+    rightFormPane.addRow(['ËÑË÷ÉÌ¼Ò:',
     {
       id: 'keywords',
       textField: {
           text: 'KFC',
-          toolTip:'ï¿½Ø¼ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½KFC,Ê³Æ·'
+          toolTip:'ÊäÈëÉÌ¼ÒÃû³Æ,±ÈÈç:KFC'
       }
     },
     {
         button: {
-            label: 'ï¿½ï¿½ï¿½ï¿½',
+            label: '¿ªÊ¼ËÑË÷',
             onClicked: function(){
             	  var keywords=rightFormPane.v('keywords');
                 searchShop(keywords);
@@ -199,11 +199,11 @@ function initFormPane(g3d, rightFormPane){
     ], [80, 0.1+80, 0.1]);
 
 		rightFormPane.addRow();
-    rightFormPane.addRow(['ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»:',
+    rightFormPane.addRow(['´´½¨³µÎ»:',
     {
         id: 'direction',
         checkBox: {
-          label: 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½',  //Landscape/Portait
+          label: 'ºáÏòÅÅÁÐ',  //Landscape/Portait
           selected: true
         }
     },
@@ -212,7 +212,7 @@ function initFormPane(g3d, rightFormPane){
       textField: {
           label: 'Prefix',
           text: 'D',
-          toolTip: 'Ç°×º:ï¿½ï¿½H0'
+          toolTip: 'Ç°×º:ÈçH0'
       }
     }
     ], [80, 0.1+80,  0.1]);
@@ -223,7 +223,7 @@ function initFormPane(g3d, rightFormPane){
       textField: {
       	  text: '1',
       	  type: 'number',
-          toolTip: 'ï¿½ï¿½ï¿½ï¿½:1'
+          toolTip: 'ÐÐÊý:Èç1'
       }
     },
     {
@@ -231,14 +231,14 @@ function initFormPane(g3d, rightFormPane){
       textField: {
           text: '3',
           type: 'number',
-          toolTip: 'ï¿½ï¿½ï¿½ï¿½:3'
+          toolTip: 'ÁÐÊý:Èç3'
       }
     }
     ], [80, 0.1+80, 0.1]);
     rightFormPane.addRow([null,
     {
         button: {
-            label: 'ï¿½ï¿½ï¿½ï¿½',
+            label: '´´½¨³µÎ»',
             onClicked: function(){
                 var directionSelected=rightFormPane.v('direction');
                 var direction;
@@ -258,11 +258,11 @@ function initFormPane(g3d, rightFormPane){
     ], [80, 0.1]);
     
     rightFormPane.addRow();
-    rightFormPane.addRow(['Â·ï¿½ï¿½Ãªï¿½ï¿½:',
+    rightFormPane.addRow(['Ãªµã:',
     {  
     	  id: 'showAnchor',
         checkBox: {
-            label: 'ï¿½ï¿½Ê¾',
+            label: 'ÏÔÊ¾Ãªµã',
             selected: false,
             onClicked: function(){
             	  // reset anchors
@@ -293,7 +293,7 @@ function initFormPane(g3d, rightFormPane){
 function initToolbar_parkview(){
 	   var items = [ 
                     {
-                        label: 'ï¿½ï¿½',
+                        label: '°×',
                         groupId: 'headLightColor',
                         selected: true,
                         action: function(){                             
@@ -301,21 +301,21 @@ function initToolbar_parkview(){
                         }
                     },        
                     {
-                        label: 'ï¿½ï¿½',
+                        label: 'ºì',
                         groupId: 'headLightColor',
                         action: function(){                             
                             g3d.setHeadlightColor('red');
                         }
                     }, 
                     {
-                        label: 'ï¿½ï¿½',
+                        label: 'À¶',
                         groupId: 'headLightColor',
                         action: function(){                             
                             g3d.setHeadlightColor('blue');
                         }
                     },        
                     {
-                        label: 'ï¿½ï¿½',
+                        label: '»Æ',
                         groupId: 'headLightColor',        
                         action: function(){                             
                             g3d.setHeadlightColor('yellow');
@@ -337,14 +337,14 @@ function initToolbar_parkview(){
                     },
                     'separator', 
                     {
-                        label: 'ï¿½ï¿½Ä£Ê½',
+                        label: 'ÎíÄ£Ê½',
                         type: 'check',                        
                         action: function(){
                             g3d.setFogDisabled(!this.selected);
                         }
                     },
                     {
-                        label: 'ï¿½ï¿½',
+                        label: '°×',
                         groupId: 'fogColor',
                         selected: true,
                         action: function(){                             
@@ -352,14 +352,14 @@ function initToolbar_parkview(){
                         }
                     },                     
                     {
-                        label: 'ï¿½ï¿½',
+                        label: 'ºì',
                         groupId: 'fogColor',
                         action: function(){                             
                             g3d.setFogColor('red');
                         }
                     },        
                     {
-                        label: 'ï¿½ï¿½',
+                        label: '»Æ',
                         groupId: 'fogColor',        
                         action: function(){                             
                             g3d.setFogColor('yellow');
@@ -367,7 +367,7 @@ function initToolbar_parkview(){
                     },
                     {                       
                         unfocusable: true,
-                        label: 'ï¿½ï¿½ï¿½ï¿½',
+                        label: '½üÎí',
                         slider: {
                             width: 70,
                             min: 10,
@@ -380,7 +380,7 @@ function initToolbar_parkview(){
                     },                        
                     {                       
                         unfocusable: true,
-                        label: 'Ô¶ï¿½ï¿½',
+                        label: 'Ô¶Îí',
                         slider: {
                             width: 70,
                             min: 5000,
@@ -394,7 +394,7 @@ function initToolbar_parkview(){
                     'separator', 
                     {
                         type: 'toggle',
-                        label: 'Í¶Ó°ï¿½ï¿½Í¼',                        
+                        label: 'Í¶Ó°Ä£Ê½',                        
                         action: function(item){  
                             g3d.setOrtho(item.selected);                           
                         }                    
@@ -403,7 +403,7 @@ function initToolbar_parkview(){
                     {
                         type: 'toggle',
                         selected: false,
-                        label: 'ï¿½ï¿½1ï¿½ï¿½Ä£Ê½',
+                        label: 'µÚÒ»ÈËÄ£Ê½',
                         action: function(item){
                             g3d.setFirstPersonMode(item.selected);  
                             g3d.reset();
@@ -411,7 +411,7 @@ function initToolbar_parkview(){
                     },
                     'separator',
                     {
-                        label: ' ï¿½ï¿½Ê¾Â¥ï¿½ï¿½: ',
+                        label: ' ÏÔÊ¾Â¥²ã: ',
                     }, 
                     {   
                         id: 'B1',
