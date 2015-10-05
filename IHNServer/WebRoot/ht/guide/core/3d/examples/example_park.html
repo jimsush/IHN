@@ -866,15 +866,31 @@
         	  if(!points) return;
         	  
         	  var i = 0;
+        	  var ratotionVal = Math.PI / 2;
         	  var showPeopleInter = setInterval(function() {
         		  if(i >= points.length) {
         			  clearInterval(showPeopleInter);
         		  };
         		  
+        		  if(points[i] && points[i+1]) {
+            		  var diff_x = points[i].x-points[i+1].x,
+            		      diff_y = points[i+1].y-points[i].y;
+            		  
+            		  if(diff_x == 0) {
+            			  ratotionVal = diff_y > 0 ? Math.PI/2 : -(Math.PI/2);
+            		  } else if(diff_y == 0) {
+            			  ratotionVal = diff_x > 0 ? Math.PI : 0;
+            		  } else {
+            			  var angle = Math.atan(diff_x/diff_y)/(2*Math.PI);
+            			  ratotionVal = diff_x < 0 ? angle : Math.PI/2-angle;
+            		  }
+            	  }
+        		  
         		  dataModel.removeDataByTag('People');
         		  var people = createPeople(points[i].x, 50, points[i].y);
         		  people.a({'type' : 'People'});
         		  people.setTag('People');
+        		  people.setRotation(ratotionVal);
         		  i++;
         		  
         	  }, interval*1000);
