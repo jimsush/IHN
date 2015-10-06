@@ -33,81 +33,11 @@ function object2String(obj, separator){
 
 
 function initFormPane(g3d, rightFormPane){
-    rightFormPane.addRow(['开关:',
-    {
-      id: 'movable',
-      checkBox: {
-          label: '可移动',
-          selected: false
-      }
-    },
-    {
-      id: 'editable',
-      checkBox: {
-          label: '可编辑',
-          selected: false,
-          onClicked : function(){
-              var selected=rightFormPane.v('editable')
-              g3d.setEditable(selected);
-          }
-      }
-    }
-    ], [80, 0.1+80, 0.1]);
-    
-    rightFormPane.addRow([null,
-    {
-      id: 'centerAxis',
-      checkBox: {
-          label: '中轴',
-          selected: false,
-          onClicked : function(){
-              var selected=rightFormPane.v('centerAxis')
-              g3d.setCenterAxisVisible(selected);                           
-          }
-      }
-    },
-    {
-      id: 'wireframe',
-      checkBox: {
-          label: '线框图',
-          selected: false,
-          onClicked: function(){
-                var selected=rightFormPane.v('wireframe')
-                if(selected){
-                    dataModel.each(function(data){
-                        data.s({
-                            'wf.visible': 'selected',
-                            'wf.color': 'red'                                        
-                        });
-                    });                                
-                }else{
-                    dataModel.each(function(data){
-                        data.s({
-                            'wf.visible': false                                       
-                        });
-                    });                               
-                }                            
-            }                     
-          }
-    }
-    ], [80, 0.1+80, 0.1]);
-
-		rightFormPane.addRow([null,
-    {
-      id: 'originAxis',
-      checkBox: {
-          label: '坐标轴',
-          selected: false,
-          onClicked: function(){
-              var selected=rightFormPane.v('originAxis')
-              g3d.setOriginAxisVisible(selected);                           
-          }
-      }
-    },
+    rightFormPane.addRow(['Action:',
     {
       id: 'grid',
       checkBox: {
-          label: '显示网格',
+          label: 'Show Grid',
           selected: false,
           onClicked: function(){
               var selected=rightFormPane.v('grid')
@@ -118,40 +48,21 @@ function initFormPane(g3d, rightFormPane){
     ], [80, 0.1+80, 0.1]);
     
     rightFormPane.addRow();
-    rightFormPane.addRow(['操作:',
+    rightFormPane.addRow(['Park:',
     {
         button: {
-            label: '导为图片',
-            onClicked: function(){
-                var w = window.open();
-                w.document.open();                            
-                w.document.write("<img src='" + g3d.toDataURL(g3d.getView().style.background) + "'/>");
-                w.document.close();
-            }
-        }
-    },
-    {
-        button: {
-            label: '清除车位',
-            onClicked: function(){ 
-            	  clearSpots();
-            }
-        }
-    }
-    ],[80, 0.1+80, 0.1]);
-
-    rightFormPane.addRow([null,
-    {
-        button: {
-            label: '停车占位',
+            label: 'Park',
             onClicked: function(){
             	 startParking();
             }
         }
-    },
+    }
+    ], [80, 0.1+80, 0.1]);
+    
+    rightFormPane.addRow([null,
     {
         button: {
-            label: '离开车位',
+            label: 'Leave',
             onClicked: function(){ 
             	  leaveParking();
             }
@@ -159,307 +70,32 @@ function initFormPane(g3d, rightFormPane){
     }
     ], [80, 0.1+80, 0.1]);
     
-    rightFormPane.addRow([null,
-    {
-        button: {
-            label: '模拟告警',
-            onClicked: function(){
-            	  mockAlarm(true);
-            }
-        }
-    },
-    {
-        button: {
-            label: '清除告警',
-            onClicked: function(){ 
-            	  mockAlarm(false);
-            }
-        }
-    }
-    ], [80, 0.1+80, 0.1]);
-    
     rightFormPane.addRow();
-    rightFormPane.addRow(['搜索商家:',
+    rightFormPane.addRow(['Search Shops:',
     {
       id: 'keywords',
       textField: {
           text: 'KFC',
-          toolTip:'关键字, 比如KFC,食品'
+          toolTip:'KFC, Coffee'
       }
-    },
+    }
+    ], [80, 0.1+80, 0.1]);
+    rightFormPane.addRow([null,
     {
         button: {
-            label: '搜索',
+            label: 'Search',
             onClicked: function(){
-            	  var keywords=rightFormPane.v('keywords');
+            	var keywords=rightFormPane.v('keywords');
                 searchShop(keywords);
             }
         }
     }
     ], [80, 0.1+80, 0.1]);
-
-		rightFormPane.addRow();
-    rightFormPane.addRow(['创建车位:',
-    {
-        id: 'direction',
-        checkBox: {
-          label: '横向排列',  //Landscape/Portait
-          selected: true
-        }
-    },
-    {
-      id: 'prefixId',
-      textField: {
-          label: 'Prefix',
-          text: 'D',
-          toolTip: '前缀:如H0'
-      }
-    }
-    ], [80, 0.1+80,  0.1]);
-    
-    rightFormPane.addRow([null,
-    {
-      id: 'rows',
-      textField: {
-      	  text: '1',
-      	  type: 'number',
-          toolTip: '行数:1'
-      }
-    },
-    {
-      id: 'columns',
-      textField: {
-          text: '3',
-          type: 'number',
-          toolTip: '列数:3'
-      }
-    }
-    ], [80, 0.1+80, 0.1]);
-    rightFormPane.addRow([null,
-    {
-        button: {
-            label: '创建',
-            onClicked: function(){
-                var directionSelected=rightFormPane.v('direction');
-                var direction;
-                if(directionSelected==true){
-                    direction='Portait';
-                }else{
-                	  direction='Landscape';
-                }
-                
-                var prefixId=rightFormPane.v('prefixId');
-                var rows=rightFormPane.v('rows');
-                var columns=rightFormPane.v('columns');
-                createNewSpots(direction, prefixId, rows, columns);
-            }
-        }
-    }
-    ], [80, 0.1]);
-    
-    rightFormPane.addRow();
-    rightFormPane.addRow(['路径锚点:',
-    {  
-    	  id: 'showAnchor',
-        checkBox: {
-            label: '显示',
-            selected: false,
-            onClicked: function(){
-            	  // reset anchors
-            	  if(anchors){
-            	      for(var i=0; i<anchors.length; i++){
-            	          dataModel.remove(anchors[i]);
-            	      }
-            	  }
-            	  
-            	  var selected=rightFormPane.v('showAnchor');
-            	  if(selected==true){
-	            	  for(var i=0; i<lanePoints.length; i++){
-	            	  	  var node=createNode('An'+i, [lanePoints[i].position[0], 50, lanePoints[i].position[1]], [20, 100, 20], 'red');
-	            	  	  node.setToolTip('<pre>Name:'+lanePoints[i].name
-	            	  	                 +'<p>Position:'+array2String(lanePoints[i].position, ',')
-	            	  	                 +'<p>Distance:'+object2String(lanePoints[i].distance, ',')
-	            	  	                 +'</pre>');
-	            	  	  anchors.push(node);
-	            	  }
-            	  }
-            }
-        }
-    }
-    ], [80, 0.1+80, 0.1]);
-    
 }
 
 function initToolbar_parkview(){
-	   var items = [ 
-                    {
-                        label: '白',
-                        groupId: 'headLightColor',
-                        selected: true,
-                        action: function(){                             
-                            g3d.setHeadlightColor('white');
-                        }
-                    },        
-                    {
-                        label: '红',
-                        groupId: 'headLightColor',
-                        action: function(){                             
-                            g3d.setHeadlightColor('red');
-                        }
-                    }, 
-                    {
-                        label: '蓝',
-                        groupId: 'headLightColor',
-                        action: function(){                             
-                            g3d.setHeadlightColor('blue');
-                        }
-                    },        
-                    {
-                        label: '黄',
-                        groupId: 'headLightColor',        
-                        action: function(){                             
-                            g3d.setHeadlightColor('yellow');
-                        }
-                    },        
-                    {
-                        id: 'step',                        
-                        unfocusable: true,
-                        slider: {
-                            width: 70,
-                            step: 500,
-                            min: 0,
-                            max: 10000,
-                            value: 0,                            
-                            onValueChanged: function(){
-                                g3d.setHeadlightRange(this.getValue());
-                            }       
-                        }                
-                    },
-                    'separator', 
-                    {
-                        label: '雾模式',
-                        type: 'check',                        
-                        action: function(){
-                            g3d.setFogDisabled(!this.selected);
-                        }
-                    },
-                    {
-                        label: '白',
-                        groupId: 'fogColor',
-                        selected: true,
-                        action: function(){                             
-                            g3d.setFogColor('white');
-                        }
-                    },                     
-                    {
-                        label: '红',
-                        groupId: 'fogColor',
-                        action: function(){                             
-                            g3d.setFogColor('red');
-                        }
-                    },        
-                    {
-                        label: '黄',
-                        groupId: 'fogColor',        
-                        action: function(){                             
-                            g3d.setFogColor('yellow');
-                        }
-                    },
-                    {                       
-                        unfocusable: true,
-                        label: '近雾',
-                        slider: {
-                            width: 70,
-                            min: 10,
-                            max: 4000,
-                            value: 100,                            
-                            onValueChanged: function(){
-                                g3d.setFogNear(this.getValue());
-                            }       
-                        }                
-                    },                        
-                    {                       
-                        unfocusable: true,
-                        label: '远雾',
-                        slider: {
-                            width: 70,
-                            min: 5000,
-                            max: 15000,
-                            value: 8000,                            
-                            onValueChanged: function(){
-                                g3d.setFogFar(this.getValue());
-                            }       
-                        }                
-                    },                    
-                    'separator', 
-                    {
-                        type: 'toggle',
-                        label: '投影视图',                        
-                        action: function(item){  
-                            g3d.setOrtho(item.selected);                           
-                        }                    
-                    },
-                    
-                    {
-                        type: 'toggle',
-                        selected: false,
-                        label: '第1人模式',
-                        action: function(item){
-                            g3d.setFirstPersonMode(item.selected);  
-                            g3d.reset();
-                        }
-                    },
-                    'separator',
-                    {
-                        label: ' 显示楼层: ',
-                    }, 
-                    {   
-                        id: 'B1',
-                        label: 'B1',
-                        selected: true,
-                        action: function(item){                             
-                            item.selected=!item.selected;
-                            hideFloor('B1', !item.selected);
-                            g3d.reset();
-                        }
-                    }, 
-                    {
-                        id: 'B2',
-                        label: 'B2',
-                        selected: false,
-                        action: function(item){                             
-                            item.selected=!item.selected;
-                            
-                            hideFloor('B2', !item.selected);
-                            g3d.reset();
-                        }
-                    }, 
-                    {
-                        id: 'F1',
-                        label: 'F1',
-                        selected: false,
-                        action: function(item){                             
-                            item.selected=!item.selected;
-                            
-                            hideFloor('F1', !item.selected);
-                            g3d.reset();
-                        }
-                    }, 
-                    {
-                        id: 'F2',
-                        label: 'F2',
-                        selected: false,
-                        action: function(item){                             
-                            item.selected=!item.selected;
-                            
-                            hideFloor('F2', !item.selected);
-                            g3d.reset();
-                        }
-                    }                                                 
-                                     
-                ];
-      return items;
- }
+   return null;
+}
               
 function toggleData_parkview(data, name){
                 var angle = data.angle,
@@ -515,7 +151,7 @@ function toggleData_parkview(data, name){
 }
 
 function initLights_parkview(){
-	    redLight = new ht.Light();
+      redLight = new ht.Light();
       redLight.p3(-1600, 200, -2200);
       redLight.s({
           'light.color': 'red',

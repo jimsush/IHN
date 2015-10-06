@@ -3,17 +3,52 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:id="@+id/editText_url" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
-    <Button
-        android:id="@+id/button_goUrl"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
-        android:text="Go to URL"
-        android:layout_marginBottom="10dp"/>
+        <Button
+            android:id="@+id/button_goUrl"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/action_refresh"
+            android:textSize="10dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/action_park"
+            android:textSize="10dp"
+            android:id="@+id/btnPark" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/action_leave"
+            android:textSize="10dp"
+            android:id="@+id/btnLeave" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:id="@+id/txtKeywords"
+            android:layout_weight="1"
+            android:textSize="10dp"
+            android:text="KFC" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="@string/action_search"
+            android:textSize="10dp"
+            android:id="@+id/btnSearch" />
+
+    </LinearLayout>
 
     <WebView
         android:id="@+id/webview"
