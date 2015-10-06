@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -73,15 +74,15 @@ public class MyListActivity extends Activity {
 
     private void initImageTextList1(){
         Map<String, Object> item1 = new HashMap<String, Object>();
-        item1.put("image", R.drawable.car_64);
+        item1.put("image", R.drawable.park);
         item1.put("name", "陆家嘴地下车库");
 
         Map<String, Object> item2 = new HashMap<String, Object>();
-        item2.put("image", R.drawable.car_64);
+        item2.put("image", R.drawable.park);
         item2.put("name", "徐家汇港汇车库");
 
         Map<String, Object> item3 = new HashMap<String, Object>();
-        item3.put("image", R.drawable.car_64);
+        item3.put("image", R.drawable.park);
         item3.put("name", "人民广场2号车库");
 
         List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
@@ -92,6 +93,13 @@ public class MyListActivity extends Activity {
                 new String[]{"image","name"}, new int[]{ R.id.imageView_prop, R.id.textView_propProperty});
 
         this.listView.setAdapter(simpleAdapter);
+
+        this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openHTML5MapView1();
+            }
+        });
     }
 
     private void initSearchPlaceInActionBar1(Menu menu){

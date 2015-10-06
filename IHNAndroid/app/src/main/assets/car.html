@@ -90,13 +90,12 @@
             );
             
             function init(){ 
-            	  initLoadImage_parkview();
+            	initLoadImage_parkview();
             	
                 initAlarmImage_parkview();
 
-                var items=initToolbar_parkview();
-                
-                toolbar = new ht.widget.Toolbar(items);
+                //var items=initToolbar_parkview();
+                //toolbar = new ht.widget.Toolbar(items);
                 
                 dataModel = new ht.DataModel();
                 
@@ -128,17 +127,17 @@
                 });
                 
                 borderPane = new ht.widget.BorderPane();
-                borderPane.setTopView(toolbar);
-                borderPane.setCenterView(g3d);       
-								
-								accordionView = new ht.widget.AccordionView();
-								rightFormPane = new ht.widget.FormPane();
-								accordionView.add('操作控制台', rightFormPane, true);
-								
-								mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
-								initFormPane(g3d, rightFormPane);
-								
-                view = mainSplit.getView();
+                //borderPane.setTopView(toolbar);
+                borderPane.setCenterView(g3d);
+
+				//accordionView = new ht.widget.AccordionView();
+				//rightFormPane = new ht.widget.FormPane();
+				//accordionView.add('操作控制台', rightFormPane, true);
+				//mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -180);
+				//initFormPane(g3d, rightFormPane);
+                //view = mainSplit.getView();
+
+                view = borderPane.getView();
                 view.className = 'main';
                 document.body.appendChild(view);    
                 window.addEventListener('resize', function (e) {
@@ -172,7 +171,6 @@
         	                width: 435,
         	                modal: true,
         	                close: function() {
-        	                	//$('camvideo').stop();
         	                  $(this).dialog( "close" );
         	                }
         	  			});
@@ -196,8 +194,8 @@
             } 
 
             function reset(){
-                g3d.setEye([0, 1500, 2500]);
-                g3d.setCenter([0, 0, -1500]);                  
+                g3d.setEye([0, 2000, 2300]);
+                g3d.setCenter([0, 0, -400]);                  
             }
             
             function initModel(){
@@ -348,6 +346,10 @@
                 }else{
                     node.s({'shape': 'rect'});
                 }
+                node.s({
+                	'wf.visible': 'selected',
+                   'wf.color': 'red'
+                	});
                 node.p3(p3);
                 node.s3(s3);
                 dataModel.add(node);
@@ -541,6 +543,10 @@
                     'scale.value': 1,
                     'scale.s3': rawS3
                 });
+                car.s({
+                	'wf.visible': 'selected',
+                   'wf.color': 'red'
+                	});
                 dataModel.add(car);  
                 return car;  
             }

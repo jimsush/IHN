@@ -176,7 +176,6 @@
         	                width: 435,
         	                modal: true,
         	                close: function() {
-        	                	//$('camvideo').stop();
         	                  $(this).dialog( "close" );
         	                }
         	  			});
@@ -200,8 +199,8 @@
             } 
 
             function reset(){
-                g3d.setEye([0, 1500, 2500]);
-                g3d.setCenter([0, 0, -1500]);                  
+                g3d.setEye([0, 1800, 2000]);
+                g3d.setCenter([0, 0, -400]);                  
             }
             
             function initModel(){
@@ -352,6 +351,12 @@
                 }else{
                     node.s({'shape': 'rect'});
                 }
+                
+                node.s({
+                    'wf.visible': 'selected',
+                    'wf.color': 'red'                 
+                });
+                
                 node.p3(p3);
                 node.s3(s3);
                 dataModel.add(node);
@@ -552,6 +557,10 @@
                     'scale.value': 1,
                     'scale.s3': rawS3
                 });
+                car.s({
+                	'wf.visible': 'selected',
+                   'wf.color': 'red'
+                	});
                 dataModel.add(car);  
                 return car;  
             }
@@ -905,4 +914,8 @@
 </html>                
     </body>
     
+</html>/html>l>                
+    </body>
+    
+</html>
 </html>
