@@ -3,7 +3,6 @@ package com.ihn.ihnandroid;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,7 +17,8 @@ import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.ihn.ihnandroid.parking.ParkingWebViewActivity;
-import com.ihn.ihnandroid.parking.PropertyGridActivity;
+import com.ihn.ihnandroid.parking.PreferenceActivity;
+import com.ihn.ihnandroid.parking.ManageMapActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,25 +73,7 @@ public class MyListActivity extends Activity {
     }
 
     private void initImageTextList1(){
-        Map<String, Object> item1 = new HashMap<String, Object>();
-        item1.put("image", R.drawable.park);
-        item1.put("name", "陆家嘴地下车库");
-
-        Map<String, Object> item2 = new HashMap<String, Object>();
-        item2.put("image", R.drawable.park);
-        item2.put("name", "徐家汇港汇车库");
-
-        Map<String, Object> item3 = new HashMap<String, Object>();
-        item3.put("image", R.drawable.park);
-        item3.put("name", "人民广场2号车库");
-
-        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
-        data.add(item1);
-        data.add(item2);
-        data.add(item3);
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.property_image_text_item1,
-                new String[]{"image","name"}, new int[]{ R.id.imageView_prop, R.id.textView_propProperty});
-
+        SimpleAdapter simpleAdapter=initParkingIcons();
         this.listView.setAdapter(simpleAdapter);
 
         this.listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -100,6 +82,26 @@ public class MyListActivity extends Activity {
                 openHTML5MapView1();
             }
         });
+    }
+
+    private SimpleAdapter initParkingIcons(){
+        Object[] images=new Object[]{
+                R.drawable.p1,
+                R.drawable.p2,
+                R.drawable.p3,
+                R.drawable.p4,
+                R.drawable.p5
+        };
+        List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+        for(Object image : images) {
+            Map<String, Object> item1 = new HashMap<String, Object>();
+            item1.put("image", image);
+            data.add(item1);
+        }
+
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this, data, R.layout.property_image_item2,
+                new String[]{"image"}, new int[]{ R.id.imageView_prop});
+        return simpleAdapter;
     }
 
     private void initSearchPlaceInActionBar1(Menu menu){
@@ -137,22 +139,16 @@ public class MyListActivity extends Activity {
             */
 
             case R.id.action_findcar:
-                showMyDialog(1);
-                return true;
-
-            /*case R.id.action_findplace:
-                showMyDialog(2);
-                return true;
-            */
-
-            case R.id.action_managemap:
-                //showMyDialog(3);
                 openHTML5MapView1();
                 return true;
 
+            case R.id.action_managemap:
+                openManageMapView1();
+                return true;
+
             case R.id.action_settings:
-                Toast.makeText(this,"settings is under construction", Toast.LENGTH_LONG).show();
-                openPropertyGridView1();
+                //Toast.makeText(this,"settings is under construction", Toast.LENGTH_LONG).show();
+                openPreferenceView1();
                 return true;
         }
 
@@ -170,9 +166,15 @@ public class MyListActivity extends Activity {
         startActivity(intent);
     }
 
-    private void openPropertyGridView1(){
+    private void openManageMapView1(){
         Intent intent=new Intent();
-        intent.setClass(MyListActivity.this,PropertyGridActivity.class);
+        intent.setClass(MyListActivity.this, ManageMapActivity.class);
+        startActivity(intent);
+    }
+
+    private void openPreferenceView1(){
+        Intent intent=new Intent();
+        intent.setClass(MyListActivity.this,PreferenceActivity.class);
         startActivity(intent);
     }
 

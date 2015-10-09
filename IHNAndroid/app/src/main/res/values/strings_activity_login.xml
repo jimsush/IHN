@@ -1,0 +1,14 @@
+<resources>
+    <string name="title_activity_login">登录</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">电子邮箱</string>
+    <string name="prompt_password">登录密码</string>
+    <string name="action_sign_in">登录/注册</string>
+    <string name="action_sign_in_short">用户登录</string>
+
+    <string name="error_invalid_email">邮箱地址无效</string>
+    <string name="error_invalid_password">您的密码过短</string>
+    <string name="error_incorrect_password">您的密码不正确</string>
+    <string name="error_field_required">该字段必填</string>
+</resources>
