@@ -19,6 +19,6 @@
         android:showAsAction="ifRoom|withText" android:icon="@drawable/map_64"/>
 
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:showAsAction="never|withText" android:icon="@drawable/setting_64"/>
+        android:showAsAction="ifRoom|withText" android:icon="@drawable/setting_64"/>
 
 </menu>
