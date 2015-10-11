@@ -28,33 +28,43 @@
                 }
             };
         </script> 
+        
         <link rel="stylesheet" href="jquery-ui.css">
 	      <link rel="stylesheet" href="ihn.css">
-	    
 	      <script type="text/javascript" src = "jquery-min.js"></script>
 	      <script type="text/javascript" src = "jquery-ui-min.js"></script>
-        <script src="ht.js"></script>   
-        <script src="ht-form.js"></script> 
-        <script src="ht-obj.js"></script> 
+	      
+        <script src="ht.js"></script>
+        <script src="ht-form.js"></script>
+        <script src="ht-obj.js"></script>
+        
         <script src="parkview.js"></script>
         <script src="dijkstras.js"></script>
+        
         <script>
             function getRawText(obj){
                 var text = String(obj); 
                 return text.substring(14, text.length-3);
             }            
-        </script>                 
+        </script>    
+                     
         <script src="car_mtl.js"></script> 
         <script src="car_obj.js"></script>  
+        <script src="people_mtl.js"></script> 
+        <script src="people_obj.js"></script>  
+        
         <script>
         	     
         	  rawS3=null;
+        	  peopleS3=null;
             hideFloors=new Array();
             currentPath=null;
             start=null;
             end=null;
             anchors=new Array();
             bluetooths=new Array();
+            pathPoints=new Array();
+            showInPC=false;
             
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -90,24 +100,29 @@
             );
             
             function init(){ 
-            	initLoadImage_parkview();
+            	  initLoadImage_parkview();
             	
                 initAlarmImage_parkview();
 
-                //var items=initToolbar_parkview();
-                //toolbar = new ht.widget.Toolbar(items);
-                
+                if(showInPC==true){ 
+                    var items=initToolbar_parkview();
+                    toolbar = new ht.widget.Toolbar(items);
+                }
+              
                 dataModel = new ht.DataModel();
                 
                 g3d = new ht.graph3d.Graph3dView(dataModel); 
-                g3d.getView().style.background = 'black';
+                //g3d.getView().style.background = 'white';
                 
                 g3d.setGridSize(100);
-                g3d.setGridGap(100); 
-                g3d.setFar(30000);
-                g3d.setOrthoWidth(5000);  
-                g3d.setFogNear(100);
-                g3d.setFogFar(8000);
+                g3d.setGridGap(100);
+                g3d.setGridVisible(true); 
+                
+                //g3d.setFar(30000);
+                //g3d.setOrthoWidth(5000);  
+                //g3d.setFogNear(100);
+                //g3d.setFogFar(8000);
+                
                 g3d.reset = reset;
                 g3d.reset();
                 g3d.enableToolTip();
@@ -126,22 +141,32 @@
                     return true;
                 });
                 
-                borderPane = new ht.widget.BorderPane();
-                //borderPane.setTopView(toolbar);
-                borderPane.setCenterView(g3d);
-
-				//accordionView = new ht.widget.AccordionView();
-				//rightFormPane = new ht.widget.FormPane();
-				//accordionView.add('操作控制台', rightFormPane, true);
-				//mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -180);
-				//initFormPane(g3d, rightFormPane);
-                //view = mainSplit.getView();
-
-                view = borderPane.getView();
+                if(showInPC==true){ 
+                    borderPane = new ht.widget.BorderPane();
+                    borderPane.setTopView(toolbar);
+                    borderPane.setCenterView(g3d);       
+								
+								    accordionView = new ht.widget.AccordionView();
+								    rightFormPane = new ht.widget.FormPane();
+								    accordionView.add('操作控制台', rightFormPane, true);
+								
+								    mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+								    initFormPane(g3d, rightFormPane);
+								
+                    view = mainSplit.getView();
+                }else{
+                	  // in mobile
+                    view = g3d.getView();
+                }
+                
                 view.className = 'main';
                 document.body.appendChild(view);    
                 window.addEventListener('resize', function (e) {
-                    borderPane.invalidate();
+                	  if(showInPC==true){ 
+                        borderPane.invalidate();
+                    }else{
+                        g3d.invalidate();
+                    }
                 }, false);                         
                     
                 w = 50, 
@@ -153,9 +178,28 @@
                 dataModel.sm().setFilterFunc(function(data){
                     return data !== floor1;
                 }); 
+                
                 g3d.setMovableFunc(function(data){
-                    return rightFormPane.v('movable');
+                	  if(showInPC==true){ 
+                       return rightFormPane.v('movable');
+                    }else{
+                    	 return false;
+                    }
                 });
+
+                if(showInPC==false){
+                   /*
+                   view.setSelectableFunc(function(data){
+                       var selectable=data.a('selectable');
+                       if(selectable){
+                           return selectable;
+                       }else{
+                           return true;
+                       }
+                   });
+                   */
+                }
+                                
                 anim = null;
                 g3d.onDataDoubleClicked = function(data, e, dataInfo){
 					        var type = data && data.getAttr('type');
@@ -194,13 +238,13 @@
             } 
 
             function reset(){
-                g3d.setEye([0, 2000, 2300]);
+                g3d.setEye([0, 1800, 2000]);
                 g3d.setCenter([0, 0, -400]);                  
             }
             
             function initModel(){
                 
-                rawS3=loadMTL(); // load mtl objects
+                loadMTL(); // load mtl objects
                 
                 //initLights_parkview();               
                 
@@ -225,7 +269,7 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                floor1.a({'type' : 'Floor', 'floor' : 'B1'});
+                floor1.a({'type' : 'Floor', 'floor' : 'B1', 'selectable':false });
                 
                 var f1spot1=createSpots(floorName, 'B1_A', 0, 1, -1600, 2700, 600);
                 var f1spot2=createSpots(floorName, 'B1_B', 0, 1, -2400, 2700, 600);
@@ -249,9 +293,9 @@
             	  	});
             	  	
             	  var wallThickness=40;	
-            	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName});
+            	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 
-                var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName});
+                var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName, 'selectable':false });
                 w2.s({
                     'front.color':'yellow',
                     'note': 'StarBucks Coffee',
@@ -262,10 +306,10 @@
                     'note.autorotate': true
                     });
                 
-                createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName});
-                createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName});
-                createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName});
-                createNode('W6', [-500, 100, 100], [1400+wallThickness, 200, wallThickness], '#E0FFFF').s({'back.color':'yellow'}).a({'type':'Wall','floor':floorName});
+                createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W6', [-500, 100, 100], [1400+wallThickness, 200, wallThickness], '#E0FFFF').s({'back.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 
                 var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
                 
@@ -274,7 +318,7 @@
             }
             
             var createCameras = function(floorName) {
-	          	var camera=createNode('B1_Cam1', [0, -60, 0], [100, 120, 10]);
+	          	var camera=createNode('B1_Cam1', [0, -60-10, 0], [100, 120, 10]);
 	          	camera.a({'type': 'Camera', 'floor': floorName });
 	          	camera.s({
 	          		'all.color': '#fff',
@@ -295,7 +339,7 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                floor2.a({'type' : 'Floor', 'floor' : floorName});
+                floor2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
                 var f2spot1=createSpots(floorName, 'B2_A', 0, -1000, -1600, 2700, 600);
                 var f2spot2=createSpots(floorName, 'B2_B', 0, -1000, -2400, 2700, 600);
@@ -313,7 +357,7 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                floor3.a({'type' : 'Floor', 'floor' : floorName});
+                floor3.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
                 var wall1 = createNode('F1_W1', [2345-400, 322/2, -3100], [6, 322, 1400], '#F0F0F0');
                 wall1.a({'type' : 'Wall', 'floor': floorName});
@@ -332,7 +376,7 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                f2.a({'type' : 'Floor', 'floor' : floorName});
+                f2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
             }
             
             function createNode(id, p3, s3, color1){
@@ -346,10 +390,12 @@
                 }else{
                     node.s({'shape': 'rect'});
                 }
+                
                 node.s({
-                	'wf.visible': 'selected',
-                   'wf.color': 'red'
-                	});
+                    'wf.visible': 'selected',
+                    'wf.color': 'red'                 
+                });
+                
                 node.p3(p3);
                 node.s3(s3);
                 dataModel.add(node);
@@ -384,10 +430,10 @@
             function createSpotArea(floorName, prefix, x, y, z, width, depth, height, carSpot){
             	  var border=20;
             	  
-            	  var leftSide=createNode('A_'+prefix+'_1', [x-width/2+border/2, y, z], [border, depth, height],  'white');
-            	  var topSide=createNode('A_'+prefix+'_2', [x, y, z-height/2+border/2], [width, depth, border],   'white');
-            	  var rightSide=createNode('A_'+prefix+'_3', [x+width/2-border/2, y, z], [border, depth, height], 'white');
-            	  var bottomSide=createNode('A_'+prefix+'_4', [x, y, z+height/2-border/2], [width, depth, border], 'white');
+            	  var leftSide=createNode('A_'+prefix+'_1', [x-width/2-border/2, y, z], [border, depth, height],  'white');
+            	  var topSide=createNode('A_'+prefix+'_2', [x, y, z-height/2-border/2], [width+2*border, depth, border],   'white');
+            	  var rightSide=createNode('A_'+prefix+'_3', [x+width/2+border/2, y, z], [border, depth, height], 'white');
+            	  var bottomSide=createNode('A_'+prefix+'_4', [x, y, z+height/2+border/2], [width+2*border, depth, border], 'white');
             	  
             	  leftSide.a({'type':'SpotArea', 'floor': floorName});
             	  topSide.a({'type':'SpotArea', 'floor': floorName});
@@ -433,7 +479,7 @@
                         'shape3d.bottom.visible': false,
                         'shape3d.image': 'pole.png'
             	  	});
-            	  block.a({'type':'SpotBlock', 'floor': floorName, 'Spots' : carSpots.getId()});
+            	  block.a({'type':'SpotBlock', 'floor': floorName, 'Spots' : carSpots.getId(), 'selectable':false });
             	  block.r3(0, 0 ,Math.PI/2);
             	  block.setHost(spot);
             	  
@@ -519,14 +565,21 @@
             }
             
             function loadMTL(){
-            	  var params = {
+            	var params = {
                     s3: [1, 1, 1],
                     cube: true,
                     shape3d: 'car'
                 }; 
                 var modelMap = ht.Default.parseObj(car_obj, car_mtl, params);                
-                var rawS3 = params.rawS3;
-                return rawS3;
+                rawS3 = params.rawS3;
+                
+                var params2 = {
+                    s3: [1, 1, 1],
+                    cube: true,
+                    shape3d: 'people'
+                }; 
+                var modelMap2 = ht.Default.parseObj(people_obj, people_mtl, params2);                
+                peopleS3 = params2.rawS3;
             }
             
             function createCar(x, y, z, rawS3){
@@ -549,6 +602,25 @@
                 	});
                 dataModel.add(car);  
                 return car;  
+            }
+            
+            function createPeople(x, y, z){
+            	peopleS3 = [100, 200, 100];
+                var people = new ht.Node();
+                people.p3(x, y, z);                 
+                people.s3(peopleS3); 
+                people.s({
+                   'shape3d': 'people',
+                   'scale.value': 1
+                });
+                people.a({
+                    'screen.color': 'red',                                                               
+                    'scale.shrink': false,
+                    'scale.value': 1,
+                    'scale.s3': peopleS3
+                });
+                dataModel.add(people);  
+                return people;  
             }
             
             function createDoor(floorName, x1, y1, x2, y2, tall, angle){
@@ -713,7 +785,7 @@
               	var finalPath=g.shortestPath(sourceNearestPos.name, destVertexName).reverse();
               	console.log("finalPath: "+finalPath);
               	
-              	var pathPoints=new Array();
+              	pathPoints=new Array();
               	pathPoints.push({x:srcPos.x, y:srcPos.y+node.getHeight()/2});
             		pathPoints.push({x:sourceNearestPos.position[0], y:sourceNearestPos.position[1]});
             		for(var i=0; i<finalPath.length; i++){
@@ -758,6 +830,8 @@
                         t3: [0, 60, 0],
                         discardSelectable: false
                     });
+            	  
+            	  walk(pathPoints, 1);
             }
 
             function getNearestPoint(x, y){
@@ -835,10 +909,45 @@
               }
               
           }     
+          
+          function walk(points, interval) {
+        	  if(!points) return;
+        	  
+        	  var i = 0;
+        	  var ratotionVal = Math.PI / 2;
+        	  var showPeopleInter = setInterval(function() {
+        		  if(i >= points.length) {
+        			  clearInterval(showPeopleInter);
+        		  };
+        		  
+        		  if(points[i] && points[i+1]) {
+            		  var diff_x = points[i].x-points[i+1].x,
+            		      diff_y = points[i+1].y-points[i].y;
+            		  
+            		  if(diff_x == 0) {
+            			  ratotionVal = diff_y > 0 ? Math.PI/2 : -(Math.PI/2);
+            		  } else if(diff_y == 0) {
+            			  ratotionVal = diff_x > 0 ? Math.PI : 0;
+            		  } else {
+            			  var angle = Math.atan(diff_x/diff_y)/(2*Math.PI);
+            			  ratotionVal = diff_x < 0 ? angle : Math.PI/2-angle;
+            		  }
+            	  }
+        		  
+        		  dataModel.removeDataByTag('People');
+        		  var people = createPeople(points[i].x, 50, points[i].y);
+        		  people.a({'type' : 'People'});
+        		  people.setTag('People');
+        		  people.setRotation(ratotionVal);
+        		  i++;
+        		  
+        	  }, interval*1000);
+          }
+          
         </script>
     </head>
     
     <body onload="init();">                        
     </body>
     
-</html>
+</html>                

@@ -85,13 +85,13 @@ public class ParkingWebViewActivity extends Activity {
 
         //webSettings.setAppCacheEnabled(true);
 
-        webSettings.setSupportZoom(true);
-        webSettings.setDisplayZoomControls(false);
-        webSettings.setBuiltInZoomControls(true);
+        //webSettings.setSupportZoom(true);
+        //webSettings.setDisplayZoomControls(false);
+        //webSettings.setBuiltInZoomControls(true);
 
-        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-        webSettings.setUseWideViewPort(true);
-        webSettings.setLoadWithOverviewMode(true);
+        //webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+        //webSettings.setUseWideViewPort(true);
+        //webSettings.setLoadWithOverviewMode(true);
         //webView.setInitialScale(1);
     }
 
