@@ -35,6 +35,10 @@
                 dataModel = new ht.DataModel();                
                 g3d = new ht.graph3d.Graph3dView(dataModel);                  
                
+                g3d.setGridSize(100);
+                g3d.setGridGap(100);
+                g3d.setGridVisible(true); 
+                
                 view = g3d.getView();  
                 view.className = 'main';
                 document.body.appendChild(view);

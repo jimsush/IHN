@@ -8,3 +8,4 @@ ib_logfile*
 *.frm
 *.MYI
 *.log
+jsdoc
