@@ -8,6 +8,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
 
@@ -46,6 +47,7 @@ public class ParkingWebViewActivity extends Activity {
                 try {
                     webView.loadUrl("javascript:startParking()");
                 }catch(Throwable th){
+                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
                     th.printStackTrace();
                 }
             }
@@ -58,6 +60,7 @@ public class ParkingWebViewActivity extends Activity {
                 try{
                     webView.loadUrl("javascript:leaveParking()");
                 }catch(Throwable th){
+                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
                     th.printStackTrace();
                 }
             }
@@ -73,6 +76,7 @@ public class ParkingWebViewActivity extends Activity {
                     String keywords=txtKeywords.getText().toString();
                     webView.loadUrl("javascript:searchShop('"+keywords+"')");
                 }catch(Throwable th){
+                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
                     th.printStackTrace();
                 }
             }
@@ -106,9 +110,9 @@ public class ParkingWebViewActivity extends Activity {
         try {
             webView.loadUrl("file:///android_asset/car.html");
         }catch(Throwable th){
+            Toast.makeText(this,th.getMessage(), Toast.LENGTH_LONG).show();
             th.printStackTrace();
         }
     }
-
 
 }

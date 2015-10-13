@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>3D Parking</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+        <style>
+            html, body {
+                padding: 0px;
+                margin: 0px;                
+            }            
+            .main {
+                margin: 0px;
+                padding: 0px;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+            }
+        </style> 
+        <script>
+            htconfig = {
+                Default:{                    
+                    toolTipDelay: 100,
+                    toolTipContinual: true,
+                    toolTipLabelColor: 'yellow',
+                    toolTipBackground: 'rgba(0, 50, 50, 0.5)'
+                }
+            };
+        </script> 
+        
+        <link rel="stylesheet" href="styles/jquery-ui.css">
+	      <link rel="stylesheet" href="styles/ihn.css">
+	      <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
+	      <script type="text/javascript" src = "scripts/libs/jquery/jquery-ui-min.js"></script>
+	      
+        <script src="scripts/libs/ht/core/ht.js"></script>   
+        <script src="scripts/libs/ht/plugin/ht-form.js"></script> 
+        <script src="scripts/libs/ht/plugin/ht-obj.js"></script> 
+        
+        <script src="parkview.js"></script>
+        <script src="dijkstras.js"></script>
+        
+        <script>
+            function getRawText(obj){
+                var text = String(obj); 
+                return text.substring(14, text.length-3);
+            }            
+        </script>    
+                     
+        <script src="car_mtl.js"></script> 
+        <script src="car_obj.js"></script>  
+        <script src="people_mtl.js"></script> 
+        <script src="people_obj.js"></script>  
+        
+        <script>
+        	     
+        	  rawS3=null;
+        	  peopleS3=null;
+            hideFloors=new Array();
+            currentPath=null;
+            start=null;
+            end=null;
+            anchors=new Array();
+            bluetooths=new Array();
+            pathPoints=new Array();
+            showInPC=true;
+            
+            lanePoints=new Array( 
+            	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
+            	{name: 'p121', position: new Array(-750,-2850), distance:{p1:750, p122:750} },
+            	{name: 'p122', position: new Array(0,-2850), distance:{p121:750, p123:750} },
+            	{name: 'p123', position: new Array(750,-2850), distance:{p122:750, p2:750} },
+            	{name: 'p2', position: new Array(1500,-2850), distance:{p4:800, p123: 750} },
+            	
+            	{name: 'p3', position: new Array(-1500,-2050), distance:{p1:800, p5:800, p341:750} },
+            	{name: 'p341', position: new Array(-750,-2050), distance:{p3:750, p342: 750} },
+            	{name: 'p342', position: new Array(0,-2050), distance:{p341:750, p343: 750} },
+            	{name: 'p343', position: new Array(750,-2050), distance:{p342:750, p4: 1500} },
+            	{name: 'p4', position: new Array(1500,-2050), distance:{p2:800, p6:800, p343:750} },
+            	
+            	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
+            	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
+							{name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+							{name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+							{name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+            	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
+            	
+            	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
+            	{name: 'p781', position: new Array(-750, -560), distance:{p7:750, p782:530, p561:790} },
+            	{name: 'p782', position: new Array(-220, -560), distance:{p781:530, p783:970, p562:790} },
+            	{name: 'p783', position: new Array(750, -560), distance:{p782:970, p8:750} },
+            	{name: 'p8', position: new Array(1500,-560), distance:{p6:800, p10:800, p783:750} },
+            	
+            	{name: 'p9', position: new Array(-1500,350), distance:{p7:800, p9a1:750} },
+            	{name: 'p9a1', position: new Array(-750,350), distance:{p9:750, p9a2:750} },
+            	{name: 'p9a2', position: new Array(0,350), distance:{p9a1:750, p9a3:750} },
+            	{name: 'p9a3', position: new Array(750,350), distance:{p9a2:750, p10:750} },
+            	{name: 'p10', position: new Array(1500,350),distance:{p8:800, p9a3:750} }
+            );
+            
+            function init(){ 
+            	  initLoadImage_parkview();
+            	
+                initAlarmImage_parkview();
+
+                if(showInPC==true){ 
+                    var items=initToolbar_parkview();
+                    toolbar = new ht.widget.Toolbar(items);
+                }
+              
+                dataModel = new ht.DataModel();
+                
+                g3d = new ht.graph3d.Graph3dView(dataModel); 
+                //g3d.getView().style.background = 'white';
+                
+                g3d.setGridSize(100);
+                g3d.setGridGap(100);
+                g3d.setGridVisible(true); 
+                
+                //g3d.setFar(30000);
+                //g3d.setOrthoWidth(5000);  
+                //g3d.setFogNear(100);
+                //g3d.setFogFar(8000);
+                
+                g3d.reset = reset;
+                g3d.reset();
+                g3d.enableToolTip();
+                  
+                g3d.setVisibleFunc(function(data){
+                    var floor=data.a('floor');
+                    if(!floor){
+                    	  return true;
+                    }
+                    
+                    for(var i=0; i<hideFloors.length; i++){
+                       if(floor==hideFloors[i]){
+                           return false;
+                       }
+                    }
+                    return true;
+                });
+                
+                if(showInPC==true){ 
+                    borderPane = new ht.widget.BorderPane();
+                    borderPane.setTopView(toolbar);
+                    borderPane.setCenterView(g3d);       
+								
+								    accordionView = new ht.widget.AccordionView();
+								    rightFormPane = new ht.widget.FormPane();
+								    accordionView.add('操作控制台', rightFormPane, true);
+								
+								    mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+								    initFormPane(g3d, rightFormPane);
+								
+                    view = mainSplit.getView();
+                }else{
+                	  // in mobile
+                    view = g3d.getView();
+                }
+                
+                view.className = 'main';
+                document.body.appendChild(view);    
+                window.addEventListener('resize', function (e) {
+                	  if(showInPC==true){ 
+                        borderPane.invalidate();
+                    }else{
+                        g3d.invalidate();
+                    }
+                }, false);                         
+                    
+                w = 50, 
+                g = 3, 
+                transparent = 'rgba(0, 50, 50, 0.8)';
+                
+                initModel();
+                
+                dataModel.sm().setFilterFunc(function(data){
+                    return data !== floor1;
+                }); 
+                
+                g3d.setMovableFunc(function(data){
+                	  if(showInPC==true){ 
+                       return rightFormPane.v('movable');
+                    }else{
+                    	 return false;
+                    }
+                });
+
+                if(showInPC==false){
+                   /*
+                   view.setSelectableFunc(function(data){
+                       var selectable=data.a('selectable');
+                       if(selectable){
+                           return selectable;
+                       }else{
+                           return true;
+                       }
+                   });
+                   */
+                }
+                                
+                anim = null;
+                g3d.onDataDoubleClicked = function(data, e, dataInfo){
+					        var type = data && data.getAttr('type');
+                	
+                	if(type && type == 'Camera') {
+                		var dialog = '<div><div>楼层：</div><div>位置：</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+        	  			$('body').innerHTML = dialog;
+        	  			
+        	  			$(dialog).dialog({
+        	  				title: '摄像头',
+        	                autoOpen: true,
+        	                height: 405,
+        	                width: 435,
+        	                modal: true,
+        	                close: function() {
+        	                  $(this).dialog( "close" );
+        	                }
+        	  			});
+          	  			
+        	  			$('.ihn-vedio-play-start').on('click', function() {
+          	  				$('.ihn-vedio-play').empty();
+          	  				$('.ihn-vedio-play').html('<video id="camvideo" width="400" src="park.mp4" autoplay="autoplay" controls>Your browser does not support HTML5 video.</video>');
+          	  			});
+                		return;
+                	}
+                	
+                    if(data.face){
+                        data.getHost().getAttaches().each(function(attach){
+                            if(attach.pop){
+                                toggleData_parkview(attach);
+                            }
+                        });
+                    }
+                    toggleData_parkview(data, dataInfo.name);
+                };  
+            } 
+
+            function reset(){
+                g3d.setEye([0, 1800, 2000]);
+                g3d.setCenter([0, 0, -400]);                  
+            }
+            
+            function initModel(){
+                
+                loadMTL(); // load mtl objects
+                
+                //initLights_parkview();               
+                
+                hideFloor('B2', true);
+                hideFloor('F1', true);
+                hideFloor('F2', true);
+                
+                createFloor1('B1');
+                createFloor2('B2');
+                createFloor3('F1');
+                createFloor4('F2');
+            }
+            
+            function createFloor1(){
+                var floorName='B1';
+                floor1 = createNode('B1', [0, -5, -1500], [4000, 10, 4200],'#F0F0F0');
+                if(showInPC){
+	                floor1.s({
+	                    'label': 'B1',
+	                    'label.position' : 24,
+	                    'label.t3' : [-200, 100, 0],
+	                    'label.face': 'top',
+	                    'label.font': '60px arial, sans-serif',
+	                    'label.background': 'yellow'
+	                });
+                }
+                floor1.a({'type' : 'Floor', 'floor' : 'B1', 'selectable':false });
+                
+                var f1spot1=createSpots(floorName, 'B1_A', 0, 1, -1600, 2700, 600);
+                
+                var f1spot2=createSpots(floorName, 'B1_B', 0, 1, -2400, 2700, 600);
+                
+                var f1spot3=createSpots(floorName, 'B1_C', 0, 1, -3200, 2700, 600);
+                
+                var f1BlankCarSpot=createNode('B1_D1#S', [400, 1, -900], [1200, 2, 600], '#3CB371');
+                f1BlankCarSpot.a({'type' : 'Spots', 'floor' : 'B1'});
+                f1BlankCarSpot.setToolTip('<pre>编号:'+f1BlankCarSpot.getId()
+            	                       +'<p>类别:车位区域'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:400, 0, -900'
+	            	  	                 +'<p>大小:1200, 1, 600'
+	            	  	                 +'</pre>');
+	            	  	                 
+            	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 1, -900, 1200, 2, 600, f1BlankCarSpot);
+            	  if(showInPC){
+	            	  f1BlankCarSpot.s({'label': 'D',
+	            	  	'label.face': 'top',
+	            	  	'label.position': 45,
+	            	  	'label.font': '100px arial, sans-serif',
+	            	  	'label.background': 'yellow'
+	            	  	});
+            	  }
+            	  var wallThickness=40;	
+            	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                
+                var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName, 'selectable':false });
+                if(showInPC){
+	                w2.s({
+	                    'front.color':'yellow',
+	                    'note': 'StarBucks Coffee',
+	                    'note.face': 'top',
+	                    'note.position': 7,
+	                    'note.t3': [0, 0, 10],
+	                    'note.font': '30px arial, sans-serif',
+	                    'note.autorotate': true
+	                    });
+                }
+                createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                createNode('W6', [-500, 100, 100], [1400+wallThickness, 200, wallThickness], '#E0FFFF').s({'back.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
+                
+                var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
+                
+                createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
+                createCameras(floorName);
+                
+            }
+            
+            var createCameras = function(floorName) {
+	          	var camera=createNode('B1_Cam1', [0, -60-10, 0], [100, 120, 10]);
+	          	camera.a({'type': 'Camera', 'floor': floorName });
+	          	camera.s({
+	          		'all.color': '#fff',
+                    'front.image': 'cam.png',
+                    'front.transparent': true
+	          	});
+	          	camera.setToolTip('This is camera. Double click to see the vedio.');
+            }
+            
+            function createFloor2(){
+                var floorName='B2';
+                var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
+                if(showInPC){
+                floor2.s({
+                    'label': floorName,
+                    'label.position' : 24,
+                    'label.t3' : [-200, 100, 0],
+                    'label.face': 'top',
+                    'label.font': '60px arial, sans-serif',
+                    'label.background': 'yellow'
+                });
+                }
+                floor2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
+                
+                var f2spot1=createSpots(floorName, 'B2_A', 0, -1000, -1600, 2700, 600);
+                var f2spot2=createSpots(floorName, 'B2_B', 0, -1000, -2400, 2700, 600);
+                var f2spot3=createSpots(floorName, 'B2_C', 0, -1000, -3200, 2700, 600);
+            }
+            
+            function createFloor3(){
+                var floorName='F1';
+                var floor3 = createNode(floorName, [2345, 322, -3100], [800, 10, 1400], '#F0F0F0');
+                if(showInPC){
+	                floor3.s({
+	                    'label': floorName,
+	                    'label.position' : 24,
+	                    'label.t3' : [-200, 5, 0],
+	                    'label.face': 'top',
+	                    'label.font': '60px arial, sans-serif',
+	                    'label.background': 'yellow'
+	                });
+                }
+                floor3.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
+                
+                var wall1 = createNode('F1_W1', [2345-400, 322/2, -3100], [6, 322, 1400], '#F0F0F0');
+                wall1.a({'type' : 'Wall', 'floor': floorName});
+                                
+                createLift(floorName, 2850, 600+322-20, -3000, 200, 200, 600*2);
+            }
+            
+            function createFloor4(){
+                var floorName='F2';
+                var f2 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
+                if(showInPC){
+                f2.s({
+                    'label': floorName,
+                    'label.position' : 24,
+                    'label.t3' : [-200, 5, 0],
+                    'label.face': 'top',
+                    'label.font': '60px arial, sans-serif',
+                    'label.background': 'yellow'
+                });
+                }
+                f2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
+            }
+            
+            function createNode(id, p3, s3, color1){
+                var node = new ht.Node();
+                node.setId(id);
+                if(color1){
+                    node.s({
+                        'shape': 'rect',
+                        'all.color': color1
+                    });
+                }else{
+                    node.s({'shape': 'rect'});
+                }
+                
+                node.s({
+                    'wf.visible': 'selected',
+                    'wf.color': 'red'                 
+                });
+                
+                node.p3(p3);
+                node.s3(s3);
+                dataModel.add(node);
+                return node;
+            }
+            
+            function createSpots(floorName, prefix, x, y, z, width, height){
+            	  //x=0,y=1,z=-2300,-1300,-600, w=2700, h=600
+            	  var spotH=2;
+            	  var carSpot=createNode('P_'+prefix, [x,y,z], [width, spotH, height], '#3CB371');
+            	  carSpot.a({'type': 'Spots', 'floor': floorName });
+            	  carSpot.setToolTip('<pre>编号:'+carSpot.getId()
+            	                       +'<p>类别:车位区域'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:'+x+' '+y+' '+z
+	            	  	                 +'<p>大小:'+width+' '+spotH+' '+height
+	            	  	                 +'</pre>');
+	            	                 
+            	  var area1=createSpotArea(floorName, prefix, x, y, z, width, spotH, height, carSpot);
+            	  
+            	  var s_width=250;
+            	  var s_height=550;
+            	  for(var i=0; i<10; i++){
+            	  	  var spotName=prefix+i;
+            	  	  var spotX=i*258-1160;
+            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+spotH, z, s_width, s_height, 'Portait', false, i%3==0);
+            	  }            	  
+            	  
+            	  var poles=createPoles(floorName, prefix, x, y, z, width, height);
+            }
+            
+            function createSpotArea(floorName, prefix, x, y, z, width, depth, height, carSpot){
+            	  var border=20;
+            	  
+            	  var leftSide=createNode('A_'+prefix+'_1', [x-width/2-border/2, y, z], [border, depth, height],  'white');
+            	  var topSide=createNode('A_'+prefix+'_2', [x, y, z-height/2-border/2], [width+2*border, depth, border],   'white');
+            	  var rightSide=createNode('A_'+prefix+'_3', [x+width/2+border/2, y, z], [border, depth, height], 'white');
+            	  var bottomSide=createNode('A_'+prefix+'_4', [x, y, z+height/2+border/2], [width+2*border, depth, border], 'white');
+            	  
+            	  leftSide.a({'type':'SpotArea', 'floor': floorName});
+            	  topSide.a({'type':'SpotArea', 'floor': floorName});
+            	  rightSide.a({'type':'SpotArea', 'floor': floorName});
+            	  bottomSide.a({'type':'SpotArea', 'floor': floorName});
+            	  
+            	  leftSide.setHost(carSpot);
+            	  topSide.setHost(carSpot);
+            	  rightSide.setHost(carSpot);
+            	  bottomSide.setHost(carSpot);
+            }
+            
+            function createSingleSpot(floorName, carSpots, spotName, spotX, spotY, spotZ, width, height, direction, reversed, createCarFlag){
+                var spotId='SP_'+spotName;
+            	  var spot = createNode(spotId, [spotX, spotY, spotZ], [width, 2, height], '#006400'); //10
+            	  if(showInPC){
+	            	  spot.s({'label': spotName,
+	            	  	'label.face':'top',
+	            	  	'label.position': 50,
+	            	  	'label.font':'60px arial, sans-serif',
+	            	  	'label.background': 'yellow'
+	            	  });
+	            	  spot.setToolTip('<pre>编号:'+spotId
+            	                       +'<p>类别:车位'
+            	                       +'<p>楼层:'+floorName
+	            	  	                 +'<p>位置:'+spotX+' '+spotY+' '+spotZ
+	            	  	                 +'<p>大小:'+width+' 1 '+height
+	            	  	                 +'<p>横纵排列:'+direction
+	            	  	                 +'<p>前后方向:'+reversed
+	            	  	                 +'</pre>');
+            	  }
+            	  
+            	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction': direction, 'reversed': reversed});
+
+								var border=20;
+            	  var block=null;
+            	  if(!reversed){
+            	  	block=createNode('D_'+spotName, [spotX, spotY+border, spotZ-height/2+border], [border*2, width, border*2], 'yellow');
+            	  }else{
+            	  	block=createNode('D_'+spotName, [spotX, spotY+border, spotZ+height/2-border], [border*2, width, border*2], 'yellow');
+            	  }
+            	  block.s({'shape3d':'cylinder',
+            	  	      'shape3d.color': 'yellow',
+            	  	      'shape3d.side': 0,
+            	  	      'shape3d.top.visible': false,
+                        'shape3d.bottom.visible': false,
+                        'shape3d.image': 'pole.png'
+            	  	});
+            	  block.a({'type':'SpotBlock', 'floor': floorName, 'Spots' : carSpots.getId(), 'selectable':false });
+            	  block.r3(0, 0 ,Math.PI/2);
+            	  block.setHost(spot);
+            	  
+            	  if(createCarFlag==true){
+            	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
+            	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
+            	  }
+            	  
+                return spot;
+            }
+            
+            function createPoles(floorName, prefix, x, y, z,width,height){
+            	var border=30;
+            	var hBottom=100;
+            	var hTop=200;
+            	
+            	var block1=createNode('P_'+prefix+"_1", [x-width/2, y+hBottom/2, z-height/2], [border, hBottom, border], 'yellow');
+            	block1.s({'all.image': 'pole.png'});
+            	block1.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var block11=createNode('P_'+prefix+"_11", [x-width/2, y+hBottom+hTop/2, z-height/2], [border, hTop, border], 'white');
+            	block1.setHost(block11);
+            	block11.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var beacon1=createNode('BE_'+prefix+"_11", [x-width/2, y+hBottom+hTop+border/2, z-height/2], [border, border, border], 'white');
+            	beacon1.setHost(block11);
+            	beacon1.s({'all.image': 'beacon-front.png'});
+            	beacon1.a({'type': 'Beacon', 'floor' : floorName});
+            	var bid=(new Date()).getTime()%96;
+            	beacon1.setToolTip('<pre>编号:'+beacon1.getId()
+            	                       +'<p>类别:蓝牙信标'
+            	                       +'<p>楼层:'+floorName
+            	                       +'<p>型号:Beacon11'
+	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+bid
+	            	  	                 +'<p>MAC:0F-12-34-56-78-'+bid
+	            	  	                 +'<p>状态:好'
+	            	  	                 +'<p>电量:100'
+	            	  	                 +'</pre>');
+            	
+            	var block2=createNode('P_'+prefix+"_2",[x, y+hBottom/2, z-height/2], [border, hBottom, border], 'yellow');
+            	block2.s({'all.image': 'pole.png'});
+            	block2.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var block22=createNode('P_'+prefix+"_22",[x, y+hBottom+hTop/2, z-height/2], [border, hTop, border], 'white');
+            	block2.setHost(block22);
+            	block22.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var beacon2=createNode('BE_'+prefix+"_22", [x, y+hBottom+hTop+border/2, z-height/2], [border, border, border], 'white');
+            	beacon2.setHost(block22);
+            	beacon2.s({'all.image': 'gateway-front.png'});
+            	beacon2.a({'type': 'Beacon', 'floor' : floorName});
+            	beacon2.setToolTip('<pre>编号:'+beacon2.getId()
+            	                       +'<p>类别:蓝牙网关'
+            	                       +'<p>楼层:'+floorName
+            	                       +'<p>型号:BeaconGateway11'
+	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+1)
+	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+1)
+	            	  	                 +'<p>状态:好'
+	            	  	                 +'<p>电量:100'
+	            	  	                 +'</pre>');
+	            	  	                 
+            	var block3=createNode('P_'+prefix+"_3",[x+width/2, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
+            	block3.s({'all.image': 'pole.png'});
+            	block3.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var block33=createNode('P_'+prefix+"_33",[x+width/2, y+hBottom+hTop/2, z-height/2], [border, hTop, border], 'white');
+            	block3.setHost(block33);
+            	block33.a({'type': 'Pole', 'floor' : floorName});
+            	
+            	var beacon3=createNode('BE_'+prefix+"_33", [x+width/2, y+hBottom+hTop+border/2, z-height/2], [border, border, border], 'white');
+            	beacon3.setHost(block33);
+            	beacon3.s({'all.image': 'beacon-front.png'});
+            	beacon3.a({'type': 'Beacon', 'floor' : floorName});
+            	beacon3.setToolTip('<pre>编号:'+beacon3.getId()
+            	                       +'<p>类别:蓝牙信标'
+            	                       +'<p>楼层:'+floorName
+            	                       +'<p>型号:Beacon11'
+	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+2)
+	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+2)
+	            	  	                 +'<p>状态:好'
+	            	  	                 +'<p>电量:100'
+	            	  	                 +'</pre>');
+            }
+            
+            function loadMTL(){
+            	var params = {
+                    s3: [1, 1, 1],
+                    cube: true,
+                    shape3d: 'car'
+                }; 
+                var modelMap = ht.Default.parseObj(car_obj, car_mtl, params);                
+                rawS3 = params.rawS3;
+                
+                var params2 = {
+                    s3: [1, 1, 1],
+                    cube: true,
+                    shape3d: 'people'
+                }; 
+                var modelMap2 = ht.Default.parseObj(people_obj, people_mtl, params2);                
+                peopleS3 = params2.rawS3;
+            }
+            
+            function createCar(x, y, z, rawS3){
+                car = new ht.Node();
+                car.p3(x, y, z);                 
+                car.s3(rawS3); 
+                car.s({
+                   'shape3d': 'car', // car
+                   'scale.value': 1  
+                });
+                car.a({
+                    'screen.color': 'red',                                                               
+                    'scale.shrink': false,
+                    'scale.value': 1,
+                    'scale.s3': rawS3
+                });
+                car.s({
+                	'wf.visible': 'selected',
+                   'wf.color': 'red'
+                	});
+                dataModel.add(car);  
+                return car;  
+            }
+            
+            function createPeople(x, y, z){
+            	peopleS3 = [100, 200, 100];
+                var people = new ht.Node();
+                people.p3(x, y, z);                 
+                people.s3(peopleS3); 
+                people.s({
+                   'shape3d': 'people',
+                   'scale.value': 1
+                });
+                people.a({
+                    'screen.color': 'red',                                                               
+                    'scale.shrink': false,
+                    'scale.value': 1,
+                    'scale.s3': peopleS3
+                });
+                dataModel.add(people);  
+                return people;  
+            }
+            
+            function createDoor(floorName, x1, y1, x2, y2, tall, angle){
+                var node = new ht.Shape();
+                node.s({
+                    'all.image': 'door',
+                    'all.reverse.cull': true
+                });                
+                node.a({'type':'Door', 'floor':floorName});
+                
+                node.open = false;                
+                node.angle = angle == null ? Math.PI/2 : angle;
+                node.addPoint({x: x1, y: y1});
+                node.addPoint({x: x2, y: y2});
+                node.addPoint({x: x2*2-x1, y: y2*2-y1});
+                node.setSegments([1, 2, 1]);
+                node.setTall(tall);
+                node.setElevation(node.getTall()/2+20);
+                node.setThickness(50);
+                node.setToolTip('Double click to open the door');
+                
+                dataModel.add(node);
+                return node;                
+            }
+            
+            function createStair(floorName, x, y, z, stepWidthX, stepWidthY, stepHeightZ, stepNumber){
+            	  for(var i=0; i<stepNumber; i++){
+            	  	   var step=createNode('ST_'+i, [x+30*i, y+40*i, z], [stepWidthX*(stepNumber-i), stepHeightZ, stepWidthY], '#E6E6FA');
+            	  	   step.a({'type' : 'Stair', 'floor' : floorName});
+            	  }
+            }
+            
+            function createLift(floorName, x, y, z, stepWidthX, stepWidthY, stepHeightZ){
+            	  var lift=createNode('LF1', [x, y, z], [stepWidthX, stepHeightZ, stepWidthY], '#E6E6FA');
+            	  lift.s({'all.image': 'grid.png',
+            	      'all.uv.scale': [2,10]
+            	  });
+            	  lift.a({'type' : 'Lift', 'floor' : floorName});
+            }
+            
+            function hideFloor(floorName, hideFlag){
+                if(hideFlag){
+                    for(var i=0; i<hideFloors.length; i++){
+                        if(floorName==hideFloors[i]){
+                            return;
+                        }
+                    }
+                    hideFloors.push(floorName);
+                }else{
+                    var pos=-1;
+                    for(var i=0; i<hideFloors.length; i++){
+                        if(floorName==hideFloors[i]){
+                            pos=i;
+                            break;
+                        }
+                    }
+                    if(pos!=-1){
+                        hideFloors.splice(pos, 1);
+                    }
+                }
+            }
+            
+            function startParking(){
+                var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("没有选择任何车位!");
+                    return;
+                }
+                
+                var type=node.getAttr('type');
+                if('Spot'==type){
+                	  var pos=node.getPosition3d();
+                	  var car=createCar(pos[0], pos[1]+100, pos[2], rawS3);
+                	  car.a({'type' : 'Car', 'floor' : node.getAttr('floor'), 'spotId' : node.getId()});
+                }else{
+                	alert("选中的节点必须是Spot,而目前是"+type);
+                	console.log("选中的节点必须是Spot,而目前是"+type);
+                }
+            }
+            
+            function leaveParking(){
+                var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("没有选择任何车辆!");
+                    return;
+                }
+                
+                var type=node.getAttr('type');
+                if('Car'==type){
+                	  dataModel.remove(node);
+                }else{
+                	console.log("选中的节点必须是Car,而目前是"+type);
+                	alert("没有选择任何车辆!");
+                }
+            }
+            
+            function clearSpots(){
+                var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("没有选择任何车位区域!");
+                    return;
+                }
+                
+                var type=node.getAttr('type');
+                if('Spots'==type){
+                	  var spotsId=node.getId();
+                	  var children2=new Array();
+                	  dataModel.getDatas().each(function(node){ 
+                	  	 var spotsAttr=node.getAttr('Spots');
+                	  	 if(spotsId==spotsAttr){
+                	  	 	  children2.push(node);
+                	  	 }
+                	   });
+                	   for(var i=0; i<children2.length; i++){
+                	       dataModel.remove(children2[i]);
+                	   }
+                }else{
+                	console.log("选中的节点必须是Spots,而目前是"+type);
+                	alert("没有选择任何车位区域!");
+                }
+            }
+            
+            function searchShop(keywords){
+            	  if(currentPath){
+            	      dataModel.remove(currentPath);
+            	      dataModel.remove(start);
+            	      dataModel.remove(end);
+            	  }
+            	  var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("请先选择一个物体作为起点!");
+                    return;
+                }
+                
+                var shopname=keywords.toUpperCase();
+                var destX, destZ, destVertexName;
+                var srcPos=node.getPosition();
+            	  var sourceNearestPos=getNearestPoint(srcPos.x, srcPos.y);
+            	  console.log('sourceNearestPos: '+sourceNearestPos.name);
+            	  if(shopname.indexOf('COFFEE')>=0 || shopname.indexOf('CAFE')>=0 
+              	   || shopname.indexOf('咖啡')>=0 || shopname.indexOf('饮料')>=0){
+              	    destX=-800;
+              		  destZ=-500;
+              		  destVertexName='p782';
+              	}else if(shopname.indexOf('FOOD')>=0 || shopname.indexOf('KFC')>=0 
+              	        || shopname.indexOf('肯德基')>=0 || shopname.indexOf('餐厅')>=0 
+              	        || shopname.indexOf('吃饭')>=0 || shopname.indexOf('食品')>=0){
+              	    destX=-400;
+              		  destZ=-300;
+              		  destVertexName='p782';
+              	}else{
+              		  destX=1500;
+              		  destZ=-3100;
+              		  destVertexName='p2';
+              	}
+              	
+              	// find shortest path 
+              	var g = new Graph();
+              	for(var i=0; i<lanePoints.length; i++){
+              		g.addVertex(lanePoints[i].name, lanePoints[i].distance);
+              	}
+              	var finalPath=g.shortestPath(sourceNearestPos.name, destVertexName).reverse();
+              	console.log("finalPath: "+finalPath);
+              	
+              	pathPoints=new Array();
+              	pathPoints.push({x:srcPos.x, y:srcPos.y+node.getHeight()/2});
+            		pathPoints.push({x:sourceNearestPos.position[0], y:sourceNearestPos.position[1]});
+            		for(var i=0; i<finalPath.length; i++){
+            		    var posixy=getVertexPosition(finalPath[i]);
+            		    pathPoints.push({x:posixy[0], y:posixy[1]});
+            		}
+            		pathPoints.push({x:destX, y:destZ});
+              	
+              	currentPath = new ht.Shape();
+                dataModel.add(currentPath);                   
+                currentPath.setPoints(pathPoints);               
+                currentPath.setTall(40);
+                currentPath.setThickness(20);
+                currentPath.setElevation(currentPath.getTall()/2);
+                currentPath.s({
+                    'shape.background': null,
+                    'shape3d': 'cylinder',   
+                    'shape3d.reverse.color': 'yellow',   
+                    'shape3d.top.visible': false,
+                    'shape.border.join' : 'round',
+                    'shape3d.bottom.color': '#E74C3C',
+                    'shape.border.width': 6,
+                    'shape3d.uv.scale': [1, 6],
+                    'repeat.uv.length': 32
+                });    
+                
+                start=createNode('start', [srcPos.x+10, node.getPosition3d()[1]+25, srcPos.y+node.getHeight()/2+10], [10, 50, 10], '#E6E6FA');
+            	  start.addStyleIcon('search', {
+                        names: ['start.png'],
+                        autorotate: true,
+                        face: 'top',
+                        position: 17,
+                        t3: [0, 60, 0],
+                        discardSelectable: false
+                    });
+                end=createNode('end', [destX+80, node.getPosition3d()[1]+25, destZ], [10, 50, 10], '#E6E6FA');
+            	  end.addStyleIcon('search', {
+                        names: ['end.png'],
+                        autorotate: true,
+                        face: 'top',
+                        position: 17,
+                        t3: [0, 60, 0],
+                        discardSelectable: false
+                    });
+            	  
+            	  walk(pathPoints, 1);
+            }
+
+            function getNearestPoint(x, y){
+                var minDistance=Math.pow((lanePoints[0].position[0]-x), 2) + Math.pow((lanePoints[0].position[1]-y), 2);
+                var minPoint=lanePoints[0];
+                
+                for(var i=1; i<lanePoints.length; i++){
+                    var distance=Math.pow((lanePoints[i].position[0]-x), 2) + Math.pow((lanePoints[i].position[1]-y), 2);
+                    if(distance<minDistance){
+                        minPoint=lanePoints[i];
+                        minDistance=distance;
+                    }
+                }
+                return minPoint;
+          }
+          
+          function getVertexPosition(vertexName){
+          	for(var i=0; i<lanePoints.length; i++){
+          		if(lanePoints[i].name==vertexName){
+          			return lanePoints[i].position;
+          		}
+          	}
+          }
+          
+          function createNewSpots(direction, prefixId, rows, columns){
+              var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("请选择一块新的停车区域！");
+                    return;
+                }
+                
+                var type=node.getAttr('type');
+                if('Spots'==type){
+                	  var floorName=node.getAttr('floor');
+                	  var pos3d=node.getPosition3d();
+                	  
+                	  var s_width=250;
+                	  var s_height=550;
+                	  var cnt=0;
+                	  for(var i=0; i<rows; i++){
+                	  	  for(var j=0; j<columns; j++){
+                	  	      var spotName=prefixId+cnt;
+                	  	      var spotX=pos3d[0]+j*258-node.getWidth()/2+s_width/2;
+                	  	      var spotZ=pos3d[2]+i*550;
+                	  	      cnt++;
+                	  	      var spot=createSingleSpot(floorName, node, spotName, spotX, pos3d[1]+1, spotZ, s_width, s_height, direction, false, false);
+                	  	  }
+                	  }
+                }else{
+                	alert("请选择一块新的停车区域！");
+                }
+          }
+          
+          function mockAlarm(createOrClear){
+              var node=dataModel.getSelectionModel().getLastData();
+              if(!node){
+                    alert("请选择一个节点！");
+                    return;
+              }
+              if(createOrClear==true){
+                  node.addStyleIcon('alarm', {
+                        names: ['alarm'],
+                        autorotate: true,
+                        face: 'top',
+                        position: 17,
+                        t3: [0, 60, 0],
+                        discardSelectable: false
+                    }); 
+                     node.setAttr('alarm.color', 'red');
+                     node.setStyle('body.color', 'red');   
+              }else{
+                  node.addStyleIcon('alarm', null);
+                  node.setAttr('alarm.color', null);
+                  node.setStyle('body.color', 'white');   
+              }
+              
+          }     
+          
+          function walk(points, interval) {
+        	  if(!points) return;
+        	  
+        	  var i = 0;
+        	  var ratotionVal = Math.PI / 2;
+        	  var showPeopleInter = setInterval(function() {
+        		  if(i >= (points.length-1)) {
+        			  clearInterval(showPeopleInter);
+        		  };
+        		  
+        		  if(points[i] && points[i+1]) {
+            		  var diff_x = points[i].x-points[i+1].x,
+            		      diff_y = points[i+1].y-points[i].y;
+            		  
+            		  if(diff_x == 0) {
+            			  ratotionVal = diff_y > 0 ? Math.PI/2 : -(Math.PI/2);
+            		  } else if(diff_y == 0) {
+            			  ratotionVal = diff_x > 0 ? Math.PI : 0;
+            		  } else {
+            			  var angle = Math.atan(diff_x/diff_y)/(2*Math.PI);
+            			  ratotionVal = diff_x < 0 ? angle : Math.PI/2-angle;
+            		  }
+            	  }
+        		  
+        		  dataModel.removeDataByTag('People');
+        		  var people = createPeople(points[i].x, 50, points[i].y);
+        		  people.a({'type' : 'People'});
+        		  people.setTag('People');
+        		  people.setRotation(ratotionVal);
+        		  i++;
+        		  
+        	  }, interval*1000);
+          }
+          
+        </script>
+    </head>
+    
+    <body onload="init();">                        
+    </body>
+    
+</html> 
