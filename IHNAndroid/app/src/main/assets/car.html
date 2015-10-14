@@ -261,14 +261,16 @@
             function createFloor1(){
                 var floorName='B1';
                 floor1 = createNode('B1', [0, -5, -1500], [4000, 10, 4200],'#F0F0F0');
-                floor1.s({
-                    'label': 'B1',
-                    'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
-                    'label.face': 'top',
-                    'label.font': '60px arial, sans-serif',
-                    'label.background': 'yellow'
-                });
+                if(showInPC){
+                    floor1.s({
+                        'label': 'B1',
+                        'label.position' : 24,
+                        'label.t3' : [-200, 100, 0],
+                        'label.face': 'top',
+                        'label.font': '60px arial, sans-serif',
+                        'label.background': 'yellow'
+                    });
+                }
                 floor1.a({'type' : 'Floor', 'floor' : 'B1', 'selectable':false });
                 
                 var f1spot1=createSpots(floorName, 'B1_A', 0, 1, -1600, 2700, 600);
@@ -285,17 +287,19 @@
 	            	  	                 +'</pre>');
 	            	  	                 
             	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 1, -900, 1200, 2, 600, f1BlankCarSpot);
-            	  f1BlankCarSpot.s({'label': 'D',
+            	  if(showInPC){
+            	    f1BlankCarSpot.s({'label': 'D',
             	  	'label.face': 'top',
             	  	'label.position': 45,
             	  	'label.font': '100px arial, sans-serif',
             	  	'label.background': 'yellow'
             	  	});
-            	  	
+            	  }
             	  var wallThickness=40;	
             	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 
                 var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName, 'selectable':false });
+                if(showInPC){
                 w2.s({
                     'front.color':'yellow',
                     'note': 'StarBucks Coffee',
@@ -305,7 +309,8 @@
                     'note.font': '30px arial, sans-serif',
                     'note.autorotate': true
                     });
-                
+                }
+
                 createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
@@ -331,14 +336,16 @@
             function createFloor2(){
                 var floorName='B2';
                 var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
-                floor2.s({
-                    'label': floorName,
-                    'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
-                    'label.face': 'top',
-                    'label.font': '60px arial, sans-serif',
-                    'label.background': 'yellow'
-                });
+                if(showInPC){
+                    floor2.s({
+                        'label': floorName,
+                        'label.position' : 24,
+                        'label.t3' : [-200, 100, 0],
+                        'label.face': 'top',
+                        'label.font': '60px arial, sans-serif',
+                        'label.background': 'yellow'
+                    });
+                }
                 floor2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
                 var f2spot1=createSpots(floorName, 'B2_A', 0, -1000, -1600, 2700, 600);
@@ -349,14 +356,16 @@
             function createFloor3(){
                 var floorName='F1';
                 var floor3 = createNode(floorName, [2345, 322, -3100], [800, 10, 1400], '#F0F0F0');
-                floor3.s({
+                if(showInPC){
+                   floor3.s({
                     'label': floorName,
                     'label.position' : 24,
                     'label.t3' : [-200, 5, 0],
                     'label.face': 'top',
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
-                });
+                  });
+                }
                 floor3.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
                 var wall1 = createNode('F1_W1', [2345-400, 322/2, -3100], [6, 322, 1400], '#F0F0F0');
@@ -367,8 +376,9 @@
             
             function createFloor4(){
                 var floorName='F2';
-                var f2 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
-                f2.s({
+                var f4 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
+                if(showInPC){
+                  f4.s({
                     'label': floorName,
                     'label.position' : 24,
                     'label.t3' : [-200, 5, 0],
@@ -376,7 +386,8 @@
                     'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
-                f2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
+                }
+                f4.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
             }
             
             function createNode(id, p3, s3, color1){
@@ -449,13 +460,14 @@
             function createSingleSpot(floorName, carSpots, spotName, spotX, spotY, spotZ, width, height, direction, reversed, createCarFlag){
                 var spotId='SP_'+spotName;
             	  var spot = createNode(spotId, [spotX, spotY, spotZ], [width, 2, height], '#006400'); //10
-            	  spot.s({'label': spotName,
+            	  if(showInPC){
+            	   spot.s({'label': spotName,
             	  	'label.face':'top',
             	  	'label.position': 50,
             	  	'label.font':'60px arial, sans-serif',
             	  	'label.background': 'yellow'
-            	  });
-            	  spot.setToolTip('<pre>编号:'+spotId
+            	    });
+            	    spot.setToolTip('<pre>编号:'+spotId
             	                       +'<p>类别:车位'
             	                       +'<p>楼层:'+floorName
 	            	  	                 +'<p>位置:'+spotX+' '+spotY+' '+spotZ
@@ -463,6 +475,7 @@
 	            	  	                 +'<p>横纵排列:'+direction
 	            	  	                 +'<p>前后方向:'+reversed
 	            	  	                 +'</pre>');
+	              }
             	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction': direction, 'reversed': reversed});
 
 								var border=20;
