@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="all_demos_title">\t本程序为BrightBeacon SDK for Android 演示demo,包含如下功能：\n\t1.Beacon扫描\n\t2.Beacon连接（配置）\n\t3.Beacon进入区域或者离开区域监听。\n\n\t获取最新SDK及更多接入信息请访问：\n\t智石官网：www.brtbeacon.com</string>
+
+</resources>
