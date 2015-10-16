@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/all_demos_title"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/distance_demo_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="距离感应演示" />
+
+    <Button
+        android:id="@+id/notify_demo_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="区域感应演示" />
+
+    <Button
+        android:id="@+id/characteristics_demo_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="连接配置演示" />
+
+</LinearLayout>

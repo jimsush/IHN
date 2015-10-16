@@ -36,7 +36,7 @@ public class ParkingWebViewActivity extends Activity {
         btnReload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadLocalHTML();
+                loadLocalHTML("file:///android_asset/car.html");
             }
         });
 
@@ -44,12 +44,7 @@ public class ParkingWebViewActivity extends Activity {
         btnPark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    webView.loadUrl("javascript:startParking()");
-                }catch(Throwable th){
-                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
-                    th.printStackTrace();
-                }
+                loadLocalHTML("javascript:startParking()");
             }
         });
 
@@ -57,12 +52,7 @@ public class ParkingWebViewActivity extends Activity {
         btnLeave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    webView.loadUrl("javascript:leaveParking()");
-                }catch(Throwable th){
-                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
-                    th.printStackTrace();
-                }
+                loadLocalHTML("javascript:leaveParking()");
             }
         });
 
@@ -72,13 +62,8 @@ public class ParkingWebViewActivity extends Activity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    String keywords=txtKeywords.getText().toString();
-                    webView.loadUrl("javascript:searchShop('"+keywords+"')");
-                }catch(Throwable th){
-                    Toast.makeText(ParkingWebViewActivity.this, th.getMessage(), Toast.LENGTH_LONG).show();
-                    th.printStackTrace();
-                }
+                String keywords=txtKeywords.getText().toString();
+                loadLocalHTML("javascript:searchShop('"+keywords+"')");
             }
         });
     }
@@ -102,13 +87,12 @@ public class ParkingWebViewActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        loadLocalHTML();
+        loadLocalHTML("file:///android_asset/car.html");
     }
 
-    private void loadLocalHTML(){
+    private void loadLocalHTML(String url){
         try {
-            webView.loadUrl("file:///android_asset/car.html");
+            webView.loadUrl(url);
         }catch(Throwable th){
             Toast.makeText(this,th.getMessage(), Toast.LENGTH_LONG).show();
             th.printStackTrace();

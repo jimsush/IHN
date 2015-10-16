@@ -57,6 +57,35 @@
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
+
+
+        <activity
+            android:name=".beacon.brt.AllDemosActivity"
+            android:label="all demos"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".beacon.brt.BRTBeaconConnectionDemoActivity"
+            android:label="connection"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".beacon.brt.BRTBeaconDistanceActivity"
+            android:label="distance"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".beacon.brt.BRTBeaconManagerListBeaconsActivity"
+            android:label="manager list"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+        <activity
+            android:name=".beacon.brt.BRTNotifyDemoActivity"
+            android:label="notify"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
+
+
     </application>
 
 </manifest>

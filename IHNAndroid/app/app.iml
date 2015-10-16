@@ -95,6 +95,7 @@
     <orderEntry type="library" exported="" name="play-services-appindexing-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-location-7.5.0" level="project" />
+    <orderEntry type="library" exported="" name="brightbeaconsdk-3.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-ads-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-safetynet-7.5.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.5.0" level="project" />
