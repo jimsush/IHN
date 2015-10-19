@@ -63,7 +63,7 @@
             pathPoints=new Array();
             showInPC=true;
             show2D=false;
-			view=null;
+			      view=null;
             
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -80,9 +80,9 @@
             	
             	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
             	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
-				{name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
-				{name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
-				{name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+				      {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+				      {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+				      {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
             	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
             	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
@@ -117,7 +117,7 @@
             } 
 
             function reset(){
-				g2d.setZoom(0.2);
+				        g2d.setZoom(0.2);
 			
                 g3d.setEye([0, 1800, 2000]);
                 g3d.setCenter([0, 0, -400]);
@@ -143,27 +143,28 @@
                 g2d = new ht.graph.GraphView(dataModel);                   
                 g2d.setTranslate(500, 700);
                 
-            	g3d = new ht.graph3d.Graph3dView(dataModel);
+            	  g3d = new ht.graph3d.Graph3dView(dataModel);
                 g3d.setGridSize(100);
                 g3d.setGridGap(100);
                 g3d.setGridVisible(true);
 				
-				if(showInPC==true){ 
+				        if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
                     borderPane.setTopView(toolbar);
 								
-				    accordionView = new ht.widget.AccordionView();
-				    rightFormPane = new ht.widget.FormPane();
-				    accordionView.add('操作控制台', rightFormPane, true);
+				            accordionView = new ht.widget.AccordionView();
+				            rightFormPane = new ht.widget.FormPane();
+				            accordionView.add('操作控制台', rightFormPane, true);
 				
-				    initFormPane(rightFormPane);
-				}
-				refreshView();
-            }
+				            initFormPane(rightFormPane);
+				       }
+				       
+				       refreshView();
+       }
             
 			function refreshView() {
-				view && document.body.removeChild(view);
-				if(show2D == true) {
+				       view && document.body.removeChild(view);
+				       if(show2D == true) {
                 	graphView = g2d;
                 } else  {
                 	graphView = g3d;
@@ -188,8 +189,8 @@
                 });
                 
                 if(showInPC==true){
-					borderPane.setCenterView(graphView);
-				    mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+					          borderPane.setCenterView(graphView);
+				            mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
                     view = mainSplit.getView();
                 }else{
                 	  // in mobile
@@ -197,12 +198,12 @@
                 }
                 
                 view.className = 'main';
-				document.body.appendChild(view);
+				        document.body.appendChild(view);
                 window.addEventListener('resize', function (e) {
                 	  if(showInPC==true){ 
                         borderPane.invalidate();
                     }else{
-                    	graphView.invalidate();
+                    	  graphView.invalidate();
                     }
                 }, false);
                 
@@ -214,53 +215,53 @@
                     }
                 });
 
-                if(showInPC==false){
-                   /*
-                   view.setSelectableFunc(function(data){
-                       var selectable=data.a('selectable');
-                       if(selectable){
-                           return selectable;
-                       }else{
-                           return true;
-                       }
-                   });
-                   */
-                }
                 graphView.onDataDoubleClicked = function(data, e, dataInfo){
-  					var type = data && data.getAttr('type');
+  					        var type = data && data.getAttr('type');
+  					        
+                  	if(showInPC==true){
+                      	if(type && type == 'Camera') {
+                      		var dialog = '<div><div>楼层：</div><div>位置：</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+              	  			  $('body').innerHTML = dialog;
+              	  			
+              	  			  $(dialog).dialog({
+              	  				      title: '摄像头',
+              	                autoOpen: true,
+              	                height: 405,
+              	                width: 435,
+              	                modal: true,
+              	                close: function() {
+              	                  $(this).dialog( "close" );
+              	                }
+              	  			  });
+                	  			
+              	  			  $('.ihn-vedio-play-start').on('click', function() {
+                	  				$('.ihn-vedio-play').empty();
+                	  				$('.ihn-vedio-play').html('<video id="camvideo" width="400" src="park.mp4" autoplay="autoplay" controls>Your browser does not support HTML5 video.</video>');
+                	  			});
+                      		return;
+                      	}
+                    }
                   	
-                  	if(type && type == 'Camera') {
-                  		var dialog = '<div><div>楼层：</div><div>位置：</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
-          	  			$('body').innerHTML = dialog;
-          	  			
-          	  			$(dialog).dialog({
-          	  				title: '摄像头',
-          	                autoOpen: true,
-          	                height: 405,
-          	                width: 435,
-          	                modal: true,
-          	                close: function() {
-          	                  $(this).dialog( "close" );
-          	                }
-          	  			});
-            	  			
-          	  			$('.ihn-vedio-play-start').on('click', function() {
-            	  				$('.ihn-vedio-play').empty();
-            	  				$('.ihn-vedio-play').html('<video id="camvideo" width="400" src="park.mp4" autoplay="autoplay" controls>Your browser does not support HTML5 video.</video>');
-            	  			});
-                  		return;
-                  	}
-                  	
-                      if(data.face){
+                    if(data.face){
                           data.getHost().getAttaches().each(function(attach){
                               if(attach.pop){
                                   toggleData_parkview(attach);
                               }
                           });
-                      }
-                      toggleData_parkview(data, dataInfo.name);
+                    }
+                    toggleData_parkview(data, dataInfo.name);
                   };
-			}
+			      }
+			      
+			      function refreshWith2D(){
+			      	show2D = true;
+			      	refreshView();
+			      }
+			      
+			      function refreshWith3D(){
+			      	show2D = false;
+			      	refreshView();
+			      }
 			
             function createFloor1(){
                 var floorName='B1';
@@ -324,8 +325,10 @@
                 var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
                 
                 createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
-                createCameras(floorName);
                 
+                if(showInPC==true){
+                   createCameras(floorName);
+                }
             }
             
             var createCameras = function(floorName) {
