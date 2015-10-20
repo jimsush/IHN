@@ -28,15 +28,11 @@
                 }
             };
         </script> 
-        
-        <link rel="stylesheet" href="jquery-ui.css">
-	      <link rel="stylesheet" href="ihn.css">
-	      <script type="text/javascript" src = "jquery-min.js"></script>
-	      <script type="text/javascript" src = "jquery-ui-min.js"></script>
+
 	      
-        <script src="ht.js"></script>
-        <script src="ht-form.js"></script>
-        <script src="ht-obj.js"></script>
+        <script src="ht.js"></script>   
+        <script src="ht-form.js"></script> 
+        <script src="ht-obj.js"></script> 
         
         <script src="parkview.js"></script>
         <script src="dijkstras.js"></script>
@@ -50,13 +46,10 @@
                      
         <script src="car_mtl.js"></script> 
         <script src="car_obj.js"></script>  
-        <script src="people_mtl.js"></script> 
-        <script src="people_obj.js"></script>  
         
         <script>
         	     
-        	  rawS3=null;
-        	  peopleS3=null;
+        	rawS3=null;
             hideFloors=new Array();
             currentPath=null;
             start=null;
@@ -65,6 +58,8 @@
             bluetooths=new Array();
             pathPoints=new Array();
             showInPC=false;
+            show2D=false;
+			      view=null;
             
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -81,9 +76,9 @@
             	
             	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
             	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
-							{name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
-							{name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
-							{name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+				      {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+				      {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+				      {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
             	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
             	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
@@ -100,7 +95,7 @@
             );
             
             function init(){ 
-            	  initLoadImage_parkview();
+            	initLoadImage_parkview();
             	
                 initAlarmImage_parkview();
 
@@ -110,136 +105,18 @@
                 }
               
                 dataModel = new ht.DataModel();
-                
-                g3d = new ht.graph3d.Graph3dView(dataModel); 
-                //g3d.getView().style.background = 'white';
-                
-                g3d.setGridSize(100);
-                g3d.setGridGap(100);
-                g3d.setGridVisible(true); 
-                
-                //g3d.setFar(30000);
-                //g3d.setOrthoWidth(5000);  
-                //g3d.setFogNear(100);
-                //g3d.setFogFar(8000);
-                
-                g3d.reset = reset;
-                g3d.reset();
-                g3d.enableToolTip();
-                  
-                g3d.setVisibleFunc(function(data){
-                    var floor=data.a('floor');
-                    if(!floor){
-                    	  return true;
-                    }
-                    
-                    for(var i=0; i<hideFloors.length; i++){
-                       if(floor==hideFloors[i]){
-                           return false;
-                       }
-                    }
-                    return true;
-                });
-                
-                if(showInPC==true){ 
-                    borderPane = new ht.widget.BorderPane();
-                    borderPane.setTopView(toolbar);
-                    borderPane.setCenterView(g3d);       
-								
-								    accordionView = new ht.widget.AccordionView();
-								    rightFormPane = new ht.widget.FormPane();
-								    accordionView.add('操作控制台', rightFormPane, true);
-								
-								    mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
-								    initFormPane(g3d, rightFormPane);
-								
-                    view = mainSplit.getView();
-                }else{
-                	  // in mobile
-                    view = g3d.getView();
-                }
-                
-                view.className = 'main';
-                document.body.appendChild(view);    
-                window.addEventListener('resize', function (e) {
-                	  if(showInPC==true){ 
-                        borderPane.invalidate();
-                    }else{
-                        g3d.invalidate();
-                    }
-                }, false);                         
-                    
-                w = 50, 
-                g = 3, 
-                transparent = 'rgba(0, 50, 50, 0.8)';
-                
                 initModel();
-                
+                initView();
                 dataModel.sm().setFilterFunc(function(data){
                     return data !== floor1;
                 }); 
-                
-                g3d.setMovableFunc(function(data){
-                	  if(showInPC==true){ 
-                       return rightFormPane.v('movable');
-                    }else{
-                    	 return false;
-                    }
-                });
-
-                if(showInPC==false){
-                   /*
-                   view.setSelectableFunc(function(data){
-                       var selectable=data.a('selectable');
-                       if(selectable){
-                           return selectable;
-                       }else{
-                           return true;
-                       }
-                   });
-                   */
-                }
-                                
-                anim = null;
-                g3d.onDataDoubleClicked = function(data, e, dataInfo){
-					        var type = data && data.getAttr('type');
-                	
-                	if(type && type == 'Camera') {
-                		var dialog = '<div><div>楼层：</div><div>位置：</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
-        	  			$('body').innerHTML = dialog;
-        	  			
-        	  			$(dialog).dialog({
-        	  				title: '摄像头',
-        	                autoOpen: true,
-        	                height: 405,
-        	                width: 435,
-        	                modal: true,
-        	                close: function() {
-        	                  $(this).dialog( "close" );
-        	                }
-        	  			});
-          	  			
-        	  			$('.ihn-vedio-play-start').on('click', function() {
-          	  				$('.ihn-vedio-play').empty();
-          	  				$('.ihn-vedio-play').html('<video id="camvideo" width="400" src="park.mp4" autoplay="autoplay" controls>Your browser does not support HTML5 video.</video>');
-          	  			});
-                		return;
-                	}
-                	
-                    if(data.face){
-                        data.getHost().getAttaches().each(function(attach){
-                            if(attach.pop){
-                                toggleData_parkview(attach);
-                            }
-                        });
-                    }
-                    toggleData_parkview(data, dataInfo.name);
-                };  
             } 
 
             function reset(){
+				        g2d.setZoom(0.2);
+			
                 g3d.setEye([0, 1800, 2000]);
-                g3d.setCenter([0, 0, -400]);                  
+                g3d.setCenter([0, 0, -400]);
             }
             
             function initModel(){
@@ -258,23 +135,150 @@
                 createFloor4('F2');
             }
             
+            function initView() {
+                g2d = new ht.graph.GraphView(dataModel);                   
+                g2d.setTranslate(500, 700);
+                
+            	  g3d = new ht.graph3d.Graph3dView(dataModel);
+                g3d.setGridSize(100);
+                g3d.setGridGap(100);
+                g3d.setGridVisible(true);
+				
+				        if(showInPC==true){ 
+                    borderPane = new ht.widget.BorderPane();
+                    borderPane.setTopView(toolbar);
+								
+				            accordionView = new ht.widget.AccordionView();
+				            rightFormPane = new ht.widget.FormPane();
+				            accordionView.add('操作控制台', rightFormPane, true);
+				
+				            initFormPane(rightFormPane);
+				       }
+				       
+				       refreshView();
+       }
+            
+			function refreshView() {
+				       view && document.body.removeChild(view);
+				       if(show2D == true) {
+                	graphView = g2d;
+                } else  {
+                	graphView = g3d;
+                }
+                
+                graphView.reset = reset;
+                graphView.reset();
+                graphView.enableToolTip();
+                  
+                graphView.setVisibleFunc(function(data){
+                    var floor=data.a('floor');
+                    if(!floor){
+                    	  return true;
+                    }
+                    
+                    for(var i=0; i<hideFloors.length; i++){
+                       if(floor==hideFloors[i]){
+                           return false;
+                       }
+                    }
+                    return true;
+                });
+                
+                if(showInPC==true){
+					          borderPane.setCenterView(graphView);
+				            mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+                    view = mainSplit.getView();
+                }else{
+                	  // in mobile
+                    view = graphView.getView();
+                }
+                
+                view.className = 'main';
+				        document.body.appendChild(view);
+                window.addEventListener('resize', function (e) {
+                	  if(showInPC==true){ 
+                        borderPane.invalidate();
+                    }else{
+                    	  graphView.invalidate();
+                    }
+                }, false);
+                
+                graphView.setMovableFunc(function(data){
+                	  if(showInPC==true){ 
+                       return rightFormPane.v('movable');
+                    }else{
+                    	 return false;
+                    }
+                });
+
+                graphView.onDataDoubleClicked = function(data, e, dataInfo){
+  					        var type = data && data.getAttr('type');
+  					        
+                  	if(showInPC==true){
+                      	if(type && type == 'Camera') {
+                      		var dialog = '<div><div>楼层：</div><div>位置：</div><div>状态：正常</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+              	  			  $('body').innerHTML = dialog;
+              	  			
+              	  			  $(dialog).dialog({
+              	  				      title: '摄像头',
+              	                autoOpen: true,
+              	                height: 405,
+              	                width: 435,
+              	                modal: true,
+              	                close: function() {
+              	                  $(this).dialog( "close" );
+              	                }
+              	  			  });
+                	  			
+              	  			  $('.ihn-vedio-play-start').on('click', function() {
+                	  				$('.ihn-vedio-play').empty();
+                	  				$('.ihn-vedio-play').html('<video id="camvideo" width="400" src="park.mp4" autoplay="autoplay" controls>Your browser does not support HTML5 video.</video>');
+                	  			});
+                      		return;
+                      	}
+                    }
+                  	
+                    if(data.face){
+                          data.getHost().getAttaches().each(function(attach){
+                              if(attach.pop){
+                                  toggleData_parkview(attach);
+                              }
+                          });
+                    }
+                    toggleData_parkview(data, dataInfo.name);
+                    
+                  };
+			      }
+			      
+			      function refreshWith2D(){
+			      	show2D = true;
+			      	refreshView();
+			      }
+			      
+			      function refreshWith3D(){
+			      	show2D = false;
+			      	refreshView();
+			      }
+			
             function createFloor1(){
                 var floorName='B1';
                 floor1 = createNode('B1', [0, -5, -1500], [4000, 10, 4200],'#F0F0F0');
                 if(showInPC){
-                    floor1.s({
-                        'label': 'B1',
-                        'label.position' : 24,
-                        'label.t3' : [-200, 100, 0],
-                        'label.face': 'top',
-                        'label.font': '60px arial, sans-serif',
-                        'label.background': 'yellow'
-                    });
+	                floor1.s({
+	                    'label': 'B1',
+	                    'label.position' : 24,
+	                    'label.t3' : [-200, 100, 0],
+	                    'label.face': 'top',
+	                    'label.font': '60px arial, sans-serif',
+	                    'label.background': 'yellow'
+	                });
                 }
                 floor1.a({'type' : 'Floor', 'floor' : 'B1', 'selectable':false });
                 
                 var f1spot1=createSpots(floorName, 'B1_A', 0, 1, -1600, 2700, 600);
+                
                 var f1spot2=createSpots(floorName, 'B1_B', 0, 1, -2400, 2700, 600);
+                
                 var f1spot3=createSpots(floorName, 'B1_C', 0, 1, -3200, 2700, 600);
                 
                 var f1BlankCarSpot=createNode('B1_D1#S', [400, 1, -900], [1200, 2, 600], '#3CB371');
@@ -288,29 +292,28 @@
 	            	  	                 
             	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 1, -900, 1200, 2, 600, f1BlankCarSpot);
             	  if(showInPC){
-            	    f1BlankCarSpot.s({'label': 'D',
-            	  	'label.face': 'top',
-            	  	'label.position': 45,
-            	  	'label.font': '100px arial, sans-serif',
-            	  	'label.background': 'yellow'
-            	  	});
+	            	  f1BlankCarSpot.s({'label': 'D',
+	            	  	'label.face': 'top',
+	            	  	'label.position': 45,
+	            	  	'label.font': '100px arial, sans-serif',
+	            	  	'label.background': 'yellow'
+	            	  	});
             	  }
             	  var wallThickness=40;	
             	  createNode('W1', [-1200, 100, -200], [wallThickness, 200, 600], '#E0FFFF').s({'right.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 
                 var w2=createNode('W2', [-800, 100, -500], [800+wallThickness, 200, wallThickness], '#E0FFFF').a({'type':'Wall','floor':floorName, 'selectable':false });
                 if(showInPC){
-                w2.s({
-                    'front.color':'yellow',
-                    'note': 'StarBucks Coffee',
-                    'note.face': 'top',
-                    'note.position': 7,
-                    'note.t3': [0, 0, 10],
-                    'note.font': '30px arial, sans-serif',
-                    'note.autorotate': true
-                    });
+	                w2.s({
+	                    'front.color':'yellow',
+	                    'note': 'StarBucks Coffee',
+	                    'note.face': 'top',
+	                    'note.position': 7,
+	                    'note.t3': [0, 0, 10],
+	                    'note.font': '30px arial, sans-serif',
+	                    'note.autorotate': true
+	                    });
                 }
-
                 createNode('W3', [-400, 100, -350], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 createNode('W4', [-100, 100, -200], [600+wallThickness, 200, wallThickness], '#E0FFFF').s({'front.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
                 createNode('W5', [200, 100, -50], [wallThickness, 200, 300], '#E0FFFF').s({'left.color':'yellow'}).a({'type':'Wall','floor':floorName, 'selectable':false });
@@ -319,7 +322,10 @@
                 var door1=createDoor(floorName, -200, 100, -80, 100, 100, 170, Math.PI);
                 
                 createStair(floorName, 1700, 23, -3300, 60, 200, 40, 8);
-                createCameras(floorName);
+                
+                if(showInPC==true){
+                   createCameras(floorName);
+                }
             }
             
             var createCameras = function(floorName) {
@@ -337,14 +343,14 @@
                 var floorName='B2';
                 var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
                 if(showInPC){
-                    floor2.s({
-                        'label': floorName,
-                        'label.position' : 24,
-                        'label.t3' : [-200, 100, 0],
-                        'label.face': 'top',
-                        'label.font': '60px arial, sans-serif',
-                        'label.background': 'yellow'
-                    });
+                floor2.s({
+                    'label': floorName,
+                    'label.position' : 24,
+                    'label.t3' : [-200, 100, 0],
+                    'label.face': 'top',
+                    'label.font': '60px arial, sans-serif',
+                    'label.background': 'yellow'
+                });
                 }
                 floor2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
@@ -357,14 +363,14 @@
                 var floorName='F1';
                 var floor3 = createNode(floorName, [2345, 322, -3100], [800, 10, 1400], '#F0F0F0');
                 if(showInPC){
-                   floor3.s({
-                    'label': floorName,
-                    'label.position' : 24,
-                    'label.t3' : [-200, 5, 0],
-                    'label.face': 'top',
-                    'label.font': '60px arial, sans-serif',
-                    'label.background': 'yellow'
-                  });
+	                floor3.s({
+	                    'label': floorName,
+	                    'label.position' : 24,
+	                    'label.t3' : [-200, 5, 0],
+	                    'label.face': 'top',
+	                    'label.font': '60px arial, sans-serif',
+	                    'label.background': 'yellow'
+	                });
                 }
                 floor3.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
                 
@@ -376,9 +382,9 @@
             
             function createFloor4(){
                 var floorName='F2';
-                var f4 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
+                var f2 = createNode(floorName, [2500, 322+322, -3100], [520, 10, 1400], '#F0F0F0');
                 if(showInPC){
-                  f4.s({
+                f2.s({
                     'label': floorName,
                     'label.position' : 24,
                     'label.t3' : [-200, 5, 0],
@@ -387,7 +393,7 @@
                     'label.background': 'yellow'
                 });
                 }
-                f4.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
+                f2.a({'type' : 'Floor', 'floor' : floorName, 'selectable':false });
             }
             
             function createNode(id, p3, s3, color1){
@@ -396,7 +402,8 @@
                 if(color1){
                     node.s({
                         'shape': 'rect',
-                        'all.color': color1
+                        'all.color': color1,
+                        'shape.background': color1
                     });
                 }else{
                     node.s({'shape': 'rect'});
@@ -461,13 +468,13 @@
                 var spotId='SP_'+spotName;
             	  var spot = createNode(spotId, [spotX, spotY, spotZ], [width, 2, height], '#006400'); //10
             	  if(showInPC){
-            	   spot.s({'label': spotName,
-            	  	'label.face':'top',
-            	  	'label.position': 50,
-            	  	'label.font':'60px arial, sans-serif',
-            	  	'label.background': 'yellow'
-            	    });
-            	    spot.setToolTip('<pre>编号:'+spotId
+	            	  spot.s({'label': spotName,
+	            	  	'label.face':'top',
+	            	  	'label.position': 50,
+	            	  	'label.font':'60px arial, sans-serif',
+	            	  	'label.background': 'yellow'
+	            	  });
+	            	  spot.setToolTip('<pre>编号:'+spotId
             	                       +'<p>类别:车位'
             	                       +'<p>楼层:'+floorName
 	            	  	                 +'<p>位置:'+spotX+' '+spotY+' '+spotZ
@@ -475,7 +482,8 @@
 	            	  	                 +'<p>横纵排列:'+direction
 	            	  	                 +'<p>前后方向:'+reversed
 	            	  	                 +'</pre>');
-	              }
+            	  }
+            	  
             	  spot.a({'type' : 'Spot', 'floor' : floorName, 'Spots' : carSpots.getId(), 'direction': direction, 'reversed': reversed});
 
 								var border=20;
@@ -585,14 +593,6 @@
                 }; 
                 var modelMap = ht.Default.parseObj(car_obj, car_mtl, params);                
                 rawS3 = params.rawS3;
-                
-                var params2 = {
-                    s3: [1, 1, 1],
-                    cube: true,
-                    shape3d: 'people'
-                }; 
-                var modelMap2 = ht.Default.parseObj(people_obj, people_mtl, params2);                
-                peopleS3 = params2.rawS3;
             }
             
             function createCar(x, y, z, rawS3){
@@ -615,25 +615,6 @@
                 	});
                 dataModel.add(car);  
                 return car;  
-            }
-            
-            function createPeople(x, y, z){
-            	peopleS3 = [100, 200, 100];
-                var people = new ht.Node();
-                people.p3(x, y, z);                 
-                people.s3(peopleS3); 
-                people.s({
-                   'shape3d': 'people',
-                   'scale.value': 1
-                });
-                people.a({
-                    'screen.color': 'red',                                                               
-                    'scale.shrink': false,
-                    'scale.value': 1,
-                    'scale.s3': peopleS3
-                });
-                dataModel.add(people);  
-                return people;  
             }
             
             function createDoor(floorName, x1, y1, x2, y2, tall, angle){
@@ -927,31 +908,23 @@
         	  if(!points) return;
         	  
         	  var i = 0;
-        	  var ratotionVal = Math.PI / 2;
         	  var showPeopleInter = setInterval(function() {
-        		  if(i >= points.length) {
+        		  dataModel.removeDataById('People');
+        		  
+        		  if(i >= (points.length-1)) {
         			  clearInterval(showPeopleInter);
         		  };
         		  
-        		  if(points[i] && points[i+1]) {
-            		  var diff_x = points[i].x-points[i+1].x,
-            		      diff_y = points[i+1].y-points[i].y;
-            		  
-            		  if(diff_x == 0) {
-            			  ratotionVal = diff_y > 0 ? Math.PI/2 : -(Math.PI/2);
-            		  } else if(diff_y == 0) {
-            			  ratotionVal = diff_x > 0 ? Math.PI : 0;
-            		  } else {
-            			  var angle = Math.atan(diff_x/diff_y)/(2*Math.PI);
-            			  ratotionVal = diff_x < 0 ? angle : Math.PI/2-angle;
-            		  }
-            	  }
+        		  var people=createNode('People', [points[i].x, 50, points[i].y], [0, 0, 0], '#E6E6FA');
+        		  people.addStyleIcon('search', {
+                      names: ['people.png'],
+                      autorotate: true,
+                      face: 'top',
+                      position: 17,
+                      t3: [0, 60, 0],
+                      discardSelectable: false
+                  });
         		  
-        		  dataModel.removeDataByTag('People');
-        		  var people = createPeople(points[i].x, 50, points[i].y);
-        		  people.a({'type' : 'People'});
-        		  people.setTag('People');
-        		  people.setRotation(ratotionVal);
         		  i++;
         		  
         	  }, interval*1000);
@@ -963,4 +936,4 @@
     <body onload="init();">                        
     </body>
     
-</html>                
+</html> 

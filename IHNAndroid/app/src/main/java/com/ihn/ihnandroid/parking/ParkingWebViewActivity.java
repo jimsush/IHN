@@ -7,7 +7,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
@@ -21,6 +23,7 @@ public class ParkingWebViewActivity extends Activity {
     private Button btnLeave;
     private Button btnSearch;
     private EditText txtKeywords;
+    private Switch switch3D;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,17 @@ public class ParkingWebViewActivity extends Activity {
         webView.setWebViewClient(new WebViewClient());
 
         initWebViewSetting();
+
+        switch3D=(Switch)findViewById(R.id.switch1);
+        switch3D.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                    loadLocalHTML("javascript:refreshWith3D()");
+                else
+                    loadLocalHTML("javascript:refreshWith2D()");
+            }
+        });
 
         btnReload =(Button)findViewById(R.id.button_goUrl);
         btnReload.setOnClickListener(new View.OnClickListener() {

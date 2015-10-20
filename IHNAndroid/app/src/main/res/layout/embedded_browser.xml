@@ -48,6 +48,14 @@
             android:textSize="10dp"
             android:id="@+id/btnSearch" />
 
+        <Switch
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:textOn="3D"
+            android:textOff="2D"
+            android:id="@+id/switch1"
+            android:checked="true" />
+
     </LinearLayout>
 
     <WebView

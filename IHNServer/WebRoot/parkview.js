@@ -479,11 +479,10 @@ function initToolbar_parkview(){
 							});
 							view.selected = false;
 							item.selected = true;
-							show2D = true;
-							refreshView();
-                        }
+							refreshWith2D();
+              }
                     },
-					{   
+					        {   
                         id: '3d',
                         label: '3D',
                         selected: true,
@@ -493,8 +492,7 @@ function initToolbar_parkview(){
 							});
 							view.selected = false;
 							item.selected = true;
-							show2D = false;
-							refreshView();
+							refreshWith3D();
                         }
                     }
                 ];
