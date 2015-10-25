@@ -117,7 +117,7 @@
             } 
 
             function reset(){
-				        g2d.setZoom(0.2);
+				g2d.setZoom(0.2);
 			
                 g3d.setEye([0, 1800, 2000]);
                 g3d.setCenter([0, 0, -400]);
@@ -230,7 +230,8 @@
               	                width: 435,
               	                modal: true,
               	                close: function() {
-              	                  $(this).dialog( "close" );
+								  $('.ihn-vedio-play #camvideo')[0].pause();
+								  $(this).dialog( "close" );
               	                }
               	  			  });
                 	  			
@@ -341,17 +342,12 @@
 	          	});
 	          	camera.setToolTip('This is camera. Double click to see the vedio.');
             }
-            
-            function createFloor2(){
+			
+			function createFloor2(){
                 var floorName='B2';
                 var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
                 if(showInPC){
                 floor2.s({
-                    'label': floorName,
-                    'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
-                    'label.face': 'top',
-                    'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
                 }
@@ -510,8 +506,10 @@
             	  if(createCarFlag==true){
             	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
             	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
+					  car.setHost(spot);
             	  }
             	  
+				  spot.setHost(carSpots);
                 return spot;
             }
             
@@ -604,7 +602,8 @@
                 car.s3(rawS3); 
                 car.s({
                    'shape3d': 'car', // car
-                   'scale.value': 1  
+				   'shape': 'rect',
+                   'scale.value': 1
                 });
                 car.a({
                     'screen.color': 'red',                                                               
