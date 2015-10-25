@@ -28,8 +28,7 @@
                 }
             };
         </script> 
-
-	      
+        
         <script src="ht.js"></script>   
         <script src="ht-form.js"></script> 
         <script src="ht-obj.js"></script> 
@@ -60,6 +59,14 @@
             showInPC=false;
             show2D=false;
 			      view=null;
+			      orientLandscape=false;
+			      
+			      var url2 = location.search;
+			      if(url2==null || url2==''){
+			      	orientLandscape=false;
+			      }else{
+			      	orientLandscape=true;
+			      }
             
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -114,9 +121,17 @@
 
             function reset(){
 				        g2d.setZoom(0.2);
-			
-                g3d.setEye([0, 1800, 2000]);
-                g3d.setCenter([0, 0, -400]);
+								
+								if(showInPC==true){
+								    g3d.setEye([0, 1800, 2000]);
+								}else{
+									  if(orientLandscape==true){
+									      g3d.setEye([0, 1500, 1600]);
+									  }else{
+                        g3d.setEye([0, 4000, 2800]);
+                    }
+                }
+                g3d.setCenter([0, 0, -500]);
             }
             
             function initModel(){
@@ -246,7 +261,6 @@
                           });
                     }
                     toggleData_parkview(data, dataInfo.name);
-                    
                   };
 			      }
 			      

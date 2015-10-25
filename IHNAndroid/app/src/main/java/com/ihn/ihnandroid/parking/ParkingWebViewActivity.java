@@ -2,6 +2,7 @@ package com.ihn.ihnandroid.parking;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -101,7 +102,16 @@ public class ParkingWebViewActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadLocalHTML("file:///android_asset/car.html");
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        if(width>height){
+            loadLocalHTML("file:///android_asset/car.html?orientLandscape=true");
+        }else{
+            loadLocalHTML("file:///android_asset/car.html");
+        }
     }
 
     private void loadLocalHTML(String url){
