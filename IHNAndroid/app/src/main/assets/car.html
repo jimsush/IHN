@@ -28,7 +28,9 @@
                 }
             };
         </script> 
-
+        
+        <script type="text/javascript" src = "jquery-min.js"></script>
+	      <script type="text/javascript" src = "jquery-ui-min.js"></script>
 	      
         <script src="ht.js"></script>   
         <script src="ht-form.js"></script> 
@@ -58,9 +60,17 @@
             bluetooths=new Array();
             pathPoints=new Array();
             showInPC=false;
+            orientLandscape=true;
             show2D=false;
 			      view=null;
-            
+			      
+            var url2 = location.search;
+			      if(url2==null || url2==''){
+			      	orientLandscape=false;
+			      }else{
+			      	orientLandscape=true;
+			      }
+			      
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
             	{name: 'p121', position: new Array(-750,-2850), distance:{p1:750, p122:750} },
@@ -115,8 +125,16 @@
             function reset(){
 				        g2d.setZoom(0.2);
 			
-                g3d.setEye([0, 1800, 2000]);
-                g3d.setCenter([0, 0, -400]);
+                if(showInPC==true){
+								    g3d.setEye([0, 1800, 2000]);
+								}else{
+									  if(orientLandscape==true){
+									      g3d.setEye([0, 1500, 1600]);
+									  }else{
+                        g3d.setEye([0, 4000, 2800]);
+                    }
+                }
+                g3d.setCenter([0, 0, -500]);
             }
             
             function initModel(){
@@ -226,7 +244,8 @@
               	                width: 435,
               	                modal: true,
               	                close: function() {
-              	                  $(this).dialog( "close" );
+								                   $('.ihn-vedio-play #camvideo')[0].pause();
+								                   $(this).dialog( "close" );
               	                }
               	  			  });
                 	  			
@@ -246,7 +265,6 @@
                           });
                     }
                     toggleData_parkview(data, dataInfo.name);
-                    
                   };
 			      }
 			      
@@ -338,17 +356,12 @@
 	          	});
 	          	camera.setToolTip('This is camera. Double click to see the vedio.');
             }
-            
-            function createFloor2(){
+			
+			function createFloor2(){
                 var floorName='B2';
                 var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
                 if(showInPC){
                 floor2.s({
-                    'label': floorName,
-                    'label.position' : 24,
-                    'label.t3' : [-200, 100, 0],
-                    'label.face': 'top',
-                    'label.font': '60px arial, sans-serif',
                     'label.background': 'yellow'
                 });
                 }
@@ -439,7 +452,7 @@
             	  for(var i=0; i<10; i++){
             	  	  var spotName=prefix+i;
             	  	  var spotX=i*258-1160;
-            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+spotH, z, s_width, s_height, 'Portait', false, i%3==0);
+            	  	  var spot=createSingleSpot(floorName, carSpot, spotName, spotX, y+spotH, z, s_width, s_height, 'Portait', false, i%5==0);
             	  }            	  
             	  
             	  var poles=createPoles(floorName, prefix, x, y, z, width, height);
@@ -507,8 +520,10 @@
             	  if(createCarFlag==true){
             	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
             	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
+					  car.setHost(spot);
             	  }
             	  
+				  spot.setHost(carSpots);
                 return spot;
             }
             
@@ -598,10 +613,12 @@
             function createCar(x, y, z, rawS3){
                 car = new ht.Node();
                 car.p3(x, y, z);                 
-                car.s3(rawS3); 
+                car.s3(rawS3);
+                car.setImage('car.png'); 
                 car.s({
                    'shape3d': 'car', // car
-                   'scale.value': 1  
+				           //'shape': 'rect',
+                   'scale.value': 1
                 });
                 car.a({
                     'screen.color': 'red',                                                               
