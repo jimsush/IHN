@@ -16,6 +16,7 @@ import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.ihn.ihnandroid.beacon.brt.AllDemosActivity;
 import com.ihn.ihnandroid.parking.ParkingWebViewActivity;
 import com.ihn.ihnandroid.parking.PreferenceActivity;
 import com.ihn.ihnandroid.parking.ManageMapActivity;
@@ -150,6 +151,10 @@ public class MyListActivity extends Activity {
                 //Toast.makeText(this,"settings is under construction", Toast.LENGTH_LONG).show();
                 openPreferenceView1();
                 return true;
+
+            case R.id.action_brt:
+                openBrtBeacon();
+                return true;
         }
 
         return true;
@@ -175,6 +180,12 @@ public class MyListActivity extends Activity {
     private void openPreferenceView1(){
         Intent intent=new Intent();
         intent.setClass(MyListActivity.this,PreferenceActivity.class);
+        startActivity(intent);
+    }
+
+    private void openBrtBeacon(){
+        Intent intent=new Intent();
+        intent.setClass(MyListActivity.this,AllDemosActivity.class);
         startActivity(intent);
     }
 

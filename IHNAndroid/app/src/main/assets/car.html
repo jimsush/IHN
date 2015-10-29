@@ -29,9 +29,6 @@
             };
         </script> 
         
-        <script type="text/javascript" src = "jquery-min.js"></script>
-	      <script type="text/javascript" src = "jquery-ui-min.js"></script>
-	      
         <script src="ht.js"></script>   
         <script src="ht-form.js"></script> 
         <script src="ht-obj.js"></script> 
@@ -527,7 +524,13 @@
                 return spot;
             }
             
+            function myPosition(posx, posy){
+               var indicator=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'green');
+            }
+
             function createPoles(floorName, prefix, x, y, z,width,height){
+            	//myPosition(-300, -300);
+            	
             	var border=30;
             	var hBottom=100;
             	var hTop=200;

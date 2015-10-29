@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 /**
  * 演示功能列表
@@ -24,28 +25,39 @@ public class AllDemosActivity extends Activity {
 		findViewById(R.id.distance_demo_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
-				intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY,
-						BRTBeaconDistanceActivity.class.getName());
-				startActivity(intent);
+                try {
+                    Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
+                    intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY,BRTBeaconDistanceActivity.class.getName());
+                    startActivity(intent);
+                }catch(Throwable ex){
+                    Toast.makeText(AllDemosActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
+                }
 			}
 		});
+
 		findViewById(R.id.notify_demo_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
-				intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY,
-						BRTNotifyDemoActivity.class.getName());
-				startActivity(intent);
+                try {
+                    Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
+                    intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY, BRTNotifyDemoActivity.class.getName());
+                    startActivity(intent);
+                }catch(Throwable ex){
+                    Toast.makeText(AllDemosActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
+                }
 			}
 		});
+
 		findViewById(R.id.characteristics_demo_button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
-				intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY,
-						BRTBeaconConnectionDemoActivity.class.getName());
-				startActivity(intent);
+                try{
+                    Intent intent = new Intent(AllDemosActivity.this, BRTBeaconManagerListBeaconsActivity.class);
+                    intent.putExtra(BRTBeaconManagerListBeaconsActivity.EXTRAS_TARGET_ACTIVITY, BRTBeaconConnectionDemoActivity.class.getName());
+                    startActivity(intent);
+                }catch(Throwable ex){
+                    Toast.makeText(AllDemosActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
+                }
 			}
 		});
 

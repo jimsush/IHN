@@ -14,6 +14,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
+import com.ihn.ihnandroid.beacon.BeaconScanner;
 
 
 public class ParkingWebViewActivity extends Activity {
@@ -25,10 +26,12 @@ public class ParkingWebViewActivity extends Activity {
     private Button btnSearch;
     private EditText txtKeywords;
     private Switch switch3D;
+    private BeaconScanner scanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.embedded_browser);
 
         webView = (WebView) findViewById(R.id.webview);
@@ -81,6 +84,13 @@ public class ParkingWebViewActivity extends Activity {
                 loadLocalHTML("javascript:searchShop('"+keywords+"')");
             }
         });
+
+        try{
+            scanner=new BeaconScanner(this, webView);
+            scanner.onCreate();
+        } catch (Throwable e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void initWebViewSetting() {
@@ -112,6 +122,12 @@ public class ParkingWebViewActivity extends Activity {
         }else{
             loadLocalHTML("file:///android_asset/car.html");
         }
+
+        try{
+            scanner.onStart();
+        } catch (Throwable e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void loadLocalHTML(String url){
@@ -121,6 +137,13 @@ public class ParkingWebViewActivity extends Activity {
             Toast.makeText(this,th.getMessage(), Toast.LENGTH_LONG).show();
             th.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        scanner.onStop();
     }
 
 }
