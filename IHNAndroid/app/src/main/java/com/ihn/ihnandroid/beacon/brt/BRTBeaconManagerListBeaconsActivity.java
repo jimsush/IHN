@@ -43,32 +43,36 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.brt_main);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		adapter = new BRTLeDeviceListAdapter(this);
-		ListView list = (ListView) findViewById(R.id.device_list);
-		list.setAdapter(adapter);
-		list.setOnItemClickListener(createOnItemClickListener());
-		// 创建BRTBeaconManager对象
-		beaconManager = new BRTBeaconManager(this);
-		// 回调扫描结果
-		beaconManager.setRangingListener(new RangingListener() {
+        try{
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.brt_main);
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            adapter = new BRTLeDeviceListAdapter(this);
+            ListView list = (ListView) findViewById(R.id.device_list);
+            list.setAdapter(adapter);
+            list.setOnItemClickListener(createOnItemClickListener());
+            // 创建BRTBeaconManager对象
+            beaconManager = new BRTBeaconManager(this);
+            // 回调扫描结果
+            beaconManager.setRangingListener(new RangingListener() {
 
-			@Override
-			public void onBeaconsDiscovered(final RangingResult rangingResult) {
+                @Override
+                public void onBeaconsDiscovered(final RangingResult rangingResult) {
+                    Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, "inside onBeaconsDiscovered", Toast.LENGTH_LONG).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
 
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
+                            getActionBar().setSubtitle("附近Beacon个数: " + rangingResult.beacons.size());
+                            adapter.replaceWith(rangingResult.beacons);
+                        }
+                    });
+                }
 
-						getActionBar().setSubtitle("附近Beacon个数: " + rangingResult.beacons.size());
-						adapter.replaceWith(rangingResult.beacons);
-					}
-				});
-			}
-
-		});
+            });
+        }catch(Throwable ex){
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
 	}
 
 	@Override
@@ -98,21 +102,25 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 
 	@Override
 	protected void onStart() {
-		super.onStart();
+        try{
+            super.onStart();
 
-		// 检查是否支持蓝牙低功耗
-		if (!beaconManager.hasBluetoothle()) {
-			Toast.makeText(this, "该设备没有BLE,不支持本软件.", Toast.LENGTH_LONG).show();
-			return;
-		}
+            // 检查是否支持蓝牙低功耗
+            if (!beaconManager.hasBluetoothle()) {
+                Toast.makeText(this, "该设备没有BLE,不支持本软件.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
-		// 如果未打开蓝牙，则请求打开蓝牙。
-		if (!beaconManager.isBluetoothEnabled()) {
-			Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-		} else {
-			connectToService();
-		}
+            // 如果未打开蓝牙，则请求打开蓝牙。
+            if (!beaconManager.isBluetoothEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            } else {
+                connectToService();
+            }
+        }catch(Throwable ex){
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
 	}
 
 	@Override
@@ -148,12 +156,14 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 		beaconManager.connect(new ServiceReadyCallback() {
 			@Override
 			public void onServiceReady() {
+                Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, "will start ranging", Toast.LENGTH_LONG).show();
 				try {
 					// 开始扫描
 					beaconManager.startRanging(ALL_BRIGHT_BEACONS_REGION);
-				} catch (RemoteException e) {
-					e.printStackTrace();
+				} catch (Throwable e) {
+                    Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
 				}
+                Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, "staring ranging is done", Toast.LENGTH_LONG).show();
 			}
 		});
 	}

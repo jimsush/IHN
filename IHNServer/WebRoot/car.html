@@ -125,18 +125,32 @@
             } 
 
             function reset(){
-				        g2d.setZoom(0.2);
-			
                 if(showInPC==true){
+                	  g2d.setZoom(0.2);
 								    g3d.setEye([0, 1800, 2000]);
 								}else{
-									  if(orientLandscape==true){
-									      g3d.setEye([0, 1500, 1600]);
-									  }else{
-                        g3d.setEye([0, 4000, 2800]);
+									  if(show2D==false){
+									  	// 3d
+										  if(orientLandscape==true){
+										      g3d.setEye([0, 1500, 1600]);
+										  }else{
+	                        g3d.setEye([0, 4000, 2800]);
+	                    }
+                    }else{
+                       // 2d
+                      if(orientLandscape==true){
+										      g2d.setTranslate(305, 545);
+	                        g2d.setZoom(0.15);
+										  }else{
+	                        g2d.setTranslate(305, 545);
+	                        g2d.setZoom(0.15);
+	                    }
                     }
                 }
-                g3d.setCenter([0, 0, -500]);
+                
+                if(show2D==false){
+                    g3d.setCenter([0, 0, -500]);
+                }
             }
             
             function initModel(){
@@ -529,7 +543,13 @@
                 return spot;
             }
             
+            function myPosition(posx, posy){
+               var indicator=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'green');
+            }
+
             function createPoles(floorName, prefix, x, y, z,width,height){
+            	//myPosition(-300, -300);
+            	
             	var border=30;
             	var hBottom=100;
             	var hTop=200;
