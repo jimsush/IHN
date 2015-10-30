@@ -142,8 +142,8 @@
 										      g2d.setTranslate(305, 545);
 	                        g2d.setZoom(0.15);
 										  }else{
-	                        g2d.setTranslate(305, 545);
-	                        g2d.setZoom(0.15);
+	                        g2d.setTranslate(165, 430);
+	                        g2d.setZoom(0.12);
 	                    }
                     }
                 }
@@ -287,11 +287,13 @@
 			      function refreshWith2D(){
 			      	show2D = true;
 			      	refreshView();
+			      	g2d.invalidate();
 			      }
 			      
 			      function refreshWith3D(){
 			      	show2D = false;
 			      	refreshView();
+			      	g3d.invalidate();
 			      }
 			
             function createFloor1(){

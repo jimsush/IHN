@@ -128,8 +128,8 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 		try {
 			// 停止扫描
 			beaconManager.stopRanging(ALL_BRIGHT_BEACONS_REGION);
-		} catch (RemoteException e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
+            Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		// 关闭扫描服务
 		beaconManager.disconnect();
@@ -153,6 +153,7 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 		getActionBar().setSubtitle("扫描中...");
 		adapter.replaceWith(Collections.<BRTBeacon> emptyList());
 		// 扫描之前先建立扫描服务
+        Toast.makeText(this, "will connect", Toast.LENGTH_LONG).show();
 		beaconManager.connect(new ServiceReadyCallback() {
 			@Override
 			public void onServiceReady() {
@@ -166,6 +167,7 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
                 Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, "staring ranging is done", Toast.LENGTH_LONG).show();
 			}
 		});
+        Toast.makeText(this, "end connect", Toast.LENGTH_LONG).show();
 	}
 
 	private AdapterView.OnItemClickListener createOnItemClickListener() {
@@ -180,8 +182,8 @@ public class BRTBeaconManagerListBeaconsActivity extends Activity {
 						Intent intent = new Intent(BRTBeaconManagerListBeaconsActivity.this, clazz);
 						intent.putExtra(EXTRAS_BEACON, adapter.getItem(position));
 						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Log.e(TAG, "Finding class by name failed", e);
+					} catch (Throwable e) {
+                        Toast.makeText(BRTBeaconManagerListBeaconsActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
 					}
 				}
 			}

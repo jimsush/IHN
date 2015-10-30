@@ -43,10 +43,10 @@ public class ParkingWebViewActivity extends Activity {
         switch3D.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
-                    loadLocalHTML("javascript:refreshWith3D()");
-                else
-                    loadLocalHTML("javascript:refreshWith2D()");
+            if(isChecked)
+                loadLocalHTML("javascript:refreshWith3D()");
+             else
+                loadLocalHTML("javascript:refreshWith2D()");
             }
         });
 
@@ -89,7 +89,7 @@ public class ParkingWebViewActivity extends Activity {
             scanner=new BeaconScanner(this, webView);
             scanner.onCreate();
         } catch (Throwable e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "初始化蓝牙扫描器异常:"+e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -126,7 +126,7 @@ public class ParkingWebViewActivity extends Activity {
         try{
             scanner.onStart();
         } catch (Throwable e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "开始扫描异常:"+e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -134,15 +134,23 @@ public class ParkingWebViewActivity extends Activity {
         try {
             webView.loadUrl(url);
         }catch(Throwable th){
-            Toast.makeText(this,th.getMessage(), Toast.LENGTH_LONG).show();
-            th.printStackTrace();
+            Toast.makeText(this, "刷新地图异常:"+th.getMessage(), Toast.LENGTH_LONG).show();
+            //th.printStackTrace();
+        }
+    }
+
+    public void setSubtitle(String title){
+        try {
+            getActionBar().setSubtitle(title);
+        }catch(Throwable th){
+            Toast.makeText(this, "设置标题错误:"+th.getMessage(), Toast.LENGTH_LONG).show();
+            //th.printStackTrace();
         }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
         scanner.onStop();
     }
 
