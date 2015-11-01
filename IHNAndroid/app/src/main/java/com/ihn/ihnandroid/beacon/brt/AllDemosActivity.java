@@ -21,6 +21,7 @@ public class AllDemosActivity extends Activity {
 		setContentView(R.layout.brt_all_demos);
 		// 注册应用，初始化，在应用启动Activity或者Application派生类执行
 		BRTBeaconManager.registerApp(this, "6698fd205e834f3cb5eee4e8819a863f");
+        //BRTBeaconManager.registerApp(this, "e71e63ce42a40f3d43b3e47c64344075");
 
 		findViewById(R.id.distance_demo_button).setOnClickListener(new View.OnClickListener() {
 			@Override

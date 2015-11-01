@@ -120,18 +120,32 @@
             } 
 
             function reset(){
-				        g2d.setZoom(0.2);
-			
                 if(showInPC==true){
+                	  g2d.setZoom(0.2);
 								    g3d.setEye([0, 1800, 2000]);
 								}else{
-									  if(orientLandscape==true){
-									      g3d.setEye([0, 1500, 1600]);
-									  }else{
-                        g3d.setEye([0, 4000, 2800]);
+									  if(show2D==false){
+									  	// 3d
+										  if(orientLandscape==true){
+										      g3d.setEye([0, 1500, 1600]);
+										  }else{
+	                        g3d.setEye([0, 4000, 2800]);
+	                    }
+                    }else{
+                       // 2d
+                      if(orientLandscape==true){
+										      g2d.setTranslate(305, 545);
+	                        g2d.setZoom(0.15);
+										  }else{
+	                        g2d.setTranslate(165, 430);
+	                        g2d.setZoom(0.12);
+	                    }
                     }
                 }
-                g3d.setCenter([0, 0, -500]);
+                
+                if(show2D==false){
+                    g3d.setCenter([0, 0, -500]);
+                }
             }
             
             function initModel(){
@@ -268,11 +282,13 @@
 			      function refreshWith2D(){
 			      	show2D = true;
 			      	refreshView();
+			      	g2d.invalidate();
 			      }
 			      
 			      function refreshWith3D(){
 			      	show2D = false;
 			      	refreshView();
+			      	g3d.invalidate();
 			      }
 			
             function createFloor1(){

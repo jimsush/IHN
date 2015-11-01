@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.bright.examples.demos.DistanceBackgroundView
+    <com.ihn.ihnandroid.beacon.brt.DistanceBackgroundView
         android:id="@+id/sonar"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
