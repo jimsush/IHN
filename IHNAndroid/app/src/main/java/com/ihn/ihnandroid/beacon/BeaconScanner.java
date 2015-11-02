@@ -33,6 +33,7 @@ public class BeaconScanner {
     private Map<String, BluetoothPosition> allBeacons=new HashMap<String, BluetoothPosition>();
     private Map<String, BRTBeacon> foundBeacons=new HashMap<String, BRTBeacon>();
     private boolean stopped=false;
+    private double[] curXY;
 
     private static final BRTRegion ALL_BRIGHT_BEACONS_REGION = new BRTRegion("rid", null, null, null, null);
 
@@ -78,8 +79,15 @@ public class BeaconScanner {
         beaconManager.disconnect();
     }
 
+    public double[] getCurrentPosition(){
+        if(curXY==null)
+            return null;
+        return new double[]{ curXY[0], curXY[1] };
+    }
+
     private void loadBeaconMetadata(){
-        allBeacons.put("EC:23:B1:51:0D:BB", new BluetoothPosition("EC:23:B1:51:0D:BB", 100, 200));
+        allBeacons.put("EC:23:B1:51:0D:BB", new BluetoothPosition("EC:23:B1:51:0D:BB", 400, -100));
+        allBeacons.put("F4:B8:5E:A1:4A:BE", new BluetoothPosition("F4:B8:5E:A1:4A:BE", 100, 10));
         //allBeacons.put("mac2", new BluetoothPosition());
     }
 
@@ -108,7 +116,9 @@ public class BeaconScanner {
                             }else {
                                 activity.setSubtitle("当前位置:(" + pos[0] + "," + pos[1]+","+pos[2]+"m,"+pos[3] + "m)");
                             }
-                            loadLocalHTML("javascript:myPosition("+pos[0]+","+pos[1]+")");
+
+                            curXY=new double[]{ pos[0], pos[1]};
+                            loadLocalHTML("javascript:myPosition("+curXY[0]+","+curXY[1]+")");
                         }catch(Throwable th){
                             Toast.makeText(activity, "信标搜索错误:"+th.getMessage(), Toast.LENGTH_LONG).show();
                             //th.printStackTrace();
@@ -143,6 +153,13 @@ public class BeaconScanner {
     private double[] getP3Position(List<BRTBeacon> scannedBeacons){
         List<TmpBeacon> tmpBeacons=new ArrayList<TmpBeacon>();
         for (BRTBeacon rangedBeacon : scannedBeacons) {
+            BluetoothPosition pos=allBeacons.get(rangedBeacon.getMacAddress());
+            if(pos==null){
+                // unauthorized beacons, so ignore it
+                Toast.makeText(activity, "忽略不明信标"+rangedBeacon.getMacAddress(), Toast.LENGTH_LONG).show();
+                continue;
+            }
+
             tmpBeacons.add( new TmpBeacon(rangedBeacon.getMacAddress(),rangedBeacon.getRssi() ));
             foundBeacons.put(rangedBeacon.getMacAddress(), rangedBeacon);
         }
@@ -155,12 +172,12 @@ public class BeaconScanner {
             Iterator<TmpBeacon> it=tmpBeacons.iterator();
             TmpBeacon first=it.next();
             BluetoothPosition pos=allBeacons.get(first.getMac());
-
             BRTBeacon bt1 = foundBeacons.get(first.getMac());
             double distance=getDistance(bt1);
             return new double[]{ pos.x, pos.y, distance, 0 };
         }else {
             Iterator<TmpBeacon> it = tmpBeacons.iterator();
+
             TmpBeacon first = it.next();
             TmpBeacon second = it.next();
 

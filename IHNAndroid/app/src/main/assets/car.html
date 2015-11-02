@@ -61,6 +61,15 @@
             show2D=false;
 			      view=null;
 			      
+			      curPosX=null;
+			      curPosY=null;
+			      curPosZ=null;
+			      
+			      parkedPosX=null;
+			      parkedPosY=null;
+			      parkedPosZ=null;
+			      parkedFloor=null;
+			      
             var url2 = location.search;
 			      if(url2==null || url2==''){
 			      	orientLandscape=false;
@@ -147,7 +156,7 @@
                     g3d.setCenter([0, 0, -500]);
                 }
             }
-            
+                        
             function initModel(){
                 
                 loadMTL(); // load mtl objects
@@ -370,7 +379,7 @@
 	          	camera.setToolTip('This is camera. Double click to see the vedio.');
             }
 			
-			function createFloor2(){
+			     function createFloor2(){
                 var floorName='B2';
                 var floor2 = createNode(floorName, [0, -5-1000, -1500], [4000, 10, 4200], '#F0F0F0');
                 if(showInPC){
@@ -533,15 +542,17 @@
             	  if(createCarFlag==true){
             	      var car=createCar(spotX, spotY+100, spotZ, rawS3);
             	      car.a({'type' : 'Car', 'floor' : floorName, 'spotId' : spot.getId()});
-					  car.setHost(spot);
+					          car.setHost(spot);
             	  }
             	  
-				  spot.setHost(carSpots);
+				        spot.setHost(carSpots);
                 return spot;
             }
             
             function myPosition(posx, posy){
                var indicator=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'green');
+               curPosX=posx;
+               curPosY=posy;
             }
 
             function createPoles(floorName, prefix, x, y, z,width,height){
@@ -725,6 +736,12 @@
                 	  var pos=node.getPosition3d();
                 	  var car=createCar(pos[0], pos[1]+100, pos[2], rawS3);
                 	  car.a({'type' : 'Car', 'floor' : node.getAttr('floor'), 'spotId' : node.getId()});
+                	  
+                	  parkedPosX=pos[0];
+                	  parkedPosY=pos[1]+100;
+                	  parkedPosZ=pos[2];
+                	  parkedFloor=node.getAttr('floor');
+                	  
                 }else{
                 	alert("选中的节点必须是Spot,而目前是"+type);
                 	console.log("选中的节点必须是Spot,而目前是"+type);
@@ -741,6 +758,10 @@
                 var type=node.getAttr('type');
                 if('Car'==type){
                 	  dataModel.remove(node);
+                	  parkedPosX=null;
+                	  parkedPosY=null;
+                	  parkedPosZ=null;
+                	  parkedFloor=null;
                 }else{
                 	console.log("选中的节点必须是Car,而目前是"+type);
                 	alert("没有选择任何车辆!");
@@ -863,7 +884,68 @@
             	  
             	  walk(pathPoints, 1);
             }
+						
+						var currentNavPath;
+            function drawPath(posX, posY){
+            	  if(currentNavPath){
+            	      dataModel.remove(currentNavPath);
+            	      //dataModel.remove(start);
+            	      //dataModel.remove(end);
+            	  }
+            	  var node=dataModel.getSelectionModel().getLastData();
+                if(!node){
+                    alert("请先选择一个物体作为终点!");
+                    return;
+                }
+                
+                var destX, destZ, destVertexName;
+                var destPos=node.getPosition();
+                destX=destPos.x;
+                destZ=destPos.y;
 
+            	var sourceNearestPos=getNearestPoint(posX, posY);
+            	console.log('sourceNearestPos: '+sourceNearestPos.name);
+
+            	var destNearestPos=getNearestPoint(destPos.x, destPos.y);
+            	console.log('destNearestPos: '+destNearestPos.name);
+                destVertexName=destNearestPos.name;
+              	
+              	// find shortest path 
+              	var g = new Graph();
+              	for(var i=0; i<lanePoints.length; i++){
+              		g.addVertex(lanePoints[i].name, lanePoints[i].distance);
+              	}
+              	var finalPath=g.shortestPath(sourceNearestPos.name, destVertexName).reverse();
+              	console.log("finalPath: "+finalPath);
+              	
+              	pathPoints=new Array();
+              	pathPoints.push({x:posX, y:posY+node.getHeight()/2});
+            		pathPoints.push({x:sourceNearestPos.position[0], y:sourceNearestPos.position[1]});
+            		for(var i=0; i<finalPath.length; i++){
+            		    var posixy=getVertexPosition(finalPath[i]);
+            		    pathPoints.push({x:posixy[0], y:posixy[1]});
+            		}
+            		pathPoints.push({x:destX, y:destZ});
+              	
+              	currentNavPath = new ht.Shape();
+                dataModel.add(currentNavPath);                   
+                currentNavPath.setPoints(pathPoints);               
+                currentNavPath.setTall(40);
+                currentNavPath.setThickness(20);
+                currentNavPath.setElevation(currentNavPath.getTall()/2);
+                currentNavPath.s({
+                    'shape.background': null,
+                    'shape3d': 'cylinder',   
+                    'shape3d.reverse.color': 'yellow',   
+                    'shape3d.top.visible': false,
+                    'shape.border.join' : 'round',
+                    'shape3d.bottom.color': '#E74C3C',
+                    'shape.border.width': 6,
+                    'shape3d.uv.scale': [1, 6],
+                    'repeat.uv.length': 32
+                });    
+            }
+            
             function getNearestPoint(x, y){
                 var minDistance=Math.pow((lanePoints[0].position[0]-x), 2) + Math.pow((lanePoints[0].position[1]-y), 2);
                 var minPoint=lanePoints[0];

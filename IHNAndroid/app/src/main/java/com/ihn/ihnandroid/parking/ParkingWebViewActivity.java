@@ -24,6 +24,7 @@ public class ParkingWebViewActivity extends Activity {
     private Button btnPark;
     private Button btnLeave;
     private Button btnSearch;
+    private Button btnDrawPath;
     private EditText txtKeywords;
     private Switch switch3D;
     private BeaconScanner scanner;
@@ -55,6 +56,19 @@ public class ParkingWebViewActivity extends Activity {
             @Override
             public void onClick(View v) {
                 loadLocalHTML("file:///android_asset/car.html");
+            }
+        });
+
+        btnDrawPath =(Button)findViewById(R.id.button_drawPath);
+        btnDrawPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                double[] posXY=scanner.getCurrentPosition();
+                if(posXY==null || posXY.length<2){
+                    Toast.makeText(ParkingWebViewActivity.this, "无法标注导航路线因为无法标定当前的位置", Toast.LENGTH_LONG).show();
+                }else {
+                    loadLocalHTML("javascript:drawPath("+posXY[0]+","+posXY[1]+")");
+                }
             }
         });
 
