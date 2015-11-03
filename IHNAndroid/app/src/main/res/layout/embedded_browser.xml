@@ -12,26 +12,49 @@
 
         <Button
             android:id="@+id/button_goUrl"
-            android:layout_width="wrap_content"
+            android:layout_width="45dp"
             android:layout_height="30dp"
             android:text="@string/action_refresh"
             android:textSize="10dp"
             android:focusable="true"
-            android:focusableInTouchMode="true"/>
+            android:focusableInTouchMode="true"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:text="找车位"
+            android:textSize="10dp"
+            android:id="@+id/button_drawPath"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp" />
+
+        <Button
+            android:layout_width="45dp"
             android:layout_height="30dp"
             android:text="@string/action_park"
             android:textSize="10dp"
-            android:id="@+id/btnPark" />
+            android:id="@+id/btnPark"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp" />
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="45dp"
             android:layout_height="30dp"
             android:text="@string/action_leave"
             android:textSize="10dp"
-            android:id="@+id/btnLeave" />
+            android:id="@+id/btnLeave"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp" />
 
         <EditText
             android:layout_width="wrap_content"
@@ -39,22 +62,34 @@
             android:id="@+id/txtKeywords"
             android:layout_weight="1"
             android:textSize="10dp"
-            android:text="KFC" />
+            android:text="KFC"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="45dp"
             android:layout_height="30dp"
             android:text="@string/action_search"
             android:textSize="10dp"
-            android:id="@+id/btnSearch" />
+            android:id="@+id/btnSearch"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp" />
 
         <Switch
             android:layout_width="60dp"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:textOn="3D"
             android:textOff="2D"
             android:id="@+id/switch1"
-            android:checked="true" />
+            android:checked="true"
+            android:paddingLeft="1dp"
+            android:paddingRight="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp" />
 
     </LinearLayout>
 
