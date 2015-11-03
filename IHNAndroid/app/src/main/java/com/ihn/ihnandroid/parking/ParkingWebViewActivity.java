@@ -7,9 +7,12 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -28,6 +31,9 @@ public class ParkingWebViewActivity extends Activity {
     private EditText txtKeywords;
     private Switch switch3D;
     private BeaconScanner scanner;
+    private Spinner spinner;
+
+    private String currentShowFloor="B1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +105,22 @@ public class ParkingWebViewActivity extends Activity {
             }
         });
 
+        spinner =(Spinner)findViewById(R.id.spinner);
+        ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, this.getAllFloors());
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String[] floors=getAllFloors();
+                showFloor(floors[position]);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        spinner.setVisibility(View.VISIBLE);
+
         try{
             scanner=new BeaconScanner(this, webView);
             scanner.onCreate();
@@ -166,6 +188,20 @@ public class ParkingWebViewActivity extends Activity {
     protected void onStop() {
         super.onStop();
         scanner.onStop();
+    }
+
+    private String[] getAllFloors(){
+        return new String[]{ "B1", "B2", "F1", "F2"};
+    }
+
+    private void showFloor(String floorNumber){
+        if(floorNumber==null || floorNumber.length()<2)
+            return;
+        if(floorNumber.equals(currentShowFloor))
+            return;
+
+        loadLocalHTML("javascript:showHideFloor('"+floorNumber+"', '"+currentShowFloor+"');");
+        currentShowFloor=floorNumber;
     }
 
 }
