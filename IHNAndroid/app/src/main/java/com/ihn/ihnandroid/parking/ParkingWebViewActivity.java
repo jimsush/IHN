@@ -1,9 +1,11 @@
 package com.ihn.ihnandroid.parking;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -14,6 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
@@ -105,10 +108,32 @@ public class ParkingWebViewActivity extends Activity {
             }
         });
 
+        ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, this.getAllFloors());
+        /*
+        {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                View view=super.getDropDownView(position,convertView,parent);
+                TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+                tv.setTextSize(10);
+                tv.setTextColor(Color.RED);
+                return view;
+            }
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view=super.getView(position, convertView, parent);
+                TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+                tv.setTextSize(9);
+                tv.setTextColor(Color.BLUE);
+                return view;
+            }
+        };
+        */
+
         spinner =(Spinner)findViewById(R.id.spinner);
-        ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, this.getAllFloors());
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
+        spinner.setSelection(0,true);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
