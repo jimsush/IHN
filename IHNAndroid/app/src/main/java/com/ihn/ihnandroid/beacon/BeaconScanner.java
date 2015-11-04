@@ -113,6 +113,7 @@ public class BeaconScanner {
                             double[] pos = getP3Position(scannedBeacons);
                             if(pos==null || pos.length==0) {
                                 activity.setSubtitle("当前位置:未知");
+                                return;
                             }else {
                                 activity.setSubtitle("当前位置:(" + pos[0] + "," + pos[1]+","+pos[2]+"m,"+pos[3] + "m)");
                             }
