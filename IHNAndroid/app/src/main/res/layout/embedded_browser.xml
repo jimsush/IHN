@@ -81,7 +81,7 @@
 
         <Switch
             android:layout_width="60dp"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:textOn="3D"
             android:textOff="2D"
             android:id="@+id/switch1"
@@ -90,6 +90,11 @@
             android:paddingRight="1dp"
             android:layout_marginLeft="1dp"
             android:layout_marginRight="1dp" />
+
+        <Spinner
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:id="@+id/spinner" />
 
     </LinearLayout>
 
