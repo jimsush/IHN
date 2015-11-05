@@ -12,16 +12,6 @@
         android:weightSum="1">
 
         <Button
-            android:id="@+id/button_goUrl"
-            android:layout_width="45dp"
-            android:layout_height="30dp"
-            android:text="@string/action_refresh"
-            android:textSize="10dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-           />
-
-        <Button
             android:layout_width="55dp"
             android:layout_height="30dp"
             android:text="找车位"
@@ -68,7 +58,7 @@
             android:id="@+id/btnSearch" />
 
         <EditText
-            android:layout_width="150dp"
+            android:layout_width="fill_parent"
             android:layout_height="30dp"
             android:id="@+id/txtKeywords"
             android:textSize="10dp"
@@ -81,6 +71,7 @@
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:layout_marginTop="2dp" />
 
 </LinearLayout>

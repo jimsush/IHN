@@ -26,7 +26,6 @@ import com.ihn.ihnandroid.beacon.BeaconScanner;
 public class ParkingWebViewActivity extends Activity {
 
     private WebView webView;
-    private Button btnReload;
     private Button btnPark;
     private Button btnLeave;
     private Button btnSearch;
@@ -57,14 +56,6 @@ public class ParkingWebViewActivity extends Activity {
                 loadLocalHTML("javascript:refreshWith3D()");
              else
                 loadLocalHTML("javascript:refreshWith2D()");
-            }
-        });
-
-        btnReload =(Button)findViewById(R.id.button_goUrl);
-        btnReload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadLocalHTML("file:///android_asset/car.html");
             }
         });
 
@@ -108,30 +99,11 @@ public class ParkingWebViewActivity extends Activity {
             }
         });
 
-        ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, this.getAllFloors());
-        /*
-        {
-            @Override
-            public View getDropDownView(int position, View convertView, ViewGroup parent) {
-                View view=super.getDropDownView(position,convertView,parent);
-                TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
-                tv.setTextSize(10);
-                tv.setTextColor(Color.RED);
-                return view;
-            }
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view=super.getView(position, convertView, parent);
-                TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
-                tv.setTextSize(9);
-                tv.setTextColor(Color.BLUE);
-                return view;
-            }
-        };
-        */
-
+        //ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, this.getAllFloors());
+        ArrayAdapter<String> spinnerAdapter=new ArrayAdapter<String>(this, R.layout.spinner_layout, this.getAllFloors());
         spinner =(Spinner)findViewById(R.id.spinner);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAdapter.setDropDownViewResource(R.layout.spinner_layout_dropdown);
         spinner.setAdapter(spinnerAdapter);
         spinner.setSelection(0,true);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

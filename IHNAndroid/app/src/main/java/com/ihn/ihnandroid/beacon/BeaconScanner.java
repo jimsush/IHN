@@ -115,7 +115,11 @@ public class BeaconScanner {
                                 activity.setSubtitle("当前位置:未知");
                                 return;
                             }else {
-                                activity.setSubtitle("当前位置:(" + pos[0] + "," + pos[1]+","+pos[2]+"m,"+pos[3] + "m)");
+                                activity.setSubtitle("当前位置:(" + pos[0] + "," + pos[1] + "," + pos[2] + "m," + pos[3] + "m)");
+                            }
+                            if(isSamePositionWithLast(pos[0], pos[1])) {
+                                curXY=new double[]{ pos[0], pos[1]};
+                                return;
                             }
 
                             curXY=new double[]{ pos[0], pos[1]};
@@ -128,6 +132,18 @@ public class BeaconScanner {
                 });
             }
         });
+    }
+
+    private boolean isSamePositionWithLast(double newPosX, double newPosY){
+        if(curXY==null)
+            return false;
+        double delta=Math.abs(newPosX-curXY[0]);
+        if(delta>=0.1)
+            return false;
+        delta=Math.abs(newPosY-curXY[1]);
+        if(delta>=0.1)
+            return false;
+        return true;
     }
 
     private String getBRTBeaconString(List<BRTBeacon> scannedBeacons){
@@ -214,7 +230,6 @@ public class BeaconScanner {
             webView.loadUrl(url);
         }catch(Throwable th){
             Toast.makeText(activity, "地图定位错误:"+th.getMessage(), Toast.LENGTH_LONG).show();
-            //th.printStackTrace();
         }
     }
 
