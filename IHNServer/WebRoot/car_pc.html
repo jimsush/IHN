@@ -66,6 +66,7 @@
 			      view=null;
 			      
 			      curMyPosNode=null;
+			      shadow1=null;
 			      currentNavPath=null;
 			      
 			      curPosX=null;
@@ -559,14 +560,32 @@
             function myPosition(posx, posy){
             	 if(curMyPosNode){
                     var p3d=curMyPosNode.getPosition3d();
-                	  curMyPosNode.p3(posx-40/2, p3d[1], posy+40/2);
+                    shadow1.p3(posx-40/2, p3d[1], posy+40/2);
+                    curMyPosNode.p3(posx-40/2, p3d[1], posy+40/2);
                }else{
-               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'green');
+               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'blue');
+               	    shadow1=createNode('shadow1', [posx-40/2, 200, posy+40/2], [400, 4, 400], 'gray').s({
+                    'shape3d': 'cylinder',
+                    'shape': 'circle',
+                    'shape3d.color': 'gray',
+                    'shape3d.transparent': true,
+                    'shape3d.opacity': 0.3,
+                    'opacity': 0.3
+                    }); 
+                    curMyPosNode.setHost(shadow1);    
                }
                curPosX=posx;
                curPosY=posy;
             }
 
+						function createNode2(p3, s3){
+                var node = new ht.Node();
+                node.p3(p3);
+                node.s3(s3);
+                dataModel.add(node);
+                return node;
+            }
+            
             function createPoles(floorName, prefix, x, y, z, width, height){
             	var border=30;
             	var hBottom=100;
