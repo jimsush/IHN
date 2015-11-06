@@ -86,8 +86,8 @@ public class BeaconScanner {
     }
 
     private void loadBeaconMetadata(){
-        allBeacons.put("EC:23:B1:51:0D:BB", new BluetoothPosition("EC:23:B1:51:0D:BB", 400, -100));
-        allBeacons.put("F4:B8:5E:A1:4A:BE", new BluetoothPosition("F4:B8:5E:A1:4A:BE", 100, 10));
+        allBeacons.put("EC:23:B1:51:0D:BB", new BluetoothPosition("EC:23:B1:51:0D:BB", 1100, -1100));
+        allBeacons.put("F4:B8:5E:A1:4A:BE", new BluetoothPosition("F4:B8:5E:A1:4A:BE", 300, -1100));
         //allBeacons.put("mac2", new BluetoothPosition());
     }
 
@@ -205,13 +205,15 @@ public class BeaconScanner {
             BRTBeacon bt2 = foundBeacons.get(second.getMac());
             double distance1 = getDistance(bt1);
             double distance2 = getDistance(bt2);
-            PositionResult result = NearestDistance.getP3(pos1.x, pos1.y, pos2.x, pos2.y, distance1, distance2);
+            PositionResult result = NearestDistance.getP3(pos1.x, pos1.y, pos2.x, pos2.y, distance1*800, distance2*800);
             if (result == null || result.getValueNum() == 0) {
                 return new double[]{ pos1.x, pos1.y, distance1, distance2 };
                 //return null; //can't return null
             } else if (result.getValueNum() == 1) {
+                Toast.makeText(activity, "1个可能点", Toast.LENGTH_LONG).show();
                 return new double[]{result.p1x, result.p1y, distance1, distance2};
             } else {
+                Toast.makeText(activity, "2个可能点", Toast.LENGTH_LONG).show();
                 double px = (result.p1x + result.p2x) / 2;
                 double py = (result.p1y + result.p2y) / 2;
                 return new double[]{px, py, distance1, distance2};
