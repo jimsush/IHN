@@ -1,11 +1,9 @@
 package com.ihn.ihnandroid.parking;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -16,7 +14,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
@@ -129,17 +126,6 @@ public class ParkingWebViewActivity extends Activity {
     private void initWebViewSetting() {
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
-
-        //webSettings.setAppCacheEnabled(true);
-
-        //webSettings.setSupportZoom(true);
-        //webSettings.setDisplayZoomControls(false);
-        //webSettings.setBuiltInZoomControls(true);
-
-        //webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
-        //webSettings.setUseWideViewPort(true);
-        //webSettings.setLoadWithOverviewMode(true);
-        //webView.setInitialScale(1);
     }
 
     @Override
@@ -177,7 +163,6 @@ public class ParkingWebViewActivity extends Activity {
             getActionBar().setSubtitle(title);
         }catch(Throwable th){
             Toast.makeText(this, "设置标题错误:"+th.getMessage(), Toast.LENGTH_LONG).show();
-            //th.printStackTrace();
         }
     }
 

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="\n1米在地图上对应的点数:"
+            android:id="@+id/textView"
+            android:layout_marginLeft="5dp"/>
+    </LinearLayout>
+
+    <EditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtScale"
+        android:textSize="14dp"
+        android:text="800"
+        android:maxLength="5"
+        android:maxLines="1"
+        android:numeric="integer"
+        android:layout_marginLeft="5dp"/>
+
+    <Button
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:text="应用"
+            android:textSize="14dp"
+            android:id="@+id/btnScale"
+            android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="\n添加新的蓝牙信标:"
+        android:id="@+id/textRegisterBeacon"
+        android:layout_marginLeft="5dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="蓝牙信标MAC: "
+            android:id="@+id/textBeaconMAC"
+            android:textSize="14dp"
+            android:layout_marginLeft="5dp"/>
+
+        <EditText
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtBeaconMac"
+            android:textSize="14dp"
+            android:text="12:34:56:78:9F:E0"
+            android:maxLength="18"
+            android:maxLines="1"
+            android:layout_marginLeft="5dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="地图坐标(x, y): "
+            android:textSize="14dp"
+            android:id="@+id/textBeaconPosition"
+            android:layout_marginLeft="5dp"/>
+
+        <EditText
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtPosX"
+            android:textSize="14dp"
+            android:text="100"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:numeric="integer"
+            android:layout_marginLeft="5dp"/>
+
+        <EditText
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtPosY"
+            android:textSize="14dp"
+            android:text="-100"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:numeric="integer"
+            android:layout_marginLeft="5dp"/>
+    </LinearLayout>
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:text="注册信标"
+        android:textSize="14dp"
+        android:id="@+id/btnRegisterBeacon"
+        android:layout_marginLeft="5dp"/>
+
+</LinearLayout>

@@ -64,10 +64,15 @@
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
 
+        <activity
+            android:name=".beacon.ConfigureBeaconActivity"
+            android:label="@string/title_config_beacon"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+        </activity>
 
         <activity
             android:name=".beacon.brt.AllDemosActivity"
-            android:label="all demos"
+            android:label="@string/title_brt_beacon"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity

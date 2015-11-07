@@ -552,6 +552,19 @@
                 return spot;
             }
             
+            function clearPosition(){
+                if(curMyPosNode){
+                    dataModel.remove(curMyPosNode); 
+                    curMyPosNode=null;
+                }
+                if(shadow1){
+                	  dataModel.remove(shadow1);      
+                	  shadow1=null; 
+                }
+                curPosX=0;
+                curPosY=0;
+            }
+            
             function myPosition(posx, posy){
             	 if(curMyPosNode){
                     var p3d=curMyPosNode.getPosition3d();

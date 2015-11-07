@@ -21,7 +21,12 @@
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:showAsAction="ifRoom|withText" android:icon="@drawable/setting_64"/>
 
-    <item android:id="@+id/action_brt" android:title="Bright Beacon"
+    <item android:id="@+id/action_config" android:title="@string/configure_beacon"
         android:showAsAction="ifRoom|withText" android:icon="@drawable/setting_64"/>
+
+    <item android:id="@+id/action_brt" android:title="@string/bright_beacon"
+        android:showAsAction="ifRoom|withText" android:icon="@drawable/setting_64"/>
+
+
 
 </menu>

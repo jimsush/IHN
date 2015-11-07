@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.ihn.ihnandroid.R;
 
@@ -31,7 +32,7 @@ public class ManageMapActivity extends Activity {
             SimpleAdapter simpleAdapter = initParkingImageText();
             this.listView.setAdapter(simpleAdapter);
         }catch(Throwable th){
-            th.printStackTrace();
+            Toast.makeText(this, "列表初始化出错:" + th.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
