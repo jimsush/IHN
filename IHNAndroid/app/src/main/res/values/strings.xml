@@ -29,5 +29,10 @@
     <string name="parking_list">车库列表</string>
     <string name="hello_world">Find Car</string>
 
+    <string name="bright_beacon">蓝牙例子</string>
+    <string name="configure_beacon">注册信标</string>
+    <string name="title_config_beacon">注册蓝牙信标</string>
+    <string name="title_brt_beacon">蓝牙例子</string>
+
     
 </resources>

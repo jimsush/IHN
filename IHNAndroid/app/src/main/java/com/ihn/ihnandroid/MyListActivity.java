@@ -16,6 +16,7 @@ import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.ihn.ihnandroid.beacon.ConfigureBeaconActivity;
 import com.ihn.ihnandroid.beacon.brt.AllDemosActivity;
 import com.ihn.ihnandroid.parking.ParkingWebViewActivity;
 import com.ihn.ihnandroid.parking.PreferenceActivity;
@@ -155,6 +156,10 @@ public class MyListActivity extends Activity {
             case R.id.action_brt:
                 openBrtBeacon();
                 return true;
+
+            case R.id.action_config:
+                openConfigureBeacon();
+                return true;
         }
 
         return true;
@@ -187,6 +192,13 @@ public class MyListActivity extends Activity {
         Intent intent=new Intent();
         intent.setClass(MyListActivity.this,AllDemosActivity.class);
         startActivity(intent);
+    }
+
+    private void openConfigureBeacon(){
+        Intent intent=new Intent();
+        intent.setClass(MyListActivity.this, ConfigureBeaconActivity.class);
+        startActivity(intent);
+
     }
 
 }
