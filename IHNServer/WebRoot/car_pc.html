@@ -566,6 +566,10 @@
                 	  dataModel.remove(shadow1);      
                 	  shadow1=null; 
                 }
+                if(curMyPosNodeArrow) {
+                	dataModel.remove(curMyPosNodeArrow);      
+                	curMyPosNodeArrow=null; 
+                }
                 curPosX=0;
                 curPosY=0;
             }
@@ -575,23 +579,32 @@
                     var p3d=curMyPosNode.getPosition3d();
                     shadow1.p3(posx-40/2, p3d[1], posy+40/2);
                     curMyPosNode.p3(posx-40/2, p3d[1], posy+40/2);
+					curMyPosNodeArrow.p3(posx-40/2, p3d[1], posy+40/2-50);
                }else{
-               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'blue');
-               	    shadow1=createNode('shadow1', [posx-40/2, 200, posy+40/2], [400, 4, 400], 'gray').s({
+               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'blue').s({
+						'shape': 'circle',
+						'shape3d': 'cylinder'
+					});
+					curMyPosNodeArrow=createNode('P_My_PositionArrow'+new Date().getTime(), [posx-40/2, 200, posy+40/2-50], [40, 40, 40], 'blue').s({
+						'shape': 'triangle',
+						'shape3d': 'triangle'
+					});
+               	    shadow1=createNode('shadow1', [posx-40/2, 200, posy+40/2], [400, 4, 400], '#d5f7f3').s({
                     'shape3d': 'cylinder',
                     'shape': 'circle',
-                    'shape3d.color': 'gray',
+                    'shape3d.color': '#d5f7f3',
                     'shape3d.transparent': true,
-                    'shape3d.opacity': 0.3,
-                    'opacity': 0.3
+                    'shape3d.opacity': 0.6,
+                    'opacity': 0.6
                     }); 
-                    curMyPosNode.setHost(shadow1);    
+                    curMyPosNode.setHost(shadow1); 
+					curMyPosNodeArrow.setHost(shadow1);
                }
                curPosX=posx;
                curPosY=posy;
             }
-
-						function createNode2(p3, s3){
+			
+			function createNode2(p3, s3){
                 var node = new ht.Node();
                 node.p3(p3);
                 node.s3(s3);
