@@ -66,6 +66,7 @@
 			      view=null;
 			      
 			      curMyPosNode=null;
+			      curMyPosNodeArrow=null;
 			      shadow1=null;
 			      currentNavPath=null;
 			      
@@ -292,7 +293,8 @@
                               }
                           });
                     }
-                    toggleData_parkview(data, dataInfo.name);
+                    //if(dataInfo.name)
+                    //	toggleData_parkview(data, dataInfo.name);
                   };
 			      }
 			      
@@ -446,10 +448,16 @@
                     node.s({
                         'shape': 'rect',
                         'all.color': color1,
-                        'shape.background': color1
+                        'shape.background': color1,
+                        'select.color': 'red',
+                        'select.width': 5
                     });
                 }else{
-                    node.s({'shape': 'rect'});
+                    node.s({
+                    	'shape': 'rect',
+                    	'select.color': 'red',
+                    	'select.width': 5
+                    	});
                 }
                 
                 node.s({
@@ -567,8 +575,8 @@
                 	  shadow1=null; 
                 }
                 if(curMyPosNodeArrow) {
-                	dataModel.remove(curMyPosNodeArrow);      
-                	curMyPosNodeArrow=null; 
+                	dataModel.remove(curMyPosNodeArrow);
+                	curMyPosNodeArrow=null;
                 }
                 curPosX=0;
                 curPosY=0;
@@ -577,34 +585,32 @@
             function myPosition(posx, posy){
             	 if(curMyPosNode){
                     var p3d=curMyPosNode.getPosition3d();
-                    shadow1.p3(posx-40/2, p3d[1], posy+40/2);
-                    curMyPosNode.p3(posx-40/2, p3d[1], posy+40/2);
-					curMyPosNodeArrow.p3(posx-40/2, p3d[1], posy+40/2-50);
+                    shadow1.p3(posx, p3d[1], posy);
+                    curMyPosNodeArrow.p3(posx, p3d[1], posy-50);
+                    curMyPosNode.p3(posx, p3d[1], posy);
                }else{
-               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx-40/2, 200, posy+40/2], [40, 40, 40], 'blue').s({
-						'shape': 'circle',
-						'shape3d': 'cylinder'
-					});
-					curMyPosNodeArrow=createNode('P_My_PositionArrow'+new Date().getTime(), [posx-40/2, 200, posy+40/2-50], [40, 40, 40], 'blue').s({
-						'shape': 'triangle',
-						'shape3d': 'triangle'
-					});
-               	    shadow1=createNode('shadow1', [posx-40/2, 200, posy+40/2], [400, 4, 400], '#d5f7f3').s({
-                    'shape3d': 'cylinder',
-                    'shape': 'circle',
-                    'shape3d.color': '#d5f7f3',
-                    'shape3d.transparent': true,
-                    'shape3d.opacity': 0.6,
-                    'opacity': 0.6
-                    }); 
-                    curMyPosNode.setHost(shadow1); 
-					curMyPosNodeArrow.setHost(shadow1);
+               	    curMyPosNode=createNode('P_My_Position'+new Date().getTime(), [posx, 40, posy], [40, 8, 40], 'blue').s({
+               	    	'shape3d': 'cylinder',
+                        'shape': 'circle'
+               	    	});
+               	    curMyPosNodeArrow=createNode('P_My_PositionArrow'+new Date().getTime(), [posx, 40, posy-50], [40, 8, 40], 'blue').s({
+            						'shape': 'triangle',
+            						'shape3d': 'triangle'} );
+               	    shadow1=createNode('shadow1', [posx, 40, posy], [400, 4, 400], '#d5f7f3').s({
+                        'shape3d': 'cylinder',
+                        'shape': 'circle',
+                        'shape3d.color': '#d5f7f3',
+                        'shape3d.transparent': true,
+                        'shape3d.opacity': 0.6,
+                        'opacity': 0.6} ); 
+                    curMyPosNode.setHost(shadow1);
+                    curMyPosNodeArrow.setHost(shadow1);    
                }
                curPosX=posx;
                curPosY=posy;
             }
-			
-			function createNode2(p3, s3){
+
+						function createNode2(p3, s3){
                 var node = new ht.Node();
                 node.p3(p3);
                 node.s3(s3);
@@ -862,10 +868,16 @@
                         
             function searchShop(keywords){
             	  eraseShopPath();
+            	  eraseNavPath();
             	  
-            	  var srcNode=dataModel.getSelectionModel().getLastData();
+            	  var srcNode=null;
+            	  if(curMyPosNode){
+            	      srcNode=curMyPosNode;
+            	  }else{
+            	      srcNode=dataModel.getSelectionModel().getLastData();
+            	  }
                 if(!srcNode){
-                    alert("请先选择一个物体作为起点!");
+                    alert("无法定位当前位置,请先选择一个物体作为起点!");
                     return;
                 }
                 
@@ -874,9 +886,9 @@
             	  if(shopname.indexOf('COFFEE')>=0 || shopname.indexOf('CAFE')>=0 
               	   || shopname.indexOf('咖啡')>=0 || shopname.indexOf('饮料')>=0
               	   || shopname.indexOf('FOOD')>=0 || shopname.indexOf('KFC')>=0 
-              	   || shopname.indexOf('肯德基')>=0 || shopname.indexOf('餐厅')>=0 
+              	   || shopname.indexOf('肯德基')>=0 || shopname.indexOf('餐厅')>=0
               	   || shopname.indexOf('吃饭')>=0 || shopname.indexOf('食品')>=0){
-              	    destX=-400;
+              	   	destX=-400;
               		  destZ=-300; //destVertexName='p782';
               	}else{
               		  destX=1500;
@@ -930,6 +942,7 @@
 						}
 						
             function drawPath(posX, posY){
+            	  eraseShopPath();
             	  eraseNavPath();
             	  
             	  var destNode=dataModel.getSelectionModel().getLastData();
@@ -962,7 +975,7 @@
               	console.log('finalPath: '+finalPath);
               	
               	var pathPoints=new Array();
-              	pathPoints.push({x: srcPosX, y: srcPosY+25});
+              	pathPoints.push({x: srcPosX, y: srcPosY});
             		pathPoints.push({x: sourceNearestPos.position[0], y: sourceNearestPos.position[1]});
             		for(var i=0; i<finalPath.length; i++){
             		    var posixy=getVertexPosition(finalPath[i]);
