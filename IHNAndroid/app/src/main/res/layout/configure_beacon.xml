@@ -91,7 +91,6 @@
             android:text="100"
             android:maxLength="6"
             android:maxLines="1"
-            android:numeric="integer"
             android:layout_marginLeft="5dp"/>
 
         <EditText
@@ -102,7 +101,6 @@
             android:text="-100"
             android:maxLength="6"
             android:maxLines="1"
-            android:numeric="integer"
             android:layout_marginLeft="5dp"/>
     </LinearLayout>
 
@@ -113,5 +111,12 @@
         android:textSize="14dp"
         android:id="@+id/btnRegisterBeacon"
         android:layout_marginLeft="5dp"/>
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="调试模式"
+        android:id="@+id/switchDebug"
+        android:layout_marginTop="10dp"/>
 
 </LinearLayout>

@@ -3,7 +3,9 @@ package com.ihn.ihnandroid;
 import com.ihn.ihnandroid.beacon.BluetoothPosition;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -13,7 +15,11 @@ public class Config {
 
     private int scale=800;
 
+    private boolean debug=false;
+
     private Map<String, BluetoothPosition> allBeacons=new ConcurrentHashMap<String, BluetoothPosition>();
+
+    private Set<String> unauthBeacons=new HashSet<String>();
 
     private static Config instance=new Config();
     private Config(){}
@@ -24,9 +30,27 @@ public class Config {
     public synchronized int getScale(){
         return this.scale;
     }
-
     public synchronized void setScale(int scale){
         this.scale=scale;
+    }
+
+    public synchronized boolean isDebug(){
+        return this.debug;
+    }
+    public synchronized void setDebug(boolean debug){
+        this.debug=debug;
+    }
+
+    public void addNewUnAuth(String mac){
+        unauthBeacons.add(mac);
+    }
+
+    public void clearNewUnAuth(String mac){
+        unauthBeacons.clear();
+    }
+
+    public Set<String> getAllUnAuthBeacons(){
+        return unauthBeacons;
     }
 
     public void registerNewBeacon(String mac, double x, double y){

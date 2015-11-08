@@ -87,8 +87,16 @@ public class BeaconScanner {
     }
 
     private void loadBeaconMetadata(){
-        config.registerNewBeacon("EC:23:B1:51:0D:BB", 1100, -1100);
-        config.registerNewBeacon("F4:B8:5E:A1:4A:BE", 300, -1100);
+        // UUID: E2C56DB5-DFFB
+        config.registerNewBeacon("EC:23:B1:51:0D:BB", 1100, -1100);//plus
+        config.registerNewBeacon("F4:B8:5E:A1:4A:BE", 300, -1100); //1.1
+        config.registerNewBeacon("CA:DA:C3:D6:17:79", -500, -1100); //plus
+        //config.registerNewBeacon("57:06:18:A6:1A:4C", -300, -1100);
+        //config.registerNewBeacon("6B:1A:3D:A5:31:BF", 0, -1800);
+        //config.registerNewBeacon("72:A2:D2:C6:D3:92", 1100, -1800);
+        //config.registerNewBeacon("73:2B:2A:76:FA:57", -1100, -1800);
+        config.registerNewBeacon("20:C3:8F:D2:7E:1B", -600, -1800); //B-tag
+        config.registerNewBeacon("F4:B8:5E:A1:3A:2D", 900, -1800); // beacon1.1, B-02
     }
 
     private void init(){
@@ -179,13 +187,24 @@ public class BeaconScanner {
         List<TmpBeacon> tmpBeacons=new ArrayList<TmpBeacon>();
         for (BRTBeacon rangedBeacon : scannedBeacons) {
             BluetoothPosition pos=config.getBeacon(rangedBeacon.getMacAddress());
-            if(pos==null){
+            if(pos==null) {
                 // unauthorized beacons, so ignore it
-                Toast.makeText(activity, "忽略不明信标"+rangedBeacon.getMacAddress(), Toast.LENGTH_LONG).show();
+                String uuid = rangedBeacon.getUuid();
+                if (uuid != null && uuid.startsWith("E2C56DB5")) {
+                    if (config.isDebug()) {
+                        Toast.makeText(activity, "忽略未注册的BRT信标" + rangedBeacon.getMacAddress(), Toast.LENGTH_LONG).show();
+                    }
+                    config.addNewUnAuth(rangedBeacon.getMacAddress());
+                }else{
+                    // ignore
+                    if (config.isDebug()) {
+                        Toast.makeText(activity, "忽略不明UUID信标" + rangedBeacon.getMacAddress(), Toast.LENGTH_LONG).show();
+                    }
+                }
                 continue;
             }
 
-            tmpBeacons.add( new TmpBeacon(rangedBeacon.getMacAddress(),rangedBeacon.getRssi() ));
+            tmpBeacons.add(new TmpBeacon(rangedBeacon.getMacAddress(), rangedBeacon.getRssi()));
             foundBeacons.put(rangedBeacon.getMacAddress(), rangedBeacon);
         }
         Collections.sort(tmpBeacons);
@@ -219,10 +238,14 @@ public class BeaconScanner {
                 return new double[]{ pos1.x, pos1.y, distance1, distance2 };
                 //return null; //can't return null
             } else if (result.getValueNum() == 1) {
-                Toast.makeText(activity, "1个可能点", Toast.LENGTH_LONG).show();
+                if(config.isDebug()) {
+                    Toast.makeText(activity, "1个可能点", Toast.LENGTH_LONG).show();
+                }
                 return new double[]{result.p1x, result.p1y, distance1, distance2};
             } else {
-                Toast.makeText(activity, "2个可能点"+result, Toast.LENGTH_LONG).show();
+                if(config.isDebug()) {
+                    Toast.makeText(activity, "2个可能点" + result, Toast.LENGTH_LONG).show();
+                }
                 double px = (result.p1x + result.p2x) / 2;
                 double py = (result.p1y + result.p2y) / 2;
                 return new double[]{px, py, distance1, distance2};
@@ -232,6 +255,10 @@ public class BeaconScanner {
 
     private double getDistance(BRTBeacon beacon){
         double distance=Utils.computeAccuracy(beacon);
+        if(distance<0){
+           return 0.01;
+        }
+
         BigDecimal bg = new BigDecimal(distance);
         return bg.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
