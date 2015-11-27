@@ -28,9 +28,9 @@ public class NearestDistance {
         double cc=a*a+b*b+A*A-2*b*A-m*m;
         double delta=bb * bb - 4*aa*cc;
         PositionResult result=null;
-        if(delta<0){
+        if(Double.isNaN(delta) || delta<0){
             return new PositionResult(0);
-        }else if(delta==0.0){
+        }else if(delta<=0.01){
             result=new PositionResult(1);
         }else{
             result=new PositionResult(2);
@@ -39,8 +39,9 @@ public class NearestDistance {
         result.p1x=(-bb+Math.sqrt(delta))/(2*aa);
         result.p1y=A-B*result.p1x;
         //System.out.println("x1:"+result.p1x+",y1:"+result.p1y);
-        if(result.valueNum<=1)
+        if(result.valueNum<=1) {
             return result;
+        }
 
         result.p2x=(-bb-Math.sqrt(delta))/(2*aa);
         result.p2y=A-B*result.p2x;

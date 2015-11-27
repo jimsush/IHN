@@ -53,7 +53,7 @@
         
         <script>
         	     
-        	  rawS3=null;
+        	rawS3=null;
             hideFloors=new Array();
             currentPath=null;
             start=null;
@@ -80,11 +80,11 @@
 			      parkedFloor=null;
 
             var url2 = location.search;
-			      if(url2==null || url2==''){
+			if(url2==null || url2==''){
 			      	  orientLandscape=false;
-			      }else{
+			}else{
 			      	  orientLandscape=true;
-			      }
+			}
 			      
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -101,9 +101,9 @@
             	
             	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
             	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
-				      {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
-				      {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
-				      {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+			    {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+			    {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+			    {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
             	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
             	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
@@ -120,7 +120,7 @@
             );
             
             function init(){ 
-            	  initLoadImage_parkview();
+                initLoadImage_parkview();
             	
                 initAlarmImage_parkview();
 
@@ -187,11 +187,22 @@
                 g2d.setTranslate(500, 700);
                 
             	  g3d = new ht.graph3d.Graph3dView(dataModel);
+            	  //g3d.addInteractorListener(function(e){
+            	  //	             console.log(e.kind);
+    						//							if(e.kind=='endZoom'){
+    						//								    var d=g3d.getEye();
+    						//										//if(d[1]>6000)
+    						//										{
+    						//										   g3d.setEye(d[0],6000,d[2]);
+    						//										   console.log("hello");
+    						//										}
+    						//							}
+								//						});
                 g3d.setGridSize(100);
                 g3d.setGridGap(100);
                 g3d.setGridVisible(true);
 				
-				        if(showInPC==true){ 
+				if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
                     borderPane.setTopView(toolbar);
 								
@@ -200,14 +211,14 @@
 				            accordionView.add('²Ù×÷¿ØÖÆÌ¨', rightFormPane, true);
 				
 				            initFormPane(rightFormPane);
-				       }
+				}
 				       
-				       refreshView();
-       }
+				refreshView();
+            }
             
 			function refreshView() {
-				       view && document.body.removeChild(view);
-				       if(show2D == true) {
+				view && document.body.removeChild(view);
+			    if(show2D == true) {
                 	graphView = g2d;
                 } else  {
                 	graphView = g3d;
@@ -232,9 +243,9 @@
                 });
                 
                 if(showInPC==true){
-					          borderPane.setCenterView(graphView);
-				            mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
-                    view = mainSplit.getView();
+					   borderPane.setCenterView(graphView);
+				        mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+                        view = mainSplit.getView();
                 }else{
                 	  // in mobile
                     view = graphView.getView();
@@ -994,7 +1005,7 @@
                     'shape3d.top.visible': false,
                     'shape.border.join' : 'round',
                     'shape3d.bottom.color': '#E74C3C',
-                    'shape.border.width': 6,
+                    'shape.border.width': 20,
                     'shape3d.uv.scale': [1, 6],
                     'repeat.uv.length': 32
                 }); 

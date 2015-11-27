@@ -105,6 +105,21 @@
                         }                
                     },
                     {
+                        type: 'toggle',
+                        selected: false,
+                        label: 'Limited Zoom',
+                        action: function(){
+                            g3d.addInteractorListener(function(e){
+    													if(e.kind=='betweenRotate'){
+    														    var d=g3d.getEye();
+    																if(d[1]<-100){
+    																   g3d.setEye(d[0],-100,d[1]);
+    																}
+    													}
+														});                        
+                        }
+                    },
+                    {
                         label: 'Editable',
                         type: 'check',
                         selected: true,
