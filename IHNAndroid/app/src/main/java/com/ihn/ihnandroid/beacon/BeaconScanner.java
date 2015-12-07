@@ -350,5 +350,3 @@ public class BeaconScanner {
 
 }
 
-
-
