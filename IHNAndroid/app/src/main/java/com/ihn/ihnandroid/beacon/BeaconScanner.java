@@ -2,25 +2,23 @@ package com.ihn.ihnandroid.beacon;
 
 
 import android.webkit.WebView;
-import android.widget.Toast;
 
 import com.brtbeacon.sdk.BRTBeacon;
 import com.brtbeacon.sdk.BRTBeaconManager;
 import com.brtbeacon.sdk.BRTRegion;
 import com.brtbeacon.sdk.RangingListener;
 import com.brtbeacon.sdk.ServiceReadyCallback;
-import com.brtbeacon.sdk.Utils;
 import com.brtbeacon.sdk.service.RangingResult;
 import com.ihn.ihnandroid.Config;
 import com.ihn.ihnandroid.parking.ParkingWebViewActivity;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by tong on 2015/10/16.
@@ -35,6 +33,9 @@ public class BeaconScanner {
     private Config config;
 
     private static final BRTRegion ALL_BRIGHT_BEACONS_REGION = new BRTRegion("rid", null, null, null, null);
+
+    private Map<String, BRTBeacon> latestBeacons=new ConcurrentHashMap<String, BRTBeacon>();
+    private long latestSubmittedTime=0;
 
     public BeaconScanner(ParkingWebViewActivity activity, WebView webView){
         this.activity=activity;
@@ -114,17 +115,31 @@ public class BeaconScanner {
                     BeaconUtils.debug(activity, "本次扫描到" + scannedAllBeacons.size() + "个蓝牙设备" + beaconInfo, config.isDebug());
                 }
 
-                final List<BRTBeacon> scannedBeacons =filterBeacons(scannedAllBeacons);
-                BeaconUtils.debug(activity, "本次扫描到"+scannedBeacons.size()+"个BRT蓝牙设备", config.isDebug());
-                final boolean beaconGone=V2Compute.isRealNotFoundBeacons(scannedBeacons.size());
+                List<BRTBeacon> currentScannedBeacons =filterBeacons(scannedAllBeacons);
+                BeaconUtils.debug(activity, "本次扫描到"+currentScannedBeacons.size()+"个BRT蓝牙设备", config.isDebug());
+
+                /*
+                long now11=System.currentTimeMillis();
+                long dis11=now11-latestSubmittedTime;
+                if(dis11<2000L) {
+                    // it is too short to compute the position
+                    updateLatestBeacons(currentScannedBeacons);
+                    return;
+                }
+                latestSubmittedTime=now11;
+                */
+
+                final List<BRTBeacon> mergedScannedBeacons=mergeBeacons(currentScannedBeacons);
+                updateLatestBeacons(currentScannedBeacons);
+                final boolean beaconGone=V2Compute.isRealNotFoundBeacons(mergedScannedBeacons.size());
 
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try{
-                            String beaconInfo=getBRTBeaconString(scannedBeacons);
+                            String beaconInfo=getBRTBeaconString(mergedScannedBeacons);
                             activity.setSubtitle(beaconInfo);
-                            if(scannedBeacons.size()==0) {
+                            if(mergedScannedBeacons.size()==0) {
                                 if(beaconGone) {
                                     activity.setSubtitle("当前位置:未知");
                                     curXY = null;
@@ -135,7 +150,7 @@ public class BeaconScanner {
                                 return;
                             }
 
-                            double[] pos = getP3Position(scannedBeacons);
+                            double[] pos = getP3Position(mergedScannedBeacons);
                             if(pos==null || pos.length==0) {
                                 activity.setSubtitle("当前位置:未知");
                                 curXY=null;
@@ -163,6 +178,13 @@ public class BeaconScanner {
         });
     }
 
+    private void updateLatestBeacons(List<BRTBeacon> currentScannedBeacons) {
+        latestBeacons.clear();
+        for (BRTBeacon b : currentScannedBeacons) {
+            latestBeacons.put(b.getMacAddress(), b);
+        }
+    }
+
     private boolean isSamePositionWithLast(double newPosX, double newPosY){
         if(curXY==null || curXY.length==0)
             return false;
@@ -176,6 +198,18 @@ public class BeaconScanner {
         if(delta>=0.1)
             return false;
         return true;
+    }
+
+    /**
+     * merge last beacons and current beacons, it will update the <b>latestBeacons</b>
+     */
+    private List<BRTBeacon> mergeBeacons(List<BRTBeacon> currentScannedBeacons) {
+        List<BRTBeacon> mergedBeacons=new ArrayList<BRTBeacon>();
+        for(BRTBeacon b: currentScannedBeacons){
+            latestBeacons.put(b.getMacAddress(), b);
+        }
+        mergedBeacons.addAll(latestBeacons.values());
+        return mergedBeacons;
     }
 
     private List<BRTBeacon> filterBeacons(List<BRTBeacon> all) {
