@@ -79,12 +79,14 @@
 			      parkedPosZ=null;
 			      parkedFloor=null;
 
+            // touch
+            
             var url2 = location.search;
-			if(url2==null || url2==''){
+			      if(url2==null || url2==''){
 			      	  orientLandscape=false;
-			}else{
+			      }else{
 			      	  orientLandscape=true;
-			}
+			      }
 			      
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
