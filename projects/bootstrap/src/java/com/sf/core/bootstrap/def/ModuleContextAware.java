@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ModuleContextAware.java, 2015-3-31 обнГ01:22:05 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.def;
 
 /**
@@ -11,7 +20,7 @@ package com.sf.core.bootstrap.def;
  * </p>
  * 
  * @author sufeng
- * created 2011-3-31 обнГ01:22:05
+ * created 2015-3-31 обнГ01:22:05
  * modified [who date description]
  * check [who date description]
  */

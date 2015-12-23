@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ModuleClassLoader.java, 2015-12-10 обнГ05:24:43 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.impl.loader;
 
 import java.io.IOException;
@@ -17,7 +26,7 @@ import com.sf.core.bootstrap.impl.BootstrapUtils;
  * </p>
  * 
  * @author sufeng
- * created 2010-12-10 обнГ05:24:43
+ * created 2015-12-10 обнГ05:24:43
  * modified [who date description]
  * check [who date description]
  */

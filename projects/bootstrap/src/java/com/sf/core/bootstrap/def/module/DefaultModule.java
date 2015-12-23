@@ -19,6 +19,7 @@ import com.sf.core.bootstrap.def.ModuleContext;
  * </p>
  * 
  * @author 
+ * created 2015-9-17 ÏÂÎç03:06:41
  * modified [who date description]
  * check [who date description]
  */
@@ -57,7 +58,7 @@ public abstract class DefaultModule implements Module,Module4Container{
     }
 
     /**
-     * @see com.yuep.core.bootstrap.def.module.module.def.Module#getModuleParams()
+     * @see com.sf.core.bootstrap.def.module.module.def.Module#getModuleParams()
      */
     @Override
     public Map<String, String> getModuleParams() {
@@ -65,7 +66,7 @@ public abstract class DefaultModule implements Module,Module4Container{
     }
 
     /**
-     * @see com.yuep.core.bootstrap.def.module.module.def.Module#getModuleStatus()
+     * @see com.sf.core.bootstrap.def.module.module.def.Module#getModuleStatus()
      */
     @Override
     public String getModuleStatus() {
@@ -73,7 +74,7 @@ public abstract class DefaultModule implements Module,Module4Container{
     }
     
     /**
-     * @see com.yuep.core.bootstrap.def.module.module.def.Module#getModuleName()
+     * @see com.sf.core.bootstrap.def.module.module.def.Module#getModuleName()
      */
     @Override
     public String getModuleName() {

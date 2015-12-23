@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ModuleFileLoader.java, 2015-9-20 обнГ04:45:17 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.impl;
 
 import java.io.File;
@@ -19,7 +28,7 @@ import org.apache.commons.io.FileUtils;
  * </p>
  * 
  * @author sufeng
- * created 2010-9-20 обнГ04:45:17
+ * created 2015-9-20 обнГ04:45:17
  * modified [who date description]
  * check [who date description]
  */

@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ContainerClassLoader.java, 2015-12-10 обнГ05:24:34 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.impl.loader;
 
 import java.io.IOException;
@@ -22,7 +31,7 @@ import com.sf.core.bootstrap.impl.module.ModuleDependenceAnalysis;
  * </p>
  * 
  * @author sufeng
- * created 2010-12-10 обнГ05:24:34
+ * created 2015-12-10 обнГ05:24:34
  * modified [who date description]
  * check [who date description]
  */

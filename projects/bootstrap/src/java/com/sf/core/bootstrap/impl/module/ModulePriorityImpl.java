@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ModulePriorityImpl.java, 2015-3-1 обнГ03:01:35 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.impl.module;
 
 import java.util.ArrayList;
@@ -16,7 +25,7 @@ import com.sf.core.bootstrap.def.module.ModulePriority;
  * </p>
  * 
  * @author sufeng
- * created 2011-3-1 обнГ03:01:35
+ * created 2015-3-1 обнГ03:01:35
  * modified [who date description]
  * check [who date description]
  */

@@ -1,4 +1,13 @@
-
+/*
+ * $Id: ClassLoaderManager.java, 2015-12-13 ионГ08:56:22 sufeng Exp $
+ * 
+ *  
+ * All rights reserved.
+ * 
+ * This software is copyrighted and owned by SF or the copyright holder
+ * specified, unless otherwise noted, and may not be reproduced or distributed
+ * in whole or in part in any form or medium without express written permission.
+ */
 package com.sf.core.bootstrap.impl.loader;
 
 import java.net.URL;
@@ -21,7 +30,7 @@ import com.sf.core.bootstrap.impl.BootstrapUtils;
  * </p>
  * 
  * @author sufeng
- * created 2010-12-13 ионГ08:56:22
+ * created 2015-12-13 ионГ08:56:22
  * modified [who date description]
  * check [who date description]
  */
