@@ -103,9 +103,9 @@
             	
             	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
             	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
-			    {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
-			    {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
-			    {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+			        {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+			        {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+			        {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
             	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
             	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
@@ -203,7 +203,7 @@
     						//										   console.log("hello");
     						//										}
     						//							}
-    						    if(e.kind=='betweenRotate'){
+    						if(e.kind=='betweenRotate'){
     						    	var d=g3d.getEye();
     						    	if(d[1]<-100){
     						    	    g3d.setEye(d[0],-100,d[1]);
@@ -217,10 +217,22 @@
                 g3d.mi(function(e){                    
                     if(e.kind=='clickData'){
                     	  console.info('clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId());
-                    	  //text='clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
-                    	  //div.innerHTML = text;
+                    	  text='data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
+                    	  var div1=document.getElementById("clickDiv");
+                    	  div1.style.left=event.clientX+"px";
+                    	  div1.style.top=event.clientY+"px";
+                    	  div1.innerHTML=text;  
                     }
                 });
+                
+                var body = document.body;
+                var div1 = document.createElement("div");
+                div1.id = "clickDiv";
+                div1.style.position="absolute";
+                div1.style.left="700px";
+                div1.style.top="300px";
+                div1.innerHTML="";
+                body.appendChild(div1);
 				
 				if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
@@ -234,7 +246,7 @@
 				}
 				       
 				refreshView();
-            }
+        }
             
 			function refreshView() {
 				view && document.body.removeChild(view);

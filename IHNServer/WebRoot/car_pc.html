@@ -216,10 +216,22 @@
 				        g3d.mi(function(e){                    
                     if(e.kind=='clickData'){
                     	  console.info('clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId());
-                    	  //text='clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
-                    	  //div.innerHTML = text;
+                    	  text='data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
+                    	  var div1=document.getElementById("clickDiv");
+                    	  div1.style.left=event.clientX+"px";
+                    	  div1.style.top=event.clientY+"px";
+                    	  div1.innerHTML=text;
                     }
                 });
+                
+                var body = document.body;
+                var div1 = document.createElement("div");
+                div1.id = "clickDiv";
+                div1.style.position="absolute";
+                div1.style.left="700px";
+                div1.style.top="300px";
+                div1.innerHTML="";
+                body.appendChild(div1);
                 
 				        if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
