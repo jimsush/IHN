@@ -185,11 +185,15 @@
             }
             
             function initView() {
+            	  //div = document.createElement('div');
+                //div.style.background = 'lightyellow';
+                //div.style.position = 'absolute';
+                
                 g2d = new ht.graph.GraphView(dataModel);                   
                 g2d.setTranslate(500, 700);
                 
             	  g3d = new ht.graph3d.Graph3dView(dataModel);
-            	  //g3d.addInteractorListener(function(e){
+            	  g3d.addInteractorListener(function(e){
             	  //	             console.log(e.kind);
     						//							if(e.kind=='endZoom'){
     						//								    var d=g3d.getEye();
@@ -199,10 +203,24 @@
     						//										   console.log("hello");
     						//										}
     						//							}
-								//						});
+    						    if(e.kind=='betweenRotate'){
+    						    	var d=g3d.getEye();
+    						    	if(d[1]<-100){
+    						    	    g3d.setEye(d[0],-100,d[1]);
+    						    	}
+    						    }
+								});
                 g3d.setGridSize(100);
                 g3d.setGridGap(100);
                 g3d.setGridVisible(true);
+                
+                g3d.mi(function(e){                    
+                    if(e.kind=='clickData'){
+                    	  console.info('clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId());
+                    	  //text='clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
+                    	  //div.innerHTML = text;
+                    }
+                });
 				
 				if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
