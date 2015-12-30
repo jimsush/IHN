@@ -218,9 +218,19 @@
                     	  console.info('clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId());
                     	  text='data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
                     	  var div1=document.getElementById("clickDiv");
-                    	  div1.style.left=event.clientX+"px";
-                    	  div1.style.top=event.clientY+"px";
-                    	  div1.innerHTML=text;
+                    	  if(e.data.a('type')=="Car"){
+                    	  	  div1.style.display="block";
+                    	      div1.style.left=event.clientX+"px";
+                    	      div1.style.top=event.clientY+"px";
+                    	      //debugger
+                    	      div1.style.backgroundImage="url(prom.png)";
+                    	      div1.style.zIndex="99";
+                    	      div1.style.width="300px";
+                    	      div1.style.height="350px";
+                    	      //div1.innerHTML=text;
+                    	  }else{
+                    	  	div1.style.display="none";
+                    	  }
                     }
                 });
                 
