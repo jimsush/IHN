@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>3D Parking</title>
+        <title>3D Parking1</title>
         <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
         <style>
             html, body {
@@ -239,7 +239,7 @@
 								
 				            accordionView = new ht.widget.AccordionView();
 				            rightFormPane = new ht.widget.FormPane();
-				            accordionView.add('²Ù×÷¿ØÖÆÌ¨', rightFormPane, true);
+				            accordionView.add('æ“ä½œæ§åˆ¶å°', rightFormPane, true);
 				
 				            initFormPane(rightFormPane);
 				       }
@@ -305,11 +305,11 @@
   					        
                   	if(showInPC==true){
                       	if(type && type == 'Camera') {
-                      		var dialog = '<div><div>Â¥²ã£º</div><div>Î»ÖÃ£º</div><div>×´Ì¬£ºÕı³£</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+                      		var dialog = '<div><div>æ¥¼å±‚ï¼š</div><div>ä½ç½®ï¼š</div><div>çŠ¶æ€ï¼šæ­£å¸¸</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
               	  			  $('body').innerHTML = dialog;
               	  			
               	  			  $(dialog).dialog({
-              	  				      title: 'ÉãÏñÍ·',
+              	  				      title: 'æ‘„åƒå¤´',
               	                autoOpen: true,
               	                height: 405,
               	                width: 435,
@@ -375,11 +375,11 @@
                 
                 var f1BlankCarSpot=createNode('B1_D1#S', [400, 1, -900], [1200, 2, 600], '#3CB371');
                 f1BlankCarSpot.a({'type' : 'Spots', 'floor' : 'B1'});
-                f1BlankCarSpot.setToolTip('<pre>±àºÅ:'+f1BlankCarSpot.getId()
-            	                       +'<p>Àà±ğ:³µÎ»ÇøÓò'
-            	                       +'<p>Â¥²ã:'+floorName
-	            	  	                 +'<p>Î»ÖÃ:400, 0, -900'
-	            	  	                 +'<p>´óĞ¡:1200, 1, 600'
+                f1BlankCarSpot.setToolTip('<pre>ç¼–å·:'+f1BlankCarSpot.getId()
+            	                       +'<p>ç±»åˆ«:è½¦ä½åŒºåŸŸ'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+	            	  	                 +'<p>ä½ç½®:400, 0, -900'
+	            	  	                 +'<p>å¤§å°:1200, 1, 600'
 	            	  	                 +'</pre>');
 	            	  	                 
             	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 1, -900, 1200, 2, 600, f1BlankCarSpot);
@@ -518,11 +518,11 @@
             	  var spotH=2;
             	  var carSpot=createNode('P_'+prefix, [x,y,z], [width, spotH, height], '#3CB371');
             	  carSpot.a({'type': 'Spots', 'floor': floorName });
-            	  carSpot.setToolTip('<pre>±àºÅ:'+carSpot.getId()
-            	                       +'<p>Àà±ğ:³µÎ»ÇøÓò'
-            	                       +'<p>Â¥²ã:'+floorName
-	            	  	                 +'<p>Î»ÖÃ:'+x+' '+y+' '+z
-	            	  	                 +'<p>´óĞ¡:'+width+' '+spotH+' '+height
+            	  carSpot.setToolTip('<pre>ç¼–å·:'+carSpot.getId()
+            	                       +'<p>ç±»åˆ«:è½¦ä½åŒºåŸŸ'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+	            	  	                 +'<p>ä½ç½®:'+x+' '+y+' '+z
+	            	  	                 +'<p>å¤§å°:'+width+' '+spotH+' '+height
 	            	  	                 +'</pre>');
 	            	                 
             	  var area1=createSpotArea(floorName, prefix, x, y, z, width, spotH, height, carSpot);
@@ -567,13 +567,13 @@
 	            	  	'label.font':'60px arial, sans-serif',
 	            	  	'label.background': 'yellow'
 	            	  });
-	            	  spot.setToolTip('<pre>±àºÅ:'+spotId
-            	                       +'<p>Àà±ğ:³µÎ»'
-            	                       +'<p>Â¥²ã:'+floorName
-	            	  	                 +'<p>Î»ÖÃ:'+spotX+' '+spotY+' '+spotZ
-	            	  	                 +'<p>´óĞ¡:'+width+' 1 '+height
-	            	  	                 +'<p>ºá×İÅÅÁĞ:'+direction
-	            	  	                 +'<p>Ç°ºó·½Ïò:'+reversed
+	            	  spot.setToolTip('<pre>ç¼–å·:'+spotId
+            	                       +'<p>ç±»åˆ«:è½¦ä½'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+	            	  	                 +'<p>ä½ç½®:'+spotX+' '+spotY+' '+spotZ
+	            	  	                 +'<p>å¤§å°:'+width+' 1 '+height
+	            	  	                 +'<p>æ¨ªçºµæ’åˆ—:'+direction
+	            	  	                 +'<p>å‰åæ–¹å‘:'+reversed
 	            	  	                 +'</pre>');
             	  }
             	  
@@ -678,14 +678,14 @@
             	beacon1.s({'all.image': 'beacon-front.png'});
             	beacon1.a({'type': 'Beacon', 'floor' : floorName});
             	var bid=(new Date()).getTime()%96;
-            	beacon1.setToolTip('<pre>±àºÅ:'+beacon1.getId()
-            	                       +'<p>Àà±ğ:À¶ÑÀĞÅ±ê'
-            	                       +'<p>Â¥²ã:'+floorName
-            	                       +'<p>ĞÍºÅ:Beacon11'
+            	beacon1.setToolTip('<pre>ç¼–å·:'+beacon1.getId()
+            	                       +'<p>ç±»åˆ«:è“ç‰™ä¿¡æ ‡'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+            	                       +'<p>å‹å·:Beacon11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+bid
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+bid
-	            	  	                 +'<p>×´Ì¬:ºÃ'
-	            	  	                 +'<p>µçÁ¿:100'
+	            	  	                 +'<p>çŠ¶æ€:å¥½'
+	            	  	                 +'<p>ç”µé‡:100'
 	            	  	                 +'</pre>');
             	
             	var block2=createNode('P_'+prefix+"_2",[x, y+hBottom/2, z-height/2], [border, hBottom, border], 'yellow');
@@ -700,14 +700,14 @@
             	beacon2.setHost(block22);
             	beacon2.s({'all.image': 'gateway-front.png'});
             	beacon2.a({'type': 'Beacon', 'floor' : floorName});
-            	beacon2.setToolTip('<pre>±àºÅ:'+beacon2.getId()
-            	                       +'<p>Àà±ğ:À¶ÑÀÍø¹Ø'
-            	                       +'<p>Â¥²ã:'+floorName
-            	                       +'<p>ĞÍºÅ:BeaconGateway11'
+            	beacon2.setToolTip('<pre>ç¼–å·:'+beacon2.getId()
+            	                       +'<p>ç±»åˆ«:è“ç‰™ç½‘å…³'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+            	                       +'<p>å‹å·:BeaconGateway11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+1)
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+1)
-	            	  	                 +'<p>×´Ì¬:ºÃ'
-	            	  	                 +'<p>µçÁ¿:100'
+	            	  	                 +'<p>çŠ¶æ€:å¥½'
+	            	  	                 +'<p>ç”µé‡:100'
 	            	  	                 +'</pre>');
 	            	  	                 
             	var block3=createNode('P_'+prefix+"_3",[x+width/2, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
@@ -722,14 +722,14 @@
             	beacon3.setHost(block33);
             	beacon3.s({'all.image': 'beacon-front.png'});
             	beacon3.a({'type': 'Beacon', 'floor' : floorName});
-            	beacon3.setToolTip('<pre>±àºÅ:'+beacon3.getId()
-            	                       +'<p>Àà±ğ:À¶ÑÀĞÅ±ê'
-            	                       +'<p>Â¥²ã:'+floorName
-            	                       +'<p>ĞÍºÅ:Beacon11'
+            	beacon3.setToolTip('<pre>ç¼–å·:'+beacon3.getId()
+            	                       +'<p>ç±»åˆ«:è“ç‰™ä¿¡æ ‡'
+            	                       +'<p>æ¥¼å±‚:'+floorName
+            	                       +'<p>å‹å·:Beacon11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+2)
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+2)
-	            	  	                 +'<p>×´Ì¬:ºÃ'
-	            	  	                 +'<p>µçÁ¿:100'
+	            	  	                 +'<p>çŠ¶æ€:å¥½'
+	            	  	                 +'<p>ç”µé‡:100'
 	            	  	                 +'</pre>');
             }
             
@@ -841,7 +841,7 @@
             function startParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ã»ÓĞÑ¡ÔñÈÎºÎ³µÎ»!");
+                    alert("æ²¡æœ‰é€‰æ‹©ä»»ä½•è½¦ä½!");
                     return;
                 }
                 
@@ -857,15 +857,15 @@
                 	  parkedFloor=node.getAttr('floor');
                 	  
                 }else{
-                	alert("Ñ¡ÖĞµÄ½Úµã±ØĞëÊÇSpot,¶øÄ¿Ç°ÊÇ"+type);
-                	console.log("Ñ¡ÖĞµÄ½Úµã±ØĞëÊÇSpot,¶øÄ¿Ç°ÊÇ"+type);
+                	alert("é€‰ä¸­çš„èŠ‚ç‚¹å¿…é¡»æ˜¯Spot,è€Œç›®å‰æ˜¯"+type);
+                	console.log("é€‰ä¸­çš„èŠ‚ç‚¹å¿…é¡»æ˜¯Spot,è€Œç›®å‰æ˜¯"+type);
                 }
             }
             
             function leaveParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ã»ÓĞÑ¡ÔñÈÎºÎ³µÁ¾!");
+                    alert("æ²¡æœ‰é€‰æ‹©ä»»ä½•è½¦è¾†!");
                     return;
                 }
                 
@@ -877,15 +877,15 @@
                 	  parkedPosZ=null;
                 	  parkedFloor=null;
                 }else{
-                	console.log("Ñ¡ÖĞµÄ½Úµã±ØĞëÊÇCar,¶øÄ¿Ç°ÊÇ"+type);
-                	alert("Ã»ÓĞÑ¡ÔñÈÎºÎ³µÁ¾!");
+                	console.log("é€‰ä¸­çš„èŠ‚ç‚¹å¿…é¡»æ˜¯Car,è€Œç›®å‰æ˜¯"+type);
+                	alert("æ²¡æœ‰é€‰æ‹©ä»»ä½•è½¦è¾†!");
                 }
             }
             
             function clearSpots(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ã»ÓĞÑ¡ÔñÈÎºÎ³µÎ»ÇøÓò!");
+                    alert("æ²¡æœ‰é€‰æ‹©ä»»ä½•è½¦ä½åŒºåŸŸ!");
                     return;
                 }
                 
@@ -903,8 +903,8 @@
                 	       dataModel.remove(children2[i]);
                 	   }
                 }else{
-                	console.log("Ñ¡ÖĞµÄ½Úµã±ØĞëÊÇSpots,¶øÄ¿Ç°ÊÇ"+type);
-                	alert("Ã»ÓĞÑ¡ÔñÈÎºÎ³µÎ»ÇøÓò!");
+                	console.log("é€‰ä¸­çš„èŠ‚ç‚¹å¿…é¡»æ˜¯Spots,è€Œç›®å‰æ˜¯"+type);
+                	alert("æ²¡æœ‰é€‰æ‹©ä»»ä½•è½¦ä½åŒºåŸŸ!");
                 }
             }
                         
@@ -919,17 +919,17 @@
             	      srcNode=dataModel.getSelectionModel().getLastData();
             	  }
                 if(!srcNode){
-                    alert("ÎŞ·¨¶¨Î»µ±Ç°Î»ÖÃ,ÇëÏÈÑ¡ÔñÒ»¸öÎïÌå×÷ÎªÆğµã!");
+                    alert("æ— æ³•å®šä½å½“å‰ä½ç½®,è¯·å…ˆé€‰æ‹©ä¸€ä¸ªç‰©ä½“ä½œä¸ºèµ·ç‚¹!");
                     return;
                 }
                 
                 var shopname=keywords.toUpperCase();
                 var destX, destZ;
             	  if(shopname.indexOf('COFFEE')>=0 || shopname.indexOf('CAFE')>=0 
-              	   || shopname.indexOf('¿§·È')>=0 || shopname.indexOf('ÒûÁÏ')>=0
+              	   || shopname.indexOf('å’–å•¡')>=0 || shopname.indexOf('é¥®æ–™')>=0
               	   || shopname.indexOf('FOOD')>=0 || shopname.indexOf('KFC')>=0 
-              	   || shopname.indexOf('¿ÏµÂ»ù')>=0 || shopname.indexOf('²ÍÌü')>=0
-              	   || shopname.indexOf('³Ô·¹')>=0 || shopname.indexOf('Ê³Æ·')>=0){
+              	   || shopname.indexOf('è‚¯å¾·åŸº')>=0 || shopname.indexOf('é¤å…')>=0
+              	   || shopname.indexOf('åƒé¥­')>=0 || shopname.indexOf('é£Ÿå“')>=0){
               	   	destX=-400;
               		  destZ=-300; //destVertexName='p782';
               	}else{
@@ -989,7 +989,7 @@
             	  
             	  var destNode=dataModel.getSelectionModel().getLastData();
             	  if(!destNode){
-                    alert("ÇëÏÈÑ¡ÔñÒ»¸öÎïÌå×÷ÎªÖÕµã!");
+                    alert("è¯·å…ˆé€‰æ‹©ä¸€ä¸ªç‰©ä½“ä½œä¸ºç»ˆç‚¹!");
                     return;
                 }
 
@@ -1068,7 +1068,7 @@
           function createNewSpots(direction, prefixId, rows, columns){
               var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("ÇëÑ¡ÔñÒ»¿éĞÂµÄÍ£³µÇøÓò£¡");
+                    alert("è¯·é€‰æ‹©ä¸€å—æ–°çš„åœè½¦åŒºåŸŸï¼");
                     return;
                 }
                 
@@ -1090,14 +1090,14 @@
                 	  	  }
                 	  }
                 }else{
-                	alert("ÇëÑ¡ÔñÒ»¿éĞÂµÄÍ£³µÇøÓò£¡");
+                	alert("è¯·é€‰æ‹©ä¸€å—æ–°çš„åœè½¦åŒºåŸŸï¼");
                 }
           }
           
           function mockAlarm(createOrClear){
               var node=dataModel.getSelectionModel().getLastData();
               if(!node){
-                    alert("ÇëÑ¡ÔñÒ»¸ö½Úµã£¡");
+                    alert("è¯·é€‰æ‹©ä¸€ä¸ªèŠ‚ç‚¹ï¼");
                     return;
               }
               if(createOrClear==true){
