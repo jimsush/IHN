@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>3D Parking1</title>
+        <title>3D Parking</title>
         <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
         <style>
             html, body {
@@ -30,9 +30,9 @@
         </script> 
         
         <link rel="stylesheet" href="styles/jquery-ui.css">
-	      <link rel="stylesheet" href="styles/ihn.css">
-	      <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
-	      <script type="text/javascript" src = "scripts/libs/jquery/jquery-ui-min.js"></script>
+        <link rel="stylesheet" href="styles/ihn.css">
+        <script type="text/javascript" src = "scripts/libs/jquery/jquery-min.js"></script>
+        <script type="text/javascript" src = "scripts/libs/jquery/jquery-ui-min.js"></script>
 	      
         <script src="scripts/libs/ht/core/ht.js"></script>   
         <script src="scripts/libs/ht/plugin/ht-form.js"></script> 
@@ -53,7 +53,7 @@
         
         <script>
         	     
-        	  rawS3=null;
+            rawS3=null;
             hideFloors=new Array();
             currentPath=null;
             start=null;
@@ -63,11 +63,11 @@
             showInPC=true;
             orientLandscape=true;
             show2D=false;
-			      view=null;
+            view=null;
 			      
-			      curMyPosNode=null;
-			      curMyPosNodeArrow=null;
-			      shadow1=null;
+            curMyPosNode=null;
+            curMyPosNodeArrow=null;
+            shadow1=null;
 			      currentNavPath=null;
 			      
 			      curPosX=null;
@@ -80,11 +80,11 @@
 			      parkedFloor=null;
 
             var url2 = location.search;
-			      if(url2==null || url2==''){
-			      	  orientLandscape=false;
-			      }else{
-			      	  orientLandscape=true;
-			      }
+            if(url2==null || url2==''){
+                orientLandscape=false;
+            }else{
+                orientLandscape=true;
+            }
 			      
             lanePoints=new Array( 
             	{name: 'p1', position: new Array(-1500,-2850), distance:{p3:800, p121: 750} },
@@ -101,9 +101,9 @@
             	
             	{name: 'p5', position: new Array(-1500, -1250), distance:{p3:800, p7:800, p561: 750} },
             	{name: 'p561', position: new Array(-750, -1250), distance:{p5:750, p562:530, p781:790} },
-				      {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
-				      {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
-				      {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
+                {name: 'p562', position: new Array(-220, -1250), distance:{p561:530, p563:220, p782:790} },
+                {name: 'p563', position: new Array(0, -1250), distance:{p562:220, p564:750} },
+                {name: 'p564', position: new Array(750, -1250), distance:{p563:970, p6:750} },
             	{name: 'p6', position: new Array(1500, -1250), distance:{p4:800, p8:800, p563: 750} },
             	
             	{name: 'p7', position: new Array(-1500, -560), distance:{p5:800, p9:800, p781:750} },
@@ -120,7 +120,7 @@
             );
             
             function init(){ 
-            	  initLoadImage_parkview();
+                initLoadImage_parkview();
             	
                 initAlarmImage_parkview();
 
@@ -140,16 +140,16 @@
             function reset(){
                 if(showInPC==true){
                 	  g2d.setZoom(0.2);
-								    g3d.setEye([0, 1800, 2000]);
-								}else{
-									  if(show2D==false){
+                          g3d.setEye([0, 1800, 2000]);
+                }else{
+                    if(show2D==false){
 									  	// 3d
 										  if(orientLandscape==true){
 										      g3d.setEye([0, 1500, 1600]);
 										  }else{
 	                        g3d.setEye([0, 4000, 2800]);
 	                    }
-                    }else{
+                }else{
                        // 2d
                       if(orientLandscape==true){
 										      g2d.setTranslate(305, 545);
@@ -183,7 +183,6 @@
             }
             
             function initView() {
-            	  //div = document.createElement('div');
                 //div.style.background = 'lightyellow';
                 //div.style.position = 'absolute';
                 
@@ -201,33 +200,29 @@
     						//										   console.log("hello");
     						//										}
     						//							}
-    						    if(e.kind=='betweenRotate'){
-    						    	var d=g3d.getEye();
-    						    	if(d[1]<-100){
-    						    	    g3d.setEye(d[0],-100,d[1]);
-    						    	}
-    						    }
-								});
+                    if(e.kind=='betweenRotate'){
+                        var d=g3d.getEye();
+                        if(d[1]<-100){
+                            //g3d.setEye(d[0],-100,d[1]);
+                        }
+                    }
+                });
 								
                 g3d.setGridSize(100);
                 g3d.setGridGap(100);
                 g3d.setGridVisible(true);
                 
-				        g3d.mi(function(e){                    
+                g3d.mi(function(e){                    
                     if(e.kind=='clickData'){
                     	  console.info('clickData: part='+e.part+' data.a.type='+e.data.a('type')+' data.id='+e.data.getId());
                     	  text='data.a.type='+e.data.a('type')+' data.id='+e.data.getId();
                     	  var div1=document.getElementById("clickDiv");
                     	  if(e.data.a('type')=="Car"){
-                    	  	  div1.style.display="block";
+                              div1.style.display="block";
                     	      div1.style.left=event.clientX+"px";
                     	      div1.style.top=event.clientY+"px";
                     	      //debugger
-                    	      div1.style.backgroundImage="url(prom.png)";
-                    	      div1.style.zIndex="99";
-                    	      div1.style.width="300px";
-                    	      div1.style.height="350px";
-                    	      //div1.innerHTML=text;
+                    	      //div1.innerHTML="";
                     	  }else{
                     	  	div1.style.display="none";
                     	  }
@@ -240,26 +235,32 @@
                 div1.style.position="absolute";
                 div1.style.left="700px";
                 div1.style.top="300px";
+                div1.style.zIndex="99";
+                div1.style.width="300px";
+                div1.style.height="350px";
+                div1.style.backgroundImage="url(prom.png)";
+                div1.style.boxShadow="rgba(0,0,0,0.34902) 0px 0px 3px";
+                div1.style.display="none";
                 div1.innerHTML="";
                 body.appendChild(div1);
                 
-				        if(showInPC==true){ 
+                if(showInPC==true){ 
                     borderPane = new ht.widget.BorderPane();
                     borderPane.setTopView(toolbar);
 								
 				            accordionView = new ht.widget.AccordionView();
 				            rightFormPane = new ht.widget.FormPane();
-				            accordionView.add('Êìç‰ΩúÊéßÂà∂Âè∞', rightFormPane, true);
+				            accordionView.add('≤Ÿ◊˜øÿ÷∆Ã®', rightFormPane, true);
 				
 				            initFormPane(rightFormPane);
-				       }
+                }
 				       
-				       refreshView();
-       }
+		refreshView();
+            }
             
-			function refreshView() {
-				       view && document.body.removeChild(view);
-				       if(show2D == true) {
+            function refreshView() {
+                view && document.body.removeChild(view);
+                if(show2D == true) {
                 	graphView = g2d;
                 } else  {
                 	graphView = g3d;
@@ -284,8 +285,8 @@
                 });
                 
                 if(showInPC==true){
-					          borderPane.setCenterView(graphView);
-				            mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
+                    borderPane.setCenterView(graphView);
+                    mainSplit = new ht.widget.SplitView(borderPane, accordionView, 'horizontal', -260);
                     view = mainSplit.getView();
                 }else{
                 	  // in mobile
@@ -293,9 +294,9 @@
                 }
                 
                 view.className = 'main';
-				        document.body.appendChild(view);
+                document.body.appendChild(view);
                 window.addEventListener('resize', function (e) {
-                	  if(showInPC==true){ 
+                    if(showInPC==true){ 
                         borderPane.invalidate();
                     }else{
                     	  graphView.invalidate();
@@ -303,7 +304,7 @@
                 }, false);
                 
                 graphView.setMovableFunc(function(data){
-                	  if(showInPC==true){ 
+                    if(showInPC==true){ 
                        return rightFormPane.v('movable');
                     }else{
                     	 return false;
@@ -311,24 +312,24 @@
                 });
 
                 graphView.onDataDoubleClicked = function(data, e, dataInfo){
-  					        var type = data && data.getAttr('type');
+                var type = data && data.getAttr('type');
   					        
                   	if(showInPC==true){
                       	if(type && type == 'Camera') {
-                      		var dialog = '<div><div>Ê•ºÂ±ÇÔºö</div><div>‰ΩçÁΩÆÔºö</div><div>Áä∂ÊÄÅÔºöÊ≠£Â∏∏</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
-              	  			  $('body').innerHTML = dialog;
+                      		var dialog = '<div><div>¬•≤„£∫</div><div>Œª÷√£∫</div><div>◊¥Ã¨£∫’˝≥£</div><div class="ihn-vedio-play"><div class="ihn-vedio-play-start"></div></div></div>';
+                                $('body').innerHTML = dialog;
               	  			
-              	  			  $(dialog).dialog({
-              	  				      title: 'ÊëÑÂÉèÂ§¥',
+                                $(dialog).dialog({
+                                title: '…„œÒÕ∑',
               	                autoOpen: true,
               	                height: 405,
               	                width: 435,
               	                modal: true,
               	                close: function() {
-								                   $('.ihn-vedio-play #camvideo')[0].pause();
-								                   $(this).dialog( "close" );
+                                    $('.ihn-vedio-play #camvideo')[0].pause();
+                                    $(this).dialog( "close" );
               	                }
-              	  			  });
+                                });
                 	  			
               	  			  $('.ihn-vedio-play-start').on('click', function() {
                 	  				$('.ihn-vedio-play').empty();
@@ -385,11 +386,11 @@
                 
                 var f1BlankCarSpot=createNode('B1_D1#S', [400, 1, -900], [1200, 2, 600], '#3CB371');
                 f1BlankCarSpot.a({'type' : 'Spots', 'floor' : 'B1'});
-                f1BlankCarSpot.setToolTip('<pre>ÁºñÂè∑:'+f1BlankCarSpot.getId()
-            	                       +'<p>Á±ªÂà´:ËΩ¶‰ΩçÂå∫Âüü'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-	            	  	                 +'<p>‰ΩçÁΩÆ:400, 0, -900'
-	            	  	                 +'<p>Â§ßÂ∞è:1200, 1, 600'
+                f1BlankCarSpot.setToolTip('<pre>±‡∫≈:'+f1BlankCarSpot.getId()
+            	                       +'<p>¿‡±:≥µŒª«¯”Ú'
+            	                       +'<p>¬•≤„:'+floorName
+	            	  	                 +'<p>Œª÷√:400, 0, -900'
+	            	  	                 +'<p>¥Û–°:1200, 1, 600'
 	            	  	                 +'</pre>');
 	            	  	                 
             	  var f1BlankArea=createSpotArea(floorName, 'B1_D1#A', 400, 1, -900, 1200, 2, 600, f1BlankCarSpot);
@@ -528,11 +529,11 @@
             	  var spotH=2;
             	  var carSpot=createNode('P_'+prefix, [x,y,z], [width, spotH, height], '#3CB371');
             	  carSpot.a({'type': 'Spots', 'floor': floorName });
-            	  carSpot.setToolTip('<pre>ÁºñÂè∑:'+carSpot.getId()
-            	                       +'<p>Á±ªÂà´:ËΩ¶‰ΩçÂå∫Âüü'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-	            	  	                 +'<p>‰ΩçÁΩÆ:'+x+' '+y+' '+z
-	            	  	                 +'<p>Â§ßÂ∞è:'+width+' '+spotH+' '+height
+            	  carSpot.setToolTip('<pre>±‡∫≈:'+carSpot.getId()
+            	                       +'<p>¿‡±:≥µŒª«¯”Ú'
+            	                       +'<p>¬•≤„:'+floorName
+	            	  	                 +'<p>Œª÷√:'+x+' '+y+' '+z
+	            	  	                 +'<p>¥Û–°:'+width+' '+spotH+' '+height
 	            	  	                 +'</pre>');
 	            	                 
             	  var area1=createSpotArea(floorName, prefix, x, y, z, width, spotH, height, carSpot);
@@ -577,13 +578,13 @@
 	            	  	'label.font':'60px arial, sans-serif',
 	            	  	'label.background': 'yellow'
 	            	  });
-	            	  spot.setToolTip('<pre>ÁºñÂè∑:'+spotId
-            	                       +'<p>Á±ªÂà´:ËΩ¶‰Ωç'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-	            	  	                 +'<p>‰ΩçÁΩÆ:'+spotX+' '+spotY+' '+spotZ
-	            	  	                 +'<p>Â§ßÂ∞è:'+width+' 1 '+height
-	            	  	                 +'<p>Ê®™Á∫µÊéíÂàó:'+direction
-	            	  	                 +'<p>ÂâçÂêéÊñπÂêë:'+reversed
+	            	  spot.setToolTip('<pre>±‡∫≈:'+spotId
+            	                       +'<p>¿‡±:≥µŒª'
+            	                       +'<p>¬•≤„:'+floorName
+	            	  	                 +'<p>Œª÷√:'+spotX+' '+spotY+' '+spotZ
+	            	  	                 +'<p>¥Û–°:'+width+' 1 '+height
+	            	  	                 +'<p>∫·◊›≈≈¡–:'+direction
+	            	  	                 +'<p>«∞∫Û∑ΩœÚ:'+reversed
 	            	  	                 +'</pre>');
             	  }
             	  
@@ -688,14 +689,14 @@
             	beacon1.s({'all.image': 'beacon-front.png'});
             	beacon1.a({'type': 'Beacon', 'floor' : floorName});
             	var bid=(new Date()).getTime()%96;
-            	beacon1.setToolTip('<pre>ÁºñÂè∑:'+beacon1.getId()
-            	                       +'<p>Á±ªÂà´:ËìùÁâô‰ø°Ê†á'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-            	                       +'<p>ÂûãÂè∑:Beacon11'
+            	beacon1.setToolTip('<pre>±‡∫≈:'+beacon1.getId()
+            	                       +'<p>¿‡±:¿∂—¿–≈±Í'
+            	                       +'<p>¬•≤„:'+floorName
+            	                       +'<p>–Õ∫≈:Beacon11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+bid
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+bid
-	            	  	                 +'<p>Áä∂ÊÄÅ:Â•Ω'
-	            	  	                 +'<p>ÁîµÈáè:100'
+	            	  	                 +'<p>◊¥Ã¨:∫√'
+	            	  	                 +'<p>µÁ¡ø:100'
 	            	  	                 +'</pre>');
             	
             	var block2=createNode('P_'+prefix+"_2",[x, y+hBottom/2, z-height/2], [border, hBottom, border], 'yellow');
@@ -710,14 +711,14 @@
             	beacon2.setHost(block22);
             	beacon2.s({'all.image': 'gateway-front.png'});
             	beacon2.a({'type': 'Beacon', 'floor' : floorName});
-            	beacon2.setToolTip('<pre>ÁºñÂè∑:'+beacon2.getId()
-            	                       +'<p>Á±ªÂà´:ËìùÁâôÁΩëÂÖ≥'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-            	                       +'<p>ÂûãÂè∑:BeaconGateway11'
+            	beacon2.setToolTip('<pre>±‡∫≈:'+beacon2.getId()
+            	                       +'<p>¿‡±:¿∂—¿Õ¯πÿ'
+            	                       +'<p>¬•≤„:'+floorName
+            	                       +'<p>–Õ∫≈:BeaconGateway11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+1)
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+1)
-	            	  	                 +'<p>Áä∂ÊÄÅ:Â•Ω'
-	            	  	                 +'<p>ÁîµÈáè:100'
+	            	  	                 +'<p>◊¥Ã¨:∫√'
+	            	  	                 +'<p>µÁ¡ø:100'
 	            	  	                 +'</pre>');
 	            	  	                 
             	var block3=createNode('P_'+prefix+"_3",[x+width/2, y+hBottom/2, z-height/2],[border, hBottom, border],'yellow');
@@ -732,14 +733,14 @@
             	beacon3.setHost(block33);
             	beacon3.s({'all.image': 'beacon-front.png'});
             	beacon3.a({'type': 'Beacon', 'floor' : floorName});
-            	beacon3.setToolTip('<pre>ÁºñÂè∑:'+beacon3.getId()
-            	                       +'<p>Á±ªÂà´:ËìùÁâô‰ø°Ê†á'
-            	                       +'<p>Ê•ºÂ±Ç:'+floorName
-            	                       +'<p>ÂûãÂè∑:Beacon11'
+            	beacon3.setToolTip('<pre>±‡∫≈:'+beacon3.getId()
+            	                       +'<p>¿‡±:¿∂—¿–≈±Í'
+            	                       +'<p>¬•≤„:'+floorName
+            	                       +'<p>–Õ∫≈:Beacon11'
 	            	  	                 +'<p>UUID:00001101-0000-1000-8000-00805F9B'+(bid+2)
 	            	  	                 +'<p>MAC:0F-12-34-56-78-'+(bid+2)
-	            	  	                 +'<p>Áä∂ÊÄÅ:Â•Ω'
-	            	  	                 +'<p>ÁîµÈáè:100'
+	            	  	                 +'<p>◊¥Ã¨:∫√'
+	            	  	                 +'<p>µÁ¡ø:100'
 	            	  	                 +'</pre>');
             }
             
@@ -851,7 +852,7 @@
             function startParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ê≤°ÊúâÈÄâÊã©‰ªª‰ΩïËΩ¶‰Ωç!");
+                    alert("√ª”–—°‘Ò»Œ∫Œ≥µŒª!");
                     return;
                 }
                 
@@ -867,15 +868,15 @@
                 	  parkedFloor=node.getAttr('floor');
                 	  
                 }else{
-                	alert("ÈÄâ‰∏≠ÁöÑËäÇÁÇπÂøÖÈ°ªÊòØSpot,ËÄåÁõÆÂâçÊòØ"+type);
-                	console.log("ÈÄâ‰∏≠ÁöÑËäÇÁÇπÂøÖÈ°ªÊòØSpot,ËÄåÁõÆÂâçÊòØ"+type);
+                	alert("—°÷–µƒΩ⁄µ„±ÿ–Î «Spot,∂¯ƒø«∞ «"+type);
+                	console.log("—°÷–µƒΩ⁄µ„±ÿ–Î «Spot,∂¯ƒø«∞ «"+type);
                 }
             }
             
             function leaveParking(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ê≤°ÊúâÈÄâÊã©‰ªª‰ΩïËΩ¶ËæÜ!");
+                    alert("√ª”–—°‘Ò»Œ∫Œ≥µ¡æ!");
                     return;
                 }
                 
@@ -887,15 +888,15 @@
                 	  parkedPosZ=null;
                 	  parkedFloor=null;
                 }else{
-                	console.log("ÈÄâ‰∏≠ÁöÑËäÇÁÇπÂøÖÈ°ªÊòØCar,ËÄåÁõÆÂâçÊòØ"+type);
-                	alert("Ê≤°ÊúâÈÄâÊã©‰ªª‰ΩïËΩ¶ËæÜ!");
+                	console.log("—°÷–µƒΩ⁄µ„±ÿ–Î «Car,∂¯ƒø«∞ «"+type);
+                	alert("√ª”–—°‘Ò»Œ∫Œ≥µ¡æ!");
                 }
             }
             
             function clearSpots(){
                 var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("Ê≤°ÊúâÈÄâÊã©‰ªª‰ΩïËΩ¶‰ΩçÂå∫Âüü!");
+                    alert("√ª”–—°‘Ò»Œ∫Œ≥µŒª«¯”Ú!");
                     return;
                 }
                 
@@ -913,8 +914,8 @@
                 	       dataModel.remove(children2[i]);
                 	   }
                 }else{
-                	console.log("ÈÄâ‰∏≠ÁöÑËäÇÁÇπÂøÖÈ°ªÊòØSpots,ËÄåÁõÆÂâçÊòØ"+type);
-                	alert("Ê≤°ÊúâÈÄâÊã©‰ªª‰ΩïËΩ¶‰ΩçÂå∫Âüü!");
+                	console.log("—°÷–µƒΩ⁄µ„±ÿ–Î «Spots,∂¯ƒø«∞ «"+type);
+                	alert("√ª”–—°‘Ò»Œ∫Œ≥µŒª«¯”Ú!");
                 }
             }
                         
@@ -929,17 +930,17 @@
             	      srcNode=dataModel.getSelectionModel().getLastData();
             	  }
                 if(!srcNode){
-                    alert("Êó†Ê≥ïÂÆö‰ΩçÂΩìÂâç‰ΩçÁΩÆ,ËØ∑ÂÖàÈÄâÊã©‰∏Ä‰∏™Áâ©‰Ωì‰Ωú‰∏∫Ëµ∑ÁÇπ!");
+                    alert("Œﬁ∑®∂®Œªµ±«∞Œª÷√,«Îœ»—°‘Ò“ª∏ˆŒÔÃÂ◊˜Œ™∆µ„!");
                     return;
                 }
                 
                 var shopname=keywords.toUpperCase();
                 var destX, destZ;
             	  if(shopname.indexOf('COFFEE')>=0 || shopname.indexOf('CAFE')>=0 
-              	   || shopname.indexOf('ÂíñÂï°')>=0 || shopname.indexOf('È•ÆÊñô')>=0
+              	   || shopname.indexOf('øß∑»')>=0 || shopname.indexOf('“˚¡œ')>=0
               	   || shopname.indexOf('FOOD')>=0 || shopname.indexOf('KFC')>=0 
-              	   || shopname.indexOf('ËÇØÂæ∑Âü∫')>=0 || shopname.indexOf('È§êÂéÖ')>=0
-              	   || shopname.indexOf('ÂêÉÈ•≠')>=0 || shopname.indexOf('È£üÂìÅ')>=0){
+              	   || shopname.indexOf('øœµ¬ª˘')>=0 || shopname.indexOf('≤ÕÃ¸')>=0
+              	   || shopname.indexOf('≥‘∑π')>=0 || shopname.indexOf(' ≥∆∑')>=0){
               	   	destX=-400;
               		  destZ=-300; //destVertexName='p782';
               	}else{
@@ -999,7 +1000,7 @@
             	  
             	  var destNode=dataModel.getSelectionModel().getLastData();
             	  if(!destNode){
-                    alert("ËØ∑ÂÖàÈÄâÊã©‰∏Ä‰∏™Áâ©‰Ωì‰Ωú‰∏∫ÁªàÁÇπ!");
+                    alert("«Îœ»—°‘Ò“ª∏ˆŒÔÃÂ◊˜Œ™÷’µ„!");
                     return;
                 }
 
@@ -1078,7 +1079,7 @@
           function createNewSpots(direction, prefixId, rows, columns){
               var node=dataModel.getSelectionModel().getLastData();
                 if(!node){
-                    alert("ËØ∑ÈÄâÊã©‰∏ÄÂùóÊñ∞ÁöÑÂÅúËΩ¶Âå∫ÂüüÔºÅ");
+                    alert("«Î—°‘Ò“ªøÈ–¬µƒÕ£≥µ«¯”Ú£°");
                     return;
                 }
                 
@@ -1100,14 +1101,14 @@
                 	  	  }
                 	  }
                 }else{
-                	alert("ËØ∑ÈÄâÊã©‰∏ÄÂùóÊñ∞ÁöÑÂÅúËΩ¶Âå∫ÂüüÔºÅ");
+                	alert("«Î—°‘Ò“ªøÈ–¬µƒÕ£≥µ«¯”Ú£°");
                 }
           }
           
           function mockAlarm(createOrClear){
               var node=dataModel.getSelectionModel().getLastData();
               if(!node){
-                    alert("ËØ∑ÈÄâÊã©‰∏Ä‰∏™ËäÇÁÇπÔºÅ");
+                    alert("«Î—°‘Ò“ª∏ˆΩ⁄µ„£°");
                     return;
               }
               if(createOrClear==true){
@@ -1160,4 +1161,4 @@
     <body onload="init();">                        
     </body>
     
-</html> 
+</html>
