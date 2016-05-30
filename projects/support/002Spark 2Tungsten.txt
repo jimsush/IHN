@@ -1,0 +1,5 @@
+whole stage code generation比Spark1.x的code gen要高效。
+
+code gen 1.x:expression evalution
+
+elimiate virutal function invocation; cache; cpu cache line...
