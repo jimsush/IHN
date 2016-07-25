@@ -1,0 +1,3 @@
+certutil -encode inputFileName encodedOutputFileName
+
+certutil -decode encodedInputFileName decodedOutputFileName
