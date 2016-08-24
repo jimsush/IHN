@@ -1,4 +1,6 @@
-1. Apache Kylin, big data analytics engine on Hadoop, it provideds SQL and OLAP interfaces. It is originally invented by eBay.
+# Apache Kylin
+
+   big data analytics engine on Hadoop, it provideds SQL and OLAP interfaces. It is originally invented by eBay.
     
     China Beijing mobile: 
     30B rows and 4TB per day, and total capacity is 400TB. 800 jobs are running per day, so the hadoop cluster is very busy
@@ -23,7 +25,8 @@
     
     
 
-2. Apache Flink - batch and stream processing
+# Apache Flink - batch and stream processing
+
 Like Spark Streaming, but Spark Streaming is based on micro-batching.
 Flink core is a streaming data flow engine, it treats the batch with limited stream
 
@@ -41,11 +44,12 @@ spark把streaming看成是更快的批处理，而flink把批处理看成streami
 
 Spark streaming 是更快的批处理，而Flink Batch是有限数据的流式计算。虽然大部分应用对准实时是可以接受的，但是也还是有很多应用需要event level的流式计算。这些应用更愿意选择storm而非spark streaming，现在，flink也许是一个更好的选择。
 
-. 对 windowing 的支持
+* 对 windowing 的支持
+
 因为spark的小批量机制，spark对于windowing的支持非常有限。只能基于process time，且只能对batches来做window。
 而Flink对window的支持非常到位，且Flink对windowing API的支持是相当给力的，允许基于process time,data time,record 来做windowing。
 
-3. Aliyun ARMS PaaS(application real-time monitoring service)
+#  Aliyun ARMS PaaS(application real-time monitoring service)
 It seems it is like ELK but stronger, it combined logging analysis, dashboard and data computation.
 
 
