@@ -37,7 +37,7 @@ RDD在运行时是表现为java objects的。通过引入Tungsten，这块有了
 flink中的Dataset，对标spark中的Dataframe，在运行前会经过优化。
 在spark 1.6，dataset API已经被引入spark了，也许最终会取代RDD 抽象。
 
-spark把streaming看成是更快的批处理，而flink把批处理看成streaming的special case; flink提供了基于每个事件的流式处理机制，所以可以被认为是一个真正的流式计算。它非常像storm的model。
+spark把streaming看成是更快的批处理，而flink把批处理看成streaming的special case，它用的datastream，这与dataset是2个引擎。 flink提供了基于每个事件的流式处理机制，所以可以被认为是一个真正的流式计算。它非常像storm的model。
 而spark，不是基于事件的粒度，而是用小批量来模拟流式，也就是多个事件的集合。所以spark被认为是近实时的处理系统。
 
 Spark streaming 是更快的批处理，而Flink Batch是有限数据的流式计算。虽然大部分应用对准实时是可以接受的，但是也还是有很多应用需要event level的流式计算。这些应用更愿意选择storm而非spark streaming，现在，flink也许是一个更好的选择。
