@@ -52,4 +52,8 @@ Spark streaming 是更快的批处理，而Flink Batch是有限数据的流式�
 #  Aliyun ARMS PaaS(application real-time monitoring service)
 It seems it is like ELK but stronger, it combined logging analysis, dashboard and data computation.
 
+# Kudu
+
+
+# Apache ignite
 
