@@ -23,8 +23,7 @@
     
     
 
-2. Apache Flink
-3. Apache Flink: batch and stream processing
+2. Apache Flink - batch and stream processing
 Like Spark Streaming, but Spark Streaming is based on micro-batching.
 Flink core is a streaming data flow engine, it treats the batch with limited stream
 
