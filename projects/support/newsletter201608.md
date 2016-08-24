@@ -46,6 +46,7 @@ Spark streaming 是更快的批处理，而Flink Batch是有限数据的流式�
 因为spark的小批量机制，spark对于windowing的支持非常有限。只能基于process time，且只能对batches来做window。
 而Flink对window的支持非常到位，且Flink对windowing API的支持是相当给力的，允许基于process time,data time,record 来做windowing。
 
-
+3. Aliyun ARMS PaaS(application real-time monitoring service)
+It seems it is like ELK but stronger, it combined logging analysis, dashboard and data computation.
 
 
