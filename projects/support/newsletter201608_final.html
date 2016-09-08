@@ -1,0 +1,134 @@
+<html>
+<head>
+<style type="text/css">
+			*{
+				margin-top: 2px;
+				font-weight:normal;
+				font-size: 14px;
+				font-family: Arial;
+				padding-top:5px;
+				padding-bottom:5px;
+				color: rgb(115,86,90);
+			}
+			a {
+				color: rgb(0,128,255);
+			}
+
+			#content {
+				float: left;
+				margin-left: 10px;
+				width: 800px;
+				background-color: white;
+			}
+			
+			img.left {
+				width: 120px;
+			}
+			li {
+				padding-top: 10px;
+				padding-bottom: 5px;
+				font-weight: bold;
+				font-size: 14px;
+				color: rgb(0,0,101);
+			}
+			table{
+				border-spacing:20px;
+			}
+			td {
+				padding-left: 5px;
+				padding-right: 5px;
+			}
+			td.block {
+				background-color: rgb(248,248,248);
+			}
+			p.header_footer{
+				padding-right: 20px;
+				background-color: rgb(248,248,248);
+			}
+			a.title{
+				color:rgb(0,0,101);
+				font-weight: bold;
+			}
+
+		</style>
+</head>
+<body>
+
+<table style="width:800px">
+<tr width="100%">
+<td width="100%">
+
+<div id="content">
+<p align="right" class="header_footer">China Technologies Newsletter in August, 2016</p>
+
+<p width="100%"><img src="banner1.png" width="100%"></p>
+
+<table>
+<tr>
+
+<!--Industry News -->
+<td><img src="news1.png" class="left"></td>
+<td class="block">
+<li><a href="http://finance.sina.com.cn/roll/2016-06-07/doc-ifxsvexw8574763.shtml" class="title">Shenzhen Stock Exchange migrated its trading system to Linux</a>
+<p><img src="stock_logo.png" style="float:right">&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.szse.cn/main/en/">Shenzhen Stock Exchange</a> upgraded its trading system to the next generation recently, they totally migrated the infrastructure from non-stop mainframe to X86 Linux clusters, the processing pattern is also turned from traditional centralized processing into distributed processing. For the new infrastructure, there are about 400 Linux machines deployed on multiple locations and data centers to support the FI, Equity, Fund and Derivative business and 300 million accounts.
+The software architecture of trading system is redesigned as well, they named it as ‘large-scale distributed parallel computation architecture on high-speed message bus’. After the combination of changes of infrastructure and software architecture, it gained a new generation trading system with better performance and 2/3 cost saving.      <a href="http://finance.sina.com.cn/roll/2016-06-07/doc-ifxsvexw8574763.shtml">[more…]</a>
+</td>
+</tr>
+
+<tr>
+<!--New Technologies & Products-->
+<td><img src="newtech1.jpg" class="left"></td>
+<td class="block">
+<li><a href="http://www.paddlepaddle.org/" class="title">Baidu open sources its deep learning framework Paddle</a>
+
+<p><img src="paddle.png" style="float:right"> &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.baidu.com">Baidu</a>, a massive Chinese web company along the lines of Google, open sources its distributed deep learning platform Paddle and put it into <a href="https://github.com/baidu/Paddle">github</a>. As we know, Baidu invested much more on the cutting-edge technologies recently that is impacting its search and FinTech business.
+As they announced in <a href="http://www.paddlepaddle.org/">official web site</a>, Paddle is an open and easy-to-use deep learning platform for enterprise and research,  it aims to provide a high effective framework for large scale deep learning and reduce the learning curve for developers. It is similar to <a href="https://www.tensorflow.org/">Google TensorFlow</a> but has more clear and clean source code and APIs, the performance is better than other competitors as well.            <a href="http://www.paddlepaddle.org/">[more…]</a>
+
+<li><a href="http://www.infoq.com/cn/news/2016/09/AliSQL-ali-cloud-AliSQL" class="title">Ali cloud launches the AliSQL database open source</a>
+
+<p><img src="alisql.png" style="float:right">&nbsp;&nbsp;&nbsp;&nbsp;Alibaba cloud announced the launch of the AliSQL database open source project, this version of the performance is better than the community version of MySQL 70%, the AliSQL can be deployed in cloud to support large scale of dataset, ACID transaction, high concurrency and high throughput, it is especially optimized for 'second kill' scenario that is widely used Chinese's Black Friday shopping day. <a href="http://www.infoq.com/cn/news/2016/09/AliSQL-ali-cloud-AliSQL">[more…]</a>
+</td>
+</tr>
+
+<tr><td><!--Architecture--><img src="arch1.png" class="left"></td>
+<td class="block">
+<li>MicroServices Architecture and Distributed Tracing
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://martinfowler.com/articles/microservices.html">MicroServices architecture</a> is a recent buzzword among software engineers. Many companies are refactoring(planning to refactor) their monolithic applications to microservices, it is like magic to attract thousands of developers on it. Many tier 1 and 2 Chinese internet services companies built the microservices framework against their needs, and even promote them to open source projects. The <a href="https://github.com/alibaba/dubbo">dubbo</a> is the star among them and it has been widely used by many companies and applications.
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;In general, there are many applications within a big organization, the dependency of applications is complicated, sometimes when a production issue is occurred, it is not easy to address where is wrong from the long end-to-end chains, so it is very important to build a distributed tracing system to collect, store and visualize all the traces. <a href="http://research.google.com/pubs/pub36356.html">Google Dapper</a> and <a href="https://github.com/openzipkin/zipkin">Twitter Zipkin</a> are just for it, but in China many companies are building their tracing system, such as taobao Eagle Eye, <a href="https://github.com/odenny/hydra">JD Hydra</a>, <a href="https://github.com/dianping/cat">dianping CAT</a> and so on, it can help to make operation efficiently, especially for microservices architecture since that has more processes and machines.
+
+</td>
+</tr>
+
+<tr>
+<td><!--Best Practices--><img src="best1.jpg" class="left"></td>
+<td class="block">
+<li>The adoption of Apache Kylin™
+
+<p><img src="kylin.png" style="float:right">&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://kylin.apache.org/">Apache Kylin™</a> is an open source Distributed Analytics Engine designed to provide SQL interface and multi-dimensional analysis (OLAP) on Hadoop supporting extremely large datasets. It is designed to reduce query latency on Hadoop for 10+ billion of rows of data, the users can interact with Hadoop data via Kylin at sub-second latency, better than Hive queries for the same dataset.
+
+<li><a href="http://www.infoq.com/cn/articles/kylin-apache-in-the-practice-of-telecom-operators" class="title">Case 1: Peking Mobile OLAP Cube</a>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;Peking Mobile, the leading mobile telephony service provider generates 30 billion of rows of original data per day, the existing Hadoop cluster need to execute 800+ MapReduce jobs per day for data analysis that causes the cluster very busy. 
+<p>At the same time, the business analysts always want to run ad-hoc queries or generate reports, they tried to use Hive and Spark, but the Hive is too slow (1~2 hours) to satisfy the SLA and the Spark consumed too much memory, finally they choose Apache Kylin. 
+<p>They created some cubes from different dimensions via pre-defined jobs, it took about 1 hour for creating cubes on 30 billion of rows of data, most of queries can return the result within 20 seconds and the resource usage is in good shape, that is really a dramatic performance improvement compared to Hive.  <a href="http://www.infoq.com/cn/articles/kylin-apache-in-the-practice-of-telecom-operators">[more…]</a>
+
+<li><a href="http://www.infoq.com/cn/articles/kylin-apache-in-meituan-olap-scenarios-practice" class="title">Case 2:  Meituan.com OLAP</a>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.meituan.com/">Meituan.com</a>, the Chinese Groupon + Yelp company is using Kylin as its OLAP framework. Currently the data is stored in Hadoop and increased billion of rows every day, the biggest challenge for them is the existing data processing solution is hard to handle interactive queries and 10+ thousands of ad-hoc queries from business users. They tested several options and finally choose Kylin.     <a href="http://www.infoq.com/cn/articles/kylin-apache-in-meituan-olap-scenarios-practice">[more…]</a>
+
+</td></tr>
+
+</table>
+
+<p align="right" class="header_footer"> Tech  
+
+</div>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
