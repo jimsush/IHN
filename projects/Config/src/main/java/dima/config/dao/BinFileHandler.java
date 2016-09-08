@@ -25,11 +25,6 @@ import dima.config.common.models.SwitchVLPlan;
 public class BinFileHandler {
 
 	public static void main(String[] args) throws Exception{
-		
-		//SwitchDevice sw=readObj("SW_01");
-		
-		//writeObj(sw);
-		
 		List<Integer> list1=bitsetIntToList(0x01020304, 0);
 		List<Integer> list2 = bitsetIntToList(0x01010101, 32);
 		list2.addAll(list1);
@@ -437,8 +432,8 @@ public class BinFileHandler {
         	System.out.println("location ID:"+data);
         	
         	data=readInt(in);
-        	nodeDev.setPortNoToA(data);
-        	System.out.println("port no for A:"+data);
+        	nodeDev.setPortNo(data);
+        	System.out.println("port no:"+data);
         	
         	data=readInt(in);
         	nodeDev.setRoleOfNM(data);

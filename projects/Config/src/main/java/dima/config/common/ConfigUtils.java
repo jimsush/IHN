@@ -14,6 +14,8 @@ import dima.config.common.models.SwitchDevice;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
 import twaver.Element;
+import twaver.TUIManager;
+import twaver.TWaverConst;
 
 public class ConfigUtils {
 
@@ -23,11 +25,16 @@ public class ConfigUtils {
 	public static final int TYPE_NMU=1;
 	public static final int TYPE_SW=2;
 	
+	public static final String SYS_PROP_FILE="sys.properties";
+	public static final String PROP_KEY_REDUNDANCY="redundancy";
+	
 	public static final String TYPE_STR_SW="switch";
 	public static final String TYPE_STR_NODE="node";
 	public static final String TYPE_STR_NMU="nmu";
 	
 	public static final String PROP_LINK_ADJUST_RATIO="mylink.adjust.ratio";
+	
+	public static final String[] SHADOW_SCALES={"s","m","l"};
 	
 	public static String buildPortId(Object deviceId, Object portNo){
 		return deviceId.toString()+"_port"+portNo;
@@ -122,16 +129,37 @@ public class ConfigUtils {
 		
 		return new String[]{null, portId+""};
 	}
-
-	public static void main(String[] args){
-		//String fullName=getSwitchConfigFileName("abc");
-		//String switchName=getSwitchName(fullName);
-		//System.out.println(switchName);
-		String str=getPortName(1,2);
-		System.out.println(str);
-		System.out.println(Integer.valueOf(str.substring(2), 16));
+	
+	public static void initAttachment(){
+		int[] ports={16, 24, 32, 48};
+		int dup=2;
+		for(int portN=0; portN<ports.length; portN++){
+			// put on right
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-l-r", getImageURLString("shadow_"+dup+"_"+ports[portN]+".png"), TWaverConst.POSITION_INNER_BOTTOMRIGHT, 5*(dup-1), -8);
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-m-r", getImageURLString("shadow_"+dup+"_"+ports[portN]+"-m.png"), TWaverConst.POSITION_INNER_BOTTOMRIGHT, 5*(dup-1), -8);
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-s-r", getImageURLString("shadow_"+dup+"_"+ports[portN]+"-s.png"), TWaverConst.POSITION_INNER_BOTTOMRIGHT, 5*(dup-1), -8);
+				
+			// put on left
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-l-l", getImageURLString("shadow_"+dup+"_"+ports[portN]+".png"), TWaverConst.POSITION_INNER_BOTTOMLEFT, -5*(dup-1), -8);
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-m-l", getImageURLString("shadow_"+dup+"_"+ports[portN]+"-m.png"), TWaverConst.POSITION_INNER_BOTTOMLEFT, -5*(dup-1), -8);
+			TUIManager.registerAttachment("shadow_"+dup+"_"+ports[portN]+"-s-l", getImageURLString("shadow_"+dup+"_"+ports[portN]+"-s.png"), TWaverConst.POSITION_INNER_BOTTOMLEFT, -5*(dup-1), -8);
+		}
 	}
 	
+	public static String buildShadowId(String dupNumber, int portNumber, int scale, boolean left){
+		String leftName= (left?"l":"r");
+		return "shadow_"+dupNumber+"_"+portNumber+"-"+SHADOW_SCALES[scale%3]+"-"+leftName;
+	}
+	
+	public static String getNewShadowId(String tag, String existingShadowId){
+		if(existingShadowId==null || existingShadowId.length()<=12)
+			return null;
+		
+		//"shadow_"+dup+"_"+ports[portN]+"-s-l"
+		//shadow_2_12-s-l
+		return existingShadowId.substring(0,12)+tag+existingShadowId.substring(13);
+	}
+
 	public static URL getImageURL(String imageName){
 		URL ipmImage = Thread.currentThread().getContextClassLoader().getResource(PATH_RESOURCE+"/resource2/"+imageName);	
 		return ipmImage;
@@ -220,5 +248,14 @@ public class ConfigUtils {
     	
     	return new NumberResult<Integer>(false, 0, fieldName+"不明数据格式");
     }
+    
+    public static void main(String[] args){
+		//String fullName=getSwitchConfigFileName("abc");
+		//String switchName=getSwitchName(fullName);
+		//System.out.println(switchName);
+		String str=getPortName(1,2);
+		System.out.println(str);
+		System.out.println(Integer.valueOf(str.substring(2), 16));
+	}
 	
 }

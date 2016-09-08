@@ -206,13 +206,9 @@ public class ChooseSwitchPortDialog extends JDialog{
 		int swId=sw.getLocalDomainID();
 		List<NodeDevice> nodes = dao.readAllNodeDevices(true);
 		for(NodeDevice node : nodes){
-			int swId1=(node.getPortNoToA() >> 16) & 0xffff;
+			int swId1=(node.getPortNo() >> 16) & 0xffff;
 			if(swId==swId1){
-				usedPortNos.add(node.getPortNoToA() & 0xffff); // low 2 bytes
-			}
-			int swId2=(node.getPortNoToB() >> 16) & 0xffff;
-			if(swId==swId2){
-				usedPortNos.add(node.getPortNoToB() & 0xffff); // low 2 bytes
+				usedPortNos.add(node.getPortNo() & 0xffff); // low 2 bytes
 			}
 		}
 		if(oldPortId>0 && sw.getLocalDomainID()==oldSwId){

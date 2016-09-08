@@ -119,20 +119,14 @@ public class NodeListPanel extends JPanel implements UpdateCallback{
 		attributes.add(attribute);
 		
 		attribute = new ElementAttribute();
-		attribute.setName("portNoToA");
-		attribute.setDisplayName("A网交换机端口");
-		attributes.add(attribute);
-		
-		attribute = new ElementAttribute();
-		attribute.setName("portNoToB");
-		attribute.setDisplayName("B网交换机端口");
+		attribute.setName("portNo");
+		attribute.setDisplayName("连接交换机端口");
 		attributes.add(attribute);
 
 		table.registerElementClassAttributes(NodeDevice.class, attributes);
 		
-		table.getColumnByName("portNoToA").setCellRenderer(new DevicePortTableCellRenderer());
-		table.getColumnByName("portNoToB").setCellRenderer(new DevicePortTableCellRenderer());
-
+		table.getColumnByName("portNo").setCellRenderer(new DevicePortTableCellRenderer());
+		
 		Map<Object, String> mapping=new HashMap<>();
 		mapping.put(0, "普通终端");
 		mapping.put(1, "交换机网络管理单元");
@@ -181,8 +175,7 @@ public class NodeListPanel extends JPanel implements UpdateCallback{
 			nodeDevice.setRoleOfNetworkLoad(newNodeDev.getRoleOfNetworkLoad());
 			nodeDevice.setRoleOfTimeSync(newNodeDev.getRoleOfTimeSync());
 			nodeDevice.setRtcSendInterval(newNodeDev.getRtcSendInterval());
-			nodeDevice.setPortNoToA(newNodeDev.getPortNoToA());
-			nodeDevice.setPortNoToB(newNodeDev.getPortNoToB());
+			nodeDevice.setPortNo(newNodeDev.getPortNo());
 			nodeDevice.setLocationId(newNodeDev.getLocationId());
 			
 			box.removeElementByID(oldTwaverID);

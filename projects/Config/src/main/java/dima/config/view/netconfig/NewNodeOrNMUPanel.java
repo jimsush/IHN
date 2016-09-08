@@ -33,15 +33,11 @@ public class NewNodeOrNMUPanel extends JPanel{
 	
 	private JTextField nodeNameField;
 	
-	private String aNetSwitchName;
-	private int aNetSwitchId;
-	private int aNetPort;
-	private String bNetSwitchName;
-	private int bNetSwitchId;
-	private int bNetPort;
+	private String netSwitchName;
+	private int netSwitchId;
+	private int netPort;
 	
-	private JButton aNetPortBtn;
-	private JButton bNetPortBtn;
+	private JButton netPortBtn;
 	
 	private JComboBox<String> nmuRoleBox; 
 	private JComboBox<String> networkLoadRoleBox;
@@ -96,38 +92,20 @@ public class NewNodeOrNMUPanel extends JPanel{
 			
 			JPanel panel=new JPanel(new FlowLayout());
 			
-			JLabel labelANet=new JLabel("A网:");
+			JLabel labelANet=new JLabel("交换机与端口号:");
 			panel.add(labelANet);
-			aNetPortBtn=new JButton();
-			aNetPortBtn.setText("0x0");
-			panel.add(aNetPortBtn);
-			aNetPortBtn.addActionListener(new ActionListener(){
+			netPortBtn=new JButton();
+			netPortBtn.setText("0x0");
+			panel.add(netPortBtn);
+			netPortBtn.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					int portNo=0;
-					if(aNetPortBtn.getText()!=null  && aNetPortBtn.getText().length()>2){
-						portNo=Integer.valueOf(aNetPortBtn.getText().substring(2), 16);
+					if(netPortBtn.getText()!=null  && netPortBtn.getText().length()>2){
+						portNo=Integer.valueOf(netPortBtn.getText().substring(2), 16);
 					}
 					ChooseSwitchPortDialog dialog=new ChooseSwitchPortDialog(dlg,
-							"选择A网交换机端口", true, portNo, NewNodeOrNMUPanel.this);
-					dialog.setVisible(true);
-				}
-			});
-			
-			JLabel labelBNet=new JLabel("B网:");
-			panel.add(labelBNet);
-			bNetPortBtn=new JButton();
-			bNetPortBtn.setText("0x0");
-			panel.add(bNetPortBtn);
-			bNetPortBtn.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					int portNo=0;
-					if(bNetPortBtn.getText()!=null  && bNetPortBtn.getText().length()>2){
-						portNo=Integer.valueOf(bNetPortBtn.getText().substring(2), 16);
-					}
-					ChooseSwitchPortDialog dialog=new ChooseSwitchPortDialog(dlg,
-							"选择B网交换机端口", false, portNo, NewNodeOrNMUPanel.this);
+							"选择连接交换机端口", true, portNo, NewNodeOrNMUPanel.this);
 					dialog.setVisible(true);
 				}
 			});
@@ -176,42 +154,25 @@ public class NewNodeOrNMUPanel extends JPanel{
 		
 		if(oldData!=null){
 			nodeNameField.setText(oldData.getNodeName());
-			//nodeNameField.setEnabled(false);
 			
-			if(aNetPortBtn!=null){
-				aNetPortBtn.setText("0x"+Integer.toHexString(oldData.getPortNoToA()));
-				if(oldData.getPortNoToA()==0){
-					aNetPortBtn.setToolTipText("未设置交换机端口");
+			if(netPortBtn!=null){
+				netPortBtn.setText("0x"+Integer.toHexString(oldData.getPortNo()));
+				if(oldData.getPortNo()==0){
+					netPortBtn.setToolTipText("未设置交换机端口");
 				}else{
-					int p=oldData.getPortNoToA() & 0xffff;
-					int swId=(oldData.getPortNoToA()>>16) & 0xffff;
+					int p=oldData.getPortNo() & 0xffff;
+					int swId=(oldData.getPortNo()>>16) & 0xffff;
 					
 					List<SwitchDevice> sws = dao.readAllSwitchDevices(true);
 					for(SwitchDevice sw : sws){
 						if(sw.getLocalDomainID()==swId){
-							aNetPortBtn.setToolTipText(sw.getSwitchName()+"("+swId+"):"+p);
+							netPortBtn.setToolTipText(sw.getSwitchName()+"("+swId+"):"+p);
 							break;
 						}
 					}
 				}
 			}
-			if(bNetPortBtn!=null){
-				bNetPortBtn.setText("0x"+Integer.toHexString(oldData.getPortNoToB()));
-				if(oldData.getPortNoToB()==0){
-					bNetPortBtn.setToolTipText("未设置交换机端口");
-				}else{
-					int p=oldData.getPortNoToB() & 0xffff;
-					int swId=(oldData.getPortNoToB()>>16) & 0xffff;
-					
-					List<SwitchDevice> sws = dao.readAllSwitchDevices(true);
-					for(SwitchDevice sw : sws){
-						if(sw.getLocalDomainID()==swId){
-							bNetPortBtn.setToolTipText(sw.getSwitchName()+"("+swId+"):"+p);
-							break;
-						}
-					}
-				}
-			}
+
 			
 			nmuRoleBox.setSelectedIndex(oldData.getRoleOfNM());
 			networkLoadRoleBox.setSelectedIndex(oldData.getRoleOfNetworkLoad());
@@ -225,14 +186,11 @@ public class NewNodeOrNMUPanel extends JPanel{
 				nodeNameField.setText("NP-");
 			}
 			rtcIntervalField.setText("1000");
-			if(aNetPortBtn!=null){
-				aNetPortBtn.setText("0x0");
-				aNetPortBtn.setToolTipText("未设置交换机端口");
+			if(netPortBtn!=null){
+				netPortBtn.setText("0x0");
+				netPortBtn.setToolTipText("未设置交换机端口");
 			}
-			if(bNetPortBtn!=null){
-				bNetPortBtn.setText("0x0");
-				bNetPortBtn.setToolTipText("未设置交换机端口");
-			}
+			
 			if(locationField!=null){
 				locationField.setText("0");
 			}
@@ -253,23 +211,13 @@ public class NewNodeOrNMUPanel extends JPanel{
 		
 		try{
 			if(isForNode){
-				if(aNetPortBtn.getText()!=null && aNetPortBtn.getText().length()>2){
-					int p=Integer.valueOf(aNetPortBtn.getText().substring(2), 16);
-					node.setPortNoToA(p);
-				}
-				if(bNetPortBtn.getText()!=null && bNetPortBtn.getText().length()>2){
-					int p=Integer.valueOf(bNetPortBtn.getText().substring(2), 16);
-					node.setPortNoToB(p);
-				}
-				if(node.getPortNoToA()==0){
-					JOptionPane.showMessageDialog(this, "连接A网的交换机端口不能为空!");
-					return null;
+				if(netPortBtn.getText()!=null && netPortBtn.getText().length()>2){
+					int p=Integer.valueOf(netPortBtn.getText().substring(2), 16);
+					node.setPortNo(p);
 				}
 				
-				int aNetSwitchId=(node.getPortNoToA()>>16) & 0xffff;
-				int bNetSwitchId=(node.getPortNoToB()>>16) & 0xffff;
-				if(aNetSwitchId==bNetSwitchId){
-					JOptionPane.showMessageDialog(this, "连接到A网与B网的交换机不能为同一台交换机"+aNetSwitchId+"!");
+				if(node.getPortNo()==0){
+					JOptionPane.showMessageDialog(this, "连接交换机端口不能为空!");
 					return null;
 				}
 			}
@@ -289,27 +237,15 @@ public class NewNodeOrNMUPanel extends JPanel{
 	
 	public void updateNetPortButton(boolean aNet, String switchName, int switchId,int portNo){
 		if(aNet){
-			this.aNetSwitchName=switchName;
-			this.aNetSwitchId=switchId;
-			this.aNetPort=portNo;
-			if(this.aNetSwitchName==null){
-				this.aNetPortBtn.setText("0x0");
-				this.aNetPortBtn.setToolTipText("未设置交换机端口");
+			this.netSwitchName=switchName;
+			this.netSwitchId=switchId;
+			this.netPort=portNo;
+			if(this.netSwitchName==null){
+				this.netPortBtn.setText("0x0");
+				this.netPortBtn.setToolTipText("未设置交换机端口");
 			}else{
-				this.aNetPortBtn.setText(ConfigUtils.getPortName(this.aNetSwitchId, this.aNetPort));
-				this.aNetPortBtn.setToolTipText(this.aNetSwitchName+"("+this.aNetSwitchId+"):"+this.aNetPort);
-			}
-		}else{
-			this.bNetSwitchName=switchName;
-			this.bNetSwitchId=switchId;
-			this.bNetPort=portNo;
-			
-			if(this.bNetSwitchName==null){
-				this.bNetPortBtn.setText("0x0");
-				this.bNetPortBtn.setToolTipText("未设置交换机端口");
-			}else{
-				this.bNetPortBtn.setText(ConfigUtils.getPortName(this.bNetSwitchId, this.bNetPort));
-				this.bNetPortBtn.setToolTipText(this.bNetSwitchName+"("+this.bNetSwitchId+"):"+this.bNetPort);
+				this.netPortBtn.setText(ConfigUtils.getPortName(this.netSwitchId, this.netPort));
+				this.netPortBtn.setToolTipText(this.netSwitchName+"("+this.netSwitchId+"):"+this.netPort);
 			}
 		}
 	}

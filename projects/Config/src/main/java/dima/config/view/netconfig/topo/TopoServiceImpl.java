@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dima.config.common.ConfigContext;
 import dima.config.common.ConfigUtils;
 import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
@@ -58,7 +59,7 @@ public class TopoServiceImpl implements UpdateCallback{
 		
 		node2.setImage(ConfigUtils.getImageURLString(getIconName("ipm"))); 
 		
-		boolean leftOfSwitch=nodeInLeft(nodeDev.getPortNoToA(), nodeDev.getPortNoToB());
+		boolean leftOfSwitch=nodeInLeft(nodeDev.getPortNo());
 
 		List existedNodes=getNodesInSameSide(leftOfSwitch, ConfigUtils.TYPE_STR_NODE);
 		int ipmCount=existedNodes.size();
@@ -68,7 +69,7 @@ public class TopoServiceImpl implements UpdateCallback{
 		node2.setLocation(posX, posY);
 		
 		String portIconURL = ConfigUtils.getImageURLString(getIconName("port"));
-		int normalPortNum=2;
+		int normalPortNum=ConfigContext.MAX_NUM_PORTS_NODE;
 		Port[] ipmPorts=new Port[normalPortNum];
 		for(int i=0; i<normalPortNum; i++){
 			int portNo=i+1;
@@ -123,8 +124,8 @@ public class TopoServiceImpl implements UpdateCallback{
 			switchA=tmp;
 		}
 		
-		if(nodeDev.getPortNoToA()>0){
-			String[] swPort = ConfigUtils.getSwitchNamePortId(nodeDev.getPortNoToA());
+		if(nodeDev.getPortNo()>0){
+			String[] swPort = ConfigUtils.getSwitchNamePortId(nodeDev.getPortNo());
 			if(swPort[0]!=null){
 				String portId=ConfigUtils.buildPortId(swPort[0], swPort[1]);
 				Element dstSwPort = box.getElementByID(portId);
@@ -149,43 +150,15 @@ public class TopoServiceImpl implements UpdateCallback{
 				}
 			}
 		}
-		if(nodeDev.getPortNoToB()>0){
-			String[] swPort = ConfigUtils.getSwitchNamePortId(nodeDev.getPortNoToB());
-			if(swPort[0]!=null){
-				String portId=ConfigUtils.buildPortId(swPort[0], swPort[1]);
-				Element dstSwPort = box.getElementByID(portId);
-				
-				Link link=new MidaPolyLink(ipmPorts[1], (Port)dstSwPort);
-				link.putLinkWidth(1);
-				link.putLinkColor(Color.BLACK); 
-				link.putLinkOutlineWidth(0);
-				link.setLinkType(TWaverConst.LINK_TYPE_XSPLIT);
-				
-				float offsetx=0.45f;
-				offsetx+= 0.03f*ipmCount;
-				if(offsetx>=1.0f){
-					offsetx=0.8f;
-				}
-				link.putClientProperty(ConfigUtils.PROP_LINK_ADJUST_RATIO, offsetx);
-				
-				try{
-					box.addElement(link);
-				}catch(Exception ex){
-					ex.printStackTrace();
-				}
-			}
-		}
-
+		
 		return nodeDev;
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private boolean nodeInLeft(int anetPort, int bnetPort){
+	private boolean nodeInLeft(int anetPort){
 		int onePort=0;
 		if(anetPort>0){ //a>0, b>0 | b=0
 			onePort=anetPort;
-		}else if(bnetPort>0){ //a=0, b>0 | b=0
-			onePort=bnetPort;
 		}
 		if(onePort==0){ //don't connect any switches, so put in left
 			return true;
@@ -240,7 +213,6 @@ public class TopoServiceImpl implements UpdateCallback{
 	public SwitchDevice addSwitch(SwitchDevice switchDev, String oldId) {
 		Node switch1=null;
 		int numOfSw=0;
-		//Element anotherSwitch=null;
 		
 		if(oldId==null){
 			// check whether this ID has existed
@@ -319,6 +291,13 @@ public class TopoServiceImpl implements UpdateCallback{
 		data1.put("type", ConfigUtils.TYPE_STR_SW);
 		data1.put("left", left ? "true" : "false");
 		switch1.setUserObject(data1);
+		
+		if(ConfigContext.REDUNDANCY==2){
+			int scale=getShadowAttachmentScaleId();
+			String shadowId=ConfigUtils.buildShadowId(ConfigContext.REDUNDANCY+"", switchDev.getPortNumber(), scale, !left);
+			switch1.addAttachment(shadowId);
+			data1.put("shadowId", shadowId);
+		}
 		
 		String portIconURL = ConfigUtils.getImageURLString(getIconName("port"));
 
@@ -414,5 +393,50 @@ public class TopoServiceImpl implements UpdateCallback{
 		return iconName+iconScale;
 	}
 	
+	public int getShadowAttachmentScaleId(){
+		if(iconScale.equals("-m.png")){
+			return 1;
+		}else if(iconScale.equals("-s.png")){
+			return 0;
+		}
+		
+		return 2;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void updateAttachment(int newRedundancy){
+		List<?> eles = box.getElementsByType(Node.class);
+		for(Object obj : eles){
+			Element ele=(Element)obj;
+			Object userObj = ele.getUserObject();
+			if(userObj==null){
+				continue;
+			}
+			Map<String, String> map=(Map<String, String>)userObj;
+			Object type = map.get("type");
+			if(ConfigUtils.TYPE_STR_SW.equals(type)){
+				String shadowId = map.get("shadowId");
+				if(newRedundancy==1){
+					if(shadowId!=null){
+						map.remove("shadowId");
+						ele.removeAttachment(shadowId);
+					}
+				}else if(newRedundancy==2){
+					if(shadowId==null){
+						String leftStr = map.get("left");
+						boolean switchOnLeft=false;
+						if("true".equals(leftStr)){
+							switchOnLeft=true;
+						}
+						int scale=getShadowAttachmentScaleId();
+						SwitchDevice swDev = dao.readSwitchDevice(ele.getID().toString(), true);
+						shadowId=ConfigUtils.buildShadowId(newRedundancy+"", swDev.getPortNumber(), scale, !switchOnLeft);
+						map.put("shadowId", shadowId);
+						ele.addAttachment(shadowId);
+					}
+				}
+			}
+		}
+	}
 	
 }

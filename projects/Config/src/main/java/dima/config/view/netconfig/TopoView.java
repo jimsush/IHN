@@ -24,6 +24,7 @@ import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
+import dima.config.view.netconfig.topo.SetRedundancyDialog;
 import dima.config.view.netconfig.topo.TopoServiceImpl;
 import twaver.Element;
 import twaver.PopupMenuGenerator;
@@ -53,6 +54,8 @@ public class TopoView extends JPanel implements UpdateCallback{
 	private void initUI(){
 		box = new TDataBox("mida");
 		network=new TNetwork(box);
+		
+		ConfigUtils.initAttachment();
 		
 		topoService=new TopoServiceImpl(box, network);
 		
@@ -118,6 +121,15 @@ public class TopoView extends JPanel implements UpdateCallback{
 							}
 				      });
 			    	popMenu.add(item); 
+				}else{
+					JMenuItem item=new JMenuItem("Õ¯¬Á»ﬂ”‡…Ë÷√");
+			    	  item.addActionListener(new ActionListener(){
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								openRedudancyAction();
+							}
+				      });
+			    	popMenu.add(item);
 				}
 				return popMenu;
 			}
@@ -189,7 +201,11 @@ public class TopoView extends JPanel implements UpdateCallback{
 		return sortedSwitches;
 	}
 	
-
+	private void openRedudancyAction(){
+		SetRedundancyDialog dlg=new SetRedundancyDialog(ConfigContext.mainFrame,"Õ¯¬Á»ﬂ”‡…Ë÷√", this);
+		dlg.setVisible(true);
+	}
+	
 	private void deleteAction(){
 		Element element = box.getLastSelectedElement();
 		if(element==null){
@@ -243,6 +259,9 @@ public class TopoView extends JPanel implements UpdateCallback{
 		topoService.deleteDevice(twaverId, type);
 	}
 	
+	public void updateAttachment(int newRedundancy){
+		topoService.updateAttachment(newRedundancy);
+	}
 	
 
 }

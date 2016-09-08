@@ -29,8 +29,7 @@ public class NodeDevice extends Node{
 	private int roleOfTimeSync;
 	private int rtcSendInterval;
 	
-	private int portNoToA=0;
-	private int portNoToB=0;
+	private int portNo=0;
 	
 	private List<NodeDeviceCfg> cfgs=null;
 
@@ -70,18 +69,6 @@ public class NodeDevice extends Node{
 	public void setRtcSendInterval(int rtcSendInterval) {
 		this.rtcSendInterval = rtcSendInterval;
 	}
-	public int getPortNoToA() {
-		return portNoToA;
-	}
-	public void setPortNoToA(int portNoToA) {
-		this.portNoToA = portNoToA;
-	}
-	public int getPortNoToB() {
-		return portNoToB;
-	}
-	public void setPortNoToB(int portNoToB) {
-		this.portNoToB = portNoToB;
-	}
 	
 	public int getType() {
 		return type;
@@ -116,14 +103,11 @@ public class NodeDevice extends Node{
 		this.locationId = locationId;
 	}
 
-	
-	
 	public int getPortNo(){
-		if(this.portNoToA>0){
-			return this.portNoToA;
-		}else{
-			return this.portNoToB;
-		}
+		return this.portNo;
+	}
+	public void setPortNo(int portNo){
+		this.portNo=portNo;
 	}
 
 	public List<NodeDeviceCfg> getCfgs() {

@@ -1,13 +1,16 @@
 package dima.config.dao;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dima.config.common.ConfigContext;
 import dima.config.common.ConfigUtils;
 import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
@@ -60,7 +63,7 @@ public class ConfigDAOImpl implements ConfigDAO {
 					if(curNode!=null){
 						allNodes.put(curNode.getNodeName(), curNode);
 					}
-				}if(fileName.startsWith("sw_") && fileName.endsWith("_mon.bin")){
+				}else if(fileName.startsWith("sw_") && fileName.endsWith("_mon.bin")){
 					String swName=ConfigUtils.getSwitchName(fileName);
 					
 					SwitchMonitor mon = null;
@@ -71,6 +74,30 @@ public class ConfigDAOImpl implements ConfigDAO {
 					}
 					if(mon!=null){
 						swMonitors.put(swName, mon);
+					}
+				}else if(fileName.equalsIgnoreCase(ConfigUtils.SYS_PROP_FILE)){
+					Properties p = new Properties();
+					FileInputStream in = null;
+					try{
+						in=new FileInputStream(ConfigUtils.SYS_PROP_FILE);
+						p.load(in);  
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}finally{
+						try{
+							in.close();
+						}catch(Exception ex2){
+							ex2.printStackTrace();
+						}
+					}
+					String redundancy=p.getProperty(ConfigUtils.PROP_KEY_REDUNDANCY);
+					if(redundancy!=null){
+						try{
+							ConfigContext.REDUNDANCY=Integer.valueOf(redundancy);
+						}catch(Exception ex){
+							ex.printStackTrace();
+							ConfigContext.REDUNDANCY=2;
+						}
 					}
 				}
 			}
