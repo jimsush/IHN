@@ -34,5 +34,8 @@ lock free, 一直尝试是否这个val是下一个expected value, 确保执行�
 
 * pass by value
 
+* hbase replication
+hbase indexer是利用replication来进行异步的indexing,此项技术叫side effect processor(SEP),设置1个 replication.replicationsource.implementation为扩展的ReplicationSource,可以把WAL写入一个rep sink中
+
 
 
