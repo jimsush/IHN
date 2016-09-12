@@ -1,6 +1,6 @@
 syn, lock
-sync是language level,扩展性很差, lock是library具备可扩展性的潜能.
-可重入
+sync是language level,扩展性很差, lock是library具备可扩展性scale to dual cores的潜能.
+可重入(synchronized和lock都是reentrant)
 中断锁
 超时
 公平锁与非公平锁,exclusive lock
@@ -15,7 +15,7 @@ Future mode:
 CAS, lock free: 抢占式
 各个线程不会互相阻塞，那么你的程序才能成为lock free的.
 
-我们平常用的互斥锁，当有线程获得锁，其他线程就被阻塞掉了，这里的问题就是如果获得锁的线程挂掉了，而且锁也没有
+我们平常用的互斥锁，当有线程获得锁(synchronized)，其他线程就被阻塞掉了，这里的问题就是如果获得锁的线程挂掉了，而且锁也没有
 释放，那么整个程序其实就被block在那了，而如果程序是lock free的那么即使有线程挂掉，也不影响整个程序继续向
 下进行，也就是系统在整体上而言是一直前进的.
 
@@ -25,7 +25,7 @@ happen before: thread start/run
 
 daemon thread: setDaemon(true), low priority (1), GC Daemon
 
-reflection: declaredmethod: public
+reflection: declared method: public
 
 pass by value
 
