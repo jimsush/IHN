@@ -2,7 +2,7 @@
 	• Druid - OLAP analysis & data store
 	   sub-second queries
 	   real-time ingestion
-	   find [more details](http://static.druid.io/docs/druid.pdf "doc")
+	   <a href="http://static.druid.io/docs/druid.pdf">find more details</a>
 	   
 	
 	• mobile与前端开发
