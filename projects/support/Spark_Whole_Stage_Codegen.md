@@ -1,5 +1,7 @@
 * 1. What is whole stage codegen?
 
+https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-whole-stage-codegen.html
+
 Inspired by MPP(strong compiler and executor).
 
 Put multiple operators (as a subtree of plans that support codegen) together into a single Java function.
@@ -13,21 +15,21 @@ Performance compare to hand-written code
 CPU and memory are bottleneck for model data processng system(in memory computation)
 
 Exmple:
+
 a+b https://databricks.com/blog/2014/06/02/exciting-performance-improvements-on-the-horizon-for-spark-sql.htm
 
-Select count(*) from t where b=1000 (filter,predicate,tuple read to CPU multiple times) https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html 
+Select count(*) from t where b=1000 (filter,predicate,tuple read to CPU multiple times)
+https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html 
 
 Sort (Any type):  http://blog.csdn.net/wl044090432/article/details/52190736
 
 * 3. Why need codegen?
 
-Volcano style, iterator style
+Volcano style, iterator style 
 
-virtual function
+virtual function (cpu register/memory access, cpu prefetch streamline failure(jmp/invoke, call EAX(dynamic address))
 
 boxing, unboxing
-
-cpu register/memory access, cpu prefetch streamline failure(jmp/invoke, call EAX(dynamic address))
 
 loop unrolling
 
@@ -46,10 +48,11 @@ No -> limited codegen (only for expression evaluation, projection, filter...) ->
 
 Transparent to developers
 
-SQL/DF/DS (catalyst) 
+SQL/DF/DS (catalyst) are applied WSCG
 
 
-* 6. Examples
+* 6. Examples (Spark-shell)
+
 ds.join(broadcast(ds)).explain(extended=true)
 
 import org.apache.spark.sql.execution.debug._ 
@@ -72,6 +75,8 @@ HashAggregateExec  => codegen operator
 
 
 * 7. Source code
+
+<put a diagram and show codes>
 
 SqlParser -> Analyzer(resolve, Rules...) -> LogicalPlan(Command, Unary, Binary Operators) -> Optimizer(Push down, pruning...) -> SparkPlan physical plan(SparkStrategies.batches) -> Cost selection -> Codegen pipelines(*Exec,HashAggregateExec...) -> RDD
 
