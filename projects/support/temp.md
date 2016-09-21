@@ -43,3 +43,158 @@ Regression回归: 分析自变量与应变量间的关系(方程)，一般通过
 
 
 噪声:
+
+
+https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-whole-stage-codegen.html
+
+multiple operators (as a subtree of plans that support codegen) together into a single Java function
+
+It collapses a query into a single optimized function that eliminates virtual function calls and leverages CPU registers for intermediate data.
+
+Compare to hand-written code
+
+
+Why:
+	1. Performance
+	2. 内存与CPU场景
+	
+发展历史:
+	• No
+	• Inspired by ...
+	• Limited CG
+	• Whole stage CG
+
+How:
+	• Transparent to developers
+	• SQL/DF/DS (catalyst)
+	• https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html
+
+$ ds.join(broadcast(ds)).explain(extended=true)
+
+import org.apache.spark.sql.execution.debug._
+scala> spark.range(10).sample(false, 0.4).debug
+
+scala> spark.range(10).sample(false, 0.4).debugCodegen
+
+spark.range(10).where('id === 4).debug
+
+
+
+scala> spark.range(10).sample(false, 0.4).explain
+== Physical Plan == (只有physical plan才有wscg)
+*Sample 0.0, 0.4, false, 1649641486367235675     => SampleExec
++- *Range (0, 10, splits=8)   => RangeExec, basicPhysicalOperators.scala
+
+HashAggregateExec
+
+*表示whole stage codegen
+Range是个啥? Splits is numOfSlices
+org.apache.spark.sql.catalyst.plans.logical.Range
+
+
+spark.conf.set("spark.sql.codegen.wholeStage", "true");
+spark.conf.set("supportCodegen", "true");
+
+scala> spark.range(1000L * 1000 * 1000).selectExpr("sum(id)").explain(extended=true);
+Scala> spark.range(1000).filter("id > 100").selectExpr("sum(id)").explain()
+
+
+>sql("explain codegen select 'a' as a group by 1").head
+ 
+https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/
+
+Unary 一元操作，比如    ! Result
+Binary 二元操作  3+2
+
+
+Jira
+https://issues.apache.org/jira/browse/SPARK-12795
+See http://www.vldb.org/pvldb/vol4/p539-neumann.pdf
+
+Execution flow:
+
+SqlParser
+
+RuleExecutor
+	• Analyzer: 有很多Rule. batches
+	• Optimizer: 里面有很多的Rule, pushdown… batches
+	•  apply()
+
+QueryPlanner 逻辑执行计划算子映射成物理执行计划算子
+	• Strategies
+	• SparkStrategies extends QueryPlanner 大量Operators
+
+
+def range(
+      start: Long,  变量名: 类型,
+      end: Long,
+      step: Long = 1,
+      numSlices: Int = defaultParallelism): RDD[Long] = withScope {
+=缺省值
+:返回值[范型类型]
+
+
+scala.collection.Seq
+
+几篇官方文章:
+https://databricks.com/blog/2015/04/13/deep-dive-into-spark-sqls-catalyst-optimizer.html
+https://databricks.com/blog/2016/05/23/apache-spark-as-a-compiler-joining-a-billion-rows-per-second-on-a-laptop.html
+https://databricks.com/blog/2014/06/02/exciting-performance-improvements-on-the-horizon-for-spark-sql.html
+http://blog.csdn.net/wl044090432/article/details/52190736
+
+QueryPlan
+LogicalPlan extends QueryPlan[LogicalPlan]: Command, Unary, Binarry Operators
+SparkPlan extends QueryPlan<SparkPlan> (physical)
+SparkPlan extends QueryPlan[SparkPlan]   (sql.execution, SortExec…) 产生codegen pipelines
+
+*Exec operators需要继承CodegenSupport
+InternalRow
+BufferedRowIterator  -- processNext()
+
+
+Benchmark: (相差5倍)
+https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/6122906529858466/293651311471490/5382278320999420/latest.html
+spark.conf.set("spark.sql.codegen.wholeStage", false)
+spark.range(1000L * 1000 * 1000).selectExpr("sum(id)").show()
+
+spark.conf.set("spark.sql.codegen.wholeStage", true)
+spark.range(1000L * 1000 * 1000).selectExpr("sum(id)").show()
+
+不适合的场景:
+	• String
+	• 大量IO (不是CPU+memory)
+
+
+几个code gen的例子:
+	• Select a+b 虚函数, cpu pre-fetch streamline https://databricks.com/blog/2014/06/02/exciting-performance-improvements-on-the-horizon-for-spark-sql.html
+	• Select count(*) from t where b=1000  Volcano style的开销, operator, iterator mode, cpu register, virtual functions, loop unrolling, SIMD
+	• Order by http://blog.csdn.net/wl044090432/article/details/52190736  (any)
+
+LLVM
+In particular, we plan to investigate compilation to LLVM or OpenCL, so Spark applications can leverage SSE/SIMD instructions out of modern CPUs and the wide parallelism in GPUs to speed up operations in machine learning and graph computation.
+目前还是没有用LLVM.
+
+CG的代码能看懂吗?  spark.range(1000).filter("id > 100").selectExpr("sum(id)").debugCodegen
+可以看懂.
+
+CG的代码是怎么生成的?
+sql/core/src/main/scala/org/apache/spark/sql/execution/WholeStageCodegen.scala   => doCodeGen(), doExecute(), CodeGenrator.compile()
+所有的*Exec需要继承CodegenSupport (produce/consume)
+有很多这样的Operator, 参考https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-whole-stage-codegen.html    basicPhysicalOperators.scala
+
+Produce/consume模式
+逐个调用hasNext(), processNext();
+
+Scala programming:
+	• Literal: 字面量，就是当前这个变量在代码中的字符串，但没有类型
+
+	• scala中的 apply() function, 把一个object当作function来用
+object  OO1{
+ def apply(x:Int)=x+1
+}
+OO1是个Class,但是有个apply后，我们可以直接把OO1当成1个function来调用，OO1(100)相当于 new OO1().apply(100);
+
+	• trait and multi-inherence diamond problem
+	trait符合最右（最后）的深度优先遍历结果
+	
+	• Java 8 default methods in interface definition
