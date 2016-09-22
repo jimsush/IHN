@@ -2,7 +2,7 @@
 
 https://jaceklaskowski.gitbooks.io/mastering-apache-spark/content/spark-sql-whole-stage-codegen.html
 
-Inspired by MPP(strong compiler and executor).
+Inspired by MPP(strong compiler and optimizer).
 
 Put multiple operators (as a subtree of plans that support codegen) together into a single Java function.
 
