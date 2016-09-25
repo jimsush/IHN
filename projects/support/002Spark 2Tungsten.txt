@@ -1,5 +1,16 @@
-whole stage code generation比Spark1.x的code gen要高效。
+whole-stage code generation in spark 2.0
 
-code gen 1.x:expression evalution
+code gen 1.x: only for expression evalution, projection, filter...
 
-elimiate virutal function invocation; cache; cpu cache line...
+elimiate virutal function invocation(additional lookup vtable); cache; cpu cache line/code prefetch streamline...
+
+in-memory columnar store (Row, DataFrame, DataSet, off-heap, reduce overhead, gc, small temp objects)
+
+serialization/deser
+
+SIMD for parquet decoder
+
+vectorization processing
+
+
+
