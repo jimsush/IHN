@@ -14,3 +14,8 @@ Weex之前在宣传中表示受到了 Vue.js的启发，遵守开源协议使用
 # wechat open source PHxSQL that is a strong consistent MYSQL cluster
 [news on osChina 微信开源 PhxSQL：高可用强一致的 MySQL 集群](http://www.oschina.net/news/76658/tecent-wechat-opensource-phxsql?p=1)
 [source code on github](https://github.com/tencent-wechat/phxsql)
+
+# wechat 小程序 
+
+# 金融行业的container as as service
+
