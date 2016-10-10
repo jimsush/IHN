@@ -42,9 +42,9 @@ public class NewNodeDialog extends JDialog{
 	private void initView(){
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		if(isForNode){
-			setSize(414, 276);
+			setSize(414,300);
 		}else{
-			setSize(414, 236);
+			setSize(414, 220);
 		}
         setResizable(false);
         TWaverUtil.centerWindow(this);

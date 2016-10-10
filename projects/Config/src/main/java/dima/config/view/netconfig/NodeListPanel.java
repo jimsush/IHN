@@ -162,7 +162,7 @@ public class NodeListPanel extends JPanel implements UpdateCallback{
 			if(!newNodeDev.getNodeName().equals(oldID)
 					|| newNodeDev.getPortNo()!=oldNodeDevice.getPortNo()){
 				nodeDevice=new NodeDevice(newNodeDev.getNodeName(), newNodeDev.getType());
-				nodeDevice.setCfgs(oldNodeDevice.getCfgs());
+				//nodeDevice.setCfgs(oldNodeDevice.getCfgs());
 				nodeDevice.setVersion(oldNodeDevice.getVersion());
 				nodeDevice.setDate(oldNodeDevice.getDate());
 				nodeDevice.setFileNo(oldNodeDevice.getFileNo());
@@ -191,13 +191,21 @@ public class NodeListPanel extends JPanel implements UpdateCallback{
 
 	@Override
 	public void deleteDevice(String twaverId, int type) {
-		box.removeElementByID(twaverId);
-		
 		// delete from files
 		ConfigDAO dao = ServiceFactory.getService(ConfigDAO.class);
 		String nodeName = ConfigUtils.getNodeNameFromTwaverID(twaverId);
 		NodeDevice nodeDevice = dao.readNodeDeviceFromCache(nodeName);
-		dao.deleteNodeDevice(nodeDevice);
+		if(nodeDevice==null){
+			System.out.println(nodeName+" node not found");
+			return;
+		}
+		
+		if(ConfigUtils.TYPE_NMU==nodeDevice.getType()){
+			JOptionPane.showMessageDialog(ConfigContext.mainFrame, "不能删除交换机网络管理单元，除非你要删除整个交换机!");
+		}else{
+			box.removeElementByID(twaverId);
+			dao.deleteNodeDevice(nodeDevice);
+		}
 	}
 	
 }

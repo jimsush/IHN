@@ -22,8 +22,6 @@ import dima.config.common.controls.TableLayout;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchMonitorPort;
 import dima.config.common.models.SwitchVL;
-import dima.config.common.models.SwitchVLCfg;
-import dima.config.common.models.SwitchVLPlan;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
 import twaver.TWaverUtil;
@@ -39,6 +37,7 @@ public class CreateMonitorDialog extends JDialog{
 	
 	private SwitchMonitorPort oldData;
 	private JTextField switchField;
+	private JTextField switchLocationField;
 	private JTextField portIdField;
 	
 	private JComboBox<String> portEnableBox;
@@ -143,7 +142,7 @@ public class CreateMonitorDialog extends JDialog{
             { 6,  100, 4, 100, TableLayout.FILL, 100, 4, 100, 6 }, 
             { 4, 22, 4, 22, 4, 22, 4} });
 	    JPanel pane=new JPanel(layout);
-		pane.setBorder(BorderFactory.createTitledBorder("监控口设置")); 
+		pane.setBorder(BorderFactory.createTitledBorder("监控设置")); 
 		
 		JLabel label1=new JLabel("捕获使能:");
 		pane.add(label1, "1,1,f,0");
@@ -205,6 +204,19 @@ public class CreateMonitorDialog extends JDialog{
 				}
 				
 				List<SwitchVL> vls=null;
+				
+				// only 1 plan
+				vls=swDevice.getVls();
+				List<Integer> allVLs=new ArrayList<Integer>();
+				for(SwitchVL vl : vls){
+					allVLs.add(vl.getVLID());
+				}
+				ChooseObjectDialog dlg=new ChooseObjectDialog(CreateMonitorDialog.this,
+						"VL列表", "VL", ChooseObjectDialog.CODE_VL, allVLs, 
+						oldData==null ? new ArrayList<>() : oldData.getPortVLList());
+				dlg.setVisible(true);
+				
+				/*
 				List<SwitchVLPlan> plans=null;
 				List<SwitchVLCfg> vlCfgs = swDevice.getVlCfgs();
 				for(SwitchVLCfg vlCfg : vlCfgs){
@@ -260,6 +272,7 @@ public class CreateMonitorDialog extends JDialog{
 							oldData==null ? new ArrayList<>() : oldData.getPortVLList());
 					dlg.setVisible(true);
 				}
+				*/
 			}
 		});
 
@@ -290,6 +303,11 @@ public class CreateMonitorDialog extends JDialog{
 			}
 		});
 		
+		JLabel label6=new JLabel("交换机位置:");
+		pane.add(label6, "5,5,f,0");
+		switchLocationField=ConfigUtils.getNumberTextField(16);
+		pane.add(switchLocationField, "7,5,f,0");
+		
 		if(oldData!=null){
 			portEnableBox.setSelectedIndex(oldData.getPortEnableMonitor());
 			portModeBox.setSelectedIndex(oldData.getPortMonitorMode());
@@ -307,9 +325,12 @@ public class CreateMonitorDialog extends JDialog{
 			portInputPorts=oldData.getPortInputPortList();
 			portOutputPorts=oldData.getPortOutputPortList();
 			portVLs=oldData.getPortVLList();
+			
+			switchLocationField.setText(oldData.getLocationId()+"");
 		}else{
 			// by default, capture mode is port instead of VL
 			btnVL.setEnabled(false);
+			switchLocationField.setText("0");
 		}
 		
 		if(portEnableBox.getSelectedIndex()==0){
@@ -372,11 +393,11 @@ public class CreateMonitorDialog extends JDialog{
             { 4, 22, 4} });
 	    JPanel inputPane = new JPanel(layout);
 	    
-	    JLabel label1=new JLabel("交换机(配置表):");
+	    JLabel label1=new JLabel("交换机");//(配置表):");
 	    inputPane.add(label1, "1,1,f,0");
 	    
 	    switchField=new JTextField();
-	    switchField.setText(switchName+"("+currentCfgTableId+")");
+	    switchField.setText(switchName);//+"("+currentCfgTableId+")");
 	    switchField.setEditable(false);
 	    inputPane.add(switchField, "3,1,f,0");
 	    
@@ -434,6 +455,11 @@ public class CreateMonitorDialog extends JDialog{
 			monitor.setPortInputPortList(new ArrayList<>());
 			monitor.setPortOutputPortList(new ArrayList<>());
 			monitor.setPortVLList(portVLs);
+		}
+		
+		String loc = switchLocationField.getText();
+		if(loc.length()>0){
+			monitor.setLocationId(Integer.valueOf(loc));
 		}
 		return monitor;
 	}

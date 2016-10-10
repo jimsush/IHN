@@ -6,17 +6,31 @@ public class NodeVL extends Node{
 	
 	private static final long serialVersionUID = 1682500568637161945L;
 	private String nodeName;
+	
+	private short type;  //1-BE、2-RC、3-TT
+	
 	private int VLID;
-	private int type;  //1-BE、2-RC、3-TT
 	private int bag;
 	private int jitter;
+	
+	/** 49 */
 	private int ttInterval;
-	private int ttWindow;
-	private int networkType; //both
-	private int completeCheck=0;
-	private int redudanceType=0;
-	private int useOfLink=0;
+	
+	private int ttSentInterval;
+	
+	private int ttWindowStart;
+	private int ttWindowOffset;
+	private int ttWindowEnd;
+	
+	private short networkType; //both
+	
+	private short completeCheck=0;
+	private short redudanceType=0;
+	
+	private short useOfLink=0;
 	private int rtcInterval=0;
+	
+	private int switchPortNo;
 	
 	public NodeVL(String nodeName, int VLID){
 		super(nodeName+"_"+VLID);
@@ -36,10 +50,10 @@ public class NodeVL extends Node{
 	public void setVLID(int vLID) {
 		VLID = vLID;
 	}
-	public int getType() {
+	public short getType() {
 		return type;
 	}
-	public void setType(int type) {
+	public void setType(short type) {
 		this.type = type;
 	}
 	public int getBag() {
@@ -60,28 +74,28 @@ public class NodeVL extends Node{
 	public void setTtInterval(int ttInterval) {
 		this.ttInterval = ttInterval;
 	}
-	public int getTtWindow() {
-		return ttWindow;
+	public int getTtWindowStart() {
+		return ttWindowStart;
 	}
-	public void setTtWindow(int ttWindow) {
-		this.ttWindow = ttWindow;
+	public void setTtWindowStart(int ttWindow) {
+		this.ttWindowStart = ttWindow;
 	}
-	public int getNetworkType() {
+	public short getNetworkType() {
 		return networkType;
 	}
-	public void setNetworkType(int networkType) {
+	public void setNetworkType(short networkType) {
 		this.networkType = networkType;
 	}
-	public int getRedudanceType() {
+	public short getRedudanceType() {
 		return redudanceType;
 	}
-	public void setRedudanceType(int redudanceType) {
+	public void setRedudanceType(short redudanceType) {
 		this.redudanceType = redudanceType;
 	}
-	public int getUseOfLink() {
+	public short getUseOfLink() {
 		return useOfLink;
 	}
-	public void setUseOfLink(int useOfLink) {
+	public void setUseOfLink(short useOfLink) {
 		this.useOfLink = useOfLink;
 	}
 	public int getRtcInterval() {
@@ -90,11 +104,43 @@ public class NodeVL extends Node{
 	public void setRtcInterval(int rtcInterval) {
 		this.rtcInterval = rtcInterval;
 	}
-	public int getCompleteCheck() {
+	public short getCompleteCheck() {
 		return completeCheck;
 	}
-	public void setCompleteCheck(int completeCheck) {
+	public void setCompleteCheck(short completeCheck) {
 		this.completeCheck = completeCheck;
+	}
+
+	public int getTtSentInterval() {
+		return ttSentInterval;
+	}
+
+	public void setTtSentInterval(int ttSentInterval) {
+		this.ttSentInterval = ttSentInterval;
+	}
+
+	public int getTtWindowOffset() {
+		return ttWindowOffset;
+	}
+
+	public void setTtWindowOffset(int ttWindowOffset) {
+		this.ttWindowOffset = ttWindowOffset;
+	}
+
+	public int getTtWindowEnd() {
+		return ttWindowEnd;
+	}
+
+	public void setTtWindowEnd(int ttWindowEnd) {
+		this.ttWindowEnd = ttWindowEnd;
+	}
+
+	public int getSwitchPortNo() {
+		return switchPortNo;
+	}
+
+	public void setSwitchPortNo(int switchPortNo) {
+		this.switchPortNo = switchPortNo;
 	}
 	
 	

@@ -39,7 +39,7 @@ public class NewSwitchDialog extends JDialog{
 	
 	private void initView(){
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(360, 376);
+        setSize(360, 418);
         setResizable(false);
         TWaverUtil.centerWindow(this);
         

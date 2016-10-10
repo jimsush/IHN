@@ -248,8 +248,8 @@ public class TopoServiceImpl implements UpdateCallback{
 			switch1.setImage(ConfigUtils.getImageURLString(getIconName("switch48")));
 		}
 		
-		List<Integer> eports = switchDev.getEportFEs();
-		List<Integer> eportNos=new ArrayList<>();
+		List<Integer> eportFullNos = switchDev.getEportNos();
+		List<Integer> eportShortNos=new ArrayList<>();
 		
 		// prepare
 		Map<Integer, SwitchDevice> id2Switches=new HashMap<>();
@@ -259,10 +259,10 @@ public class TopoServiceImpl implements UpdateCallback{
 		}
 		
 		Element anotherSwitchElement=null;
-		for(Integer eportId : eports){
+		for(Integer eportId : eportFullNos){
 			int swId=(eportId>>16) & 0xffff;
-			int portNo=eportId & 0xffff; // low 2 bytes
-			eportNos.add(portNo);
+			int portShortNo=eportId & 0xffff; // low 2 bytes
+			eportShortNos.add(portShortNo);
 			
 			SwitchDevice peerSwitch = id2Switches.get(swId);
 			if(peerSwitch==null){
@@ -295,7 +295,11 @@ public class TopoServiceImpl implements UpdateCallback{
 		if(ConfigContext.REDUNDANCY==2){
 			int scale=getShadowAttachmentScaleId();
 			String shadowId=ConfigUtils.buildShadowId(ConfigContext.REDUNDANCY+"", switchDev.getPortNumber(), scale, !left);
-			switch1.addAttachment(shadowId);
+			try{
+				switch1.addAttachment(shadowId);
+			}catch(Exception ex){
+				System.out.println("add attachment failed for "+shadowId+", error message:"+ex.getMessage());
+			}
 			data1.put("shadowId", shadowId);
 		}
 		
@@ -309,7 +313,7 @@ public class TopoServiceImpl implements UpdateCallback{
 		for(int i=0; i<switchDev.getPortNumber(); i++){
 			int portNo=i+1;
 			
-			if(eportNos.contains(portNo)){
+			if(eportShortNos.contains(portNo)){
 				eportIndex++;
 				isEPort=true;
 			}else{
@@ -347,7 +351,7 @@ public class TopoServiceImpl implements UpdateCallback{
 			box.addElement(port1);
 		}
 
-		for(Integer eportId : eports){
+		for(Integer eportId : eportFullNos){
 			int swId=(eportId>>16) & 0xffff;
 			SwitchDevice peerSwitch = id2Switches.get(swId);
 			if(peerSwitch==null || peerSwitch==switchDev){
@@ -431,8 +435,13 @@ public class TopoServiceImpl implements UpdateCallback{
 						int scale=getShadowAttachmentScaleId();
 						SwitchDevice swDev = dao.readSwitchDevice(ele.getID().toString(), true);
 						shadowId=ConfigUtils.buildShadowId(newRedundancy+"", swDev.getPortNumber(), scale, !switchOnLeft);
+						
 						map.put("shadowId", shadowId);
-						ele.addAttachment(shadowId);
+						try{
+							ele.addAttachment(shadowId);
+						}catch(Exception ex){
+							System.out.println("add attachment failed for "+shadowId+", error message:"+ex.getMessage());
+						}
 					}
 				}
 			}

@@ -55,6 +55,7 @@ public class ChooseObjectDialog extends JDialog{
 		initUI();
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void initUI(){
 		
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -84,18 +85,26 @@ public class ChooseObjectDialog extends JDialog{
 		moveToRightBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Element element = leftBox.getLastSelectedElement();
-				leftBox.removeElement(element);
-				rightBox.addElement(element);
+				List<Element> elements = leftBox.getSelectionModel().getAllSelectedElement();
+				if(elements!=null){
+					for(Element element : elements){
+						leftBox.removeElement(element);
+						rightBox.addElement(element);
+					}
+				}
 			}
 		});
 		JButton moveToLeftBtn=new JButton("<");
 		moveToLeftBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Element element = rightBox.getLastSelectedElement();
-				rightBox.removeElement(element);
-				leftBox.addElement(element);
+				List<Element> elements = rightBox.getSelectionModel().getAllSelectedElement();
+				if(elements!=null){
+					for(Element element : elements){
+						rightBox.removeElement(element);
+						leftBox.addElement(element);
+					}
+				}
 			}
 		});
 		moveBtnPane.add(moveToLeftBtn, "1,3,f,c");

@@ -19,6 +19,7 @@ import dima.config.common.controls.TableLayout;
 import twaver.TWaverUtil;
 
 /**
+ * @deprecated
  * update VL's Plan information: plan ID, vlN
  *
  */
@@ -135,7 +136,7 @@ public class CreateVLPlanDialog extends JDialog{
                 	}
                 	
                 	try{
-                		tablePane.addOrUpdatePlan(isAdd, curPlanId, curVLNum);
+                		//tablePane.addOrUpdatePlan(isAdd, curPlanId, curVLNum);
                 	}catch(Exception ex){
         				String msg=ex.getMessage();
         				if(msg!=null && msg.contains("already exist")){

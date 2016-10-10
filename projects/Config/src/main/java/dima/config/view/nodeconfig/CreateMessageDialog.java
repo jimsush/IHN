@@ -33,31 +33,38 @@ public class CreateMessageDialog extends JDialog {
 	private JTextField msgIdTxtField;
 	private JTextField msgNameTxtField;
 	private JTextField maxLengthTxtField;
-	private JTextField useOfMessageTxtField;
+	
 	private JTextField vlIdTxtField;
 	private JComboBox<String> snmpIDBox;
 	private JComboBox<String> loadIDBox;
+	
+	private JComboBox<String> useOfMessageBox;
+	private JComboBox<String> typeBox;
+	private JTextField sidTxtField;
+	private JTextField didTxtField;
 	
 	/** 0 tx-send, 1 rx */
 	private int sendRecieve = -1; 
 	
 	private MessageConfigPanel tablePanel;
+	private String nodeName;
 
 	public CreateMessageDialog(Window parent, String title, NodeMessage data,
-			MessageConfigPanel tablePanel, int sendrecieve) {
+			MessageConfigPanel tablePanel, int sendrecieve, String nodeName) {
 		super(parent, title, ModalityType.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
 		
 		this.oldData = data;
 		this.tablePanel = tablePanel;
 		this.sendRecieve = sendrecieve;
+		this.nodeName=nodeName;
 		
 		initView();
 	}
 
 	private void initView() {
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setSize(420, 202);
+		setSize(420, 268);
 		setResizable(false);
 		TWaverUtil.centerWindow(this);
 
@@ -76,18 +83,19 @@ public class CreateMessageDialog extends JDialog {
 	private JPanel createTopPanel() {
 		LayoutManager layout = new TableLayout(new double[][] {
 				{ 10, 80, 4, 100, TableLayout.FILL, 80, 4, 100, 10 },
-				{ 10, 22, 10, 22, 10, 22, 10, 22 } });
+				{ 10, 22, 10, 22, 10, 22, 10, 22,10, 22,10, 22 } });
 		JPanel inputPane = new JPanel(layout);
 
 		JLabel label1 = new JLabel("设备名称:");
 		inputPane.add(label1, "1,1,f,0");
 
 		nodeBoxNode = new JComboBox<>();
-		ConfigDAO dao = ServiceFactory.getService(ConfigDAO.class);
-		List<NodeDevice> nodes = dao.readAllNodeDevices(true);
-		for (NodeDevice node : nodes) {
-			nodeBoxNode.addItem(node.getNodeName());
-		}
+		//ConfigDAO dao = ServiceFactory.getService(ConfigDAO.class);
+		//List<NodeDevice> nodes = dao.readAllNodeDevices(true);
+		//for (NodeDevice node : nodes) {
+		//	nodeBoxNode.addItem(node.getNodeName());
+		//}
+		nodeBoxNode.addItem(nodeName);
 		if (oldData != null) {
 			nodeBoxNode.setSelectedItem(oldData.getNodeName());
 		}
@@ -128,12 +136,23 @@ public class CreateMessageDialog extends JDialog {
 		JLabel label5 = new JLabel("消息用途:");
 		inputPane.add(label5, "1,5,f,0");
 
-		useOfMessageTxtField = ConfigUtils.getNumberTextField();
-		useOfMessageTxtField.setText("0");
+		useOfMessageBox = new JComboBox<>();
+		useOfMessageBox.addItem("normal");
+		useOfMessageBox.addItem("LOAD_File");
+		useOfMessageBox.addItem("LOAD_File_ACK");
+		useOfMessageBox.addItem("LOAD_Status");
+		useOfMessageBox.addItem("LOAD_Status_ACK");
+		useOfMessageBox.addItem("SNMP");
+		useOfMessageBox.addItem("SNMP_TRAP");
+		useOfMessageBox.addItem("SNMP_Inform");
+		useOfMessageBox.addItem("SNMP_InfromACK");
+		useOfMessageBox.addItem("RTC");
 		if (oldData != null) {
-			useOfMessageTxtField.setText(oldData.getUseOfMessage() + "");
+			useOfMessageBox.setSelectedIndex(oldData.getUseOfMessage());
+		}else{
+			useOfMessageBox.setSelectedIndex(0);
 		}
-		inputPane.add(useOfMessageTxtField, "3,5,f,0");
+		inputPane.add(useOfMessageBox, "3,5,f,0");
 		
 		JLabel label51 = new JLabel("虚拟链路号:");
 		inputPane.add(label51, "5,5,f,0");
@@ -170,7 +189,41 @@ public class CreateMessageDialog extends JDialog {
 			loadIDBox.setSelectedIndex(0);
 		}
 		inputPane.add(loadIDBox, "7,7,f,0");
+		
+		JLabel label8 = new JLabel("消息类型:");
+		inputPane.add(label8, "1,9,f,0");
 
+		this.typeBox = new JComboBox<>();
+		typeBox.addItem("BE");
+		typeBox.addItem("RC");
+		typeBox.addItem("TT");
+		if (oldData != null) {
+			typeBox.setSelectedIndex(oldData.getType()-1);
+		}else{
+			typeBox.setSelectedIndex(0);
+		}
+		inputPane.add(typeBox, "3,9,f,0");
+
+		JLabel label9 = new JLabel("S_ID:");
+		inputPane.add(label9, "5,9,f,0");
+		this.sidTxtField=ConfigUtils.getNumberTextField();
+		inputPane.add(sidTxtField, "7,9,f,0");
+		if (oldData != null) {
+			sidTxtField.setText(oldData.getSID()+"");
+		}else{
+			sidTxtField.setText("0");
+		}
+		
+		JLabel label10 = new JLabel("D_ID:");
+		inputPane.add(label10, "1,11,f,0");
+		this.didTxtField=ConfigUtils.getNumberTextField();
+		inputPane.add(didTxtField, "3,11,f,0");
+		if (oldData != null) {
+			didTxtField.setText(oldData.getDID()+"");
+		}else{
+			didTxtField.setText("0");
+		}
+		
 		return inputPane;
 	}
 
@@ -221,18 +274,26 @@ public class CreateMessageDialog extends JDialog {
 	}
 
 	public NodeMessage getData() {
-		String swName = nodeBoxNode.getSelectedItem().toString();
+		String nodeName = nodeBoxNode.getSelectedItem().toString();
 		NodeMessage message = null;
 		try {
-			int msgId=Integer.valueOf(this.msgIdTxtField.getText().trim());
-			message = new NodeMessage(swName, msgId);
+			int msgId=Integer.valueOf(msgIdTxtField.getText().trim());
+			message = new NodeMessage(nodeName, msgId);
 			message.setVl(Integer.valueOf(vlIdTxtField.getText().trim()));
+			
+			if(message.getVl()<0 || message.getVl()>65535){
+				JOptionPane.showMessageDialog(this, "VL必须在0~65535间!");
+				return null;
+			}
+			
 			message.setMessageName(msgNameTxtField.getText().trim());
 			message.setMaxOfLen(Integer.valueOf(maxLengthTxtField.getText().trim()));
-			message.setUseOfMessage(Integer.valueOf(useOfMessageTxtField.getText().trim()));
-			message.setSnmpID(snmpIDBox.getSelectedIndex()+1);
-			message.setLoadID(loadIDBox.getSelectedIndex());
-
+			message.setUseOfMessage((short)(useOfMessageBox.getSelectedIndex()+1));
+			message.setSnmpID((short)(snmpIDBox.getSelectedIndex()+1));
+			message.setLoadID((short)(loadIDBox.getSelectedIndex()));
+			message.setType((short)(typeBox.getSelectedIndex()+1));
+			message.setSID(Integer.valueOf(sidTxtField.getText().trim()));
+			message.setDID(Integer.valueOf(didTxtField.getText().trim()));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, "输入格式有误:" + ex.getMessage());
 			return null;

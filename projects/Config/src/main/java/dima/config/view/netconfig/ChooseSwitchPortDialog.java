@@ -197,7 +197,7 @@ public class ChooseSwitchPortDialog extends JDialog{
 	private void fillSwitchUnusedPorts(SwitchDevice sw){
 		portBox.removeAllItems();
 		
-		Set<Integer> eportIds = sw.getEportFESet();
+		Set<Integer> eportIds = sw.getEportSet();
 		Set<Integer> usedPortNos = new HashSet<>();
 		for(Integer portId : eportIds){
 			usedPortNos.add(portId & 0xffff); // low 2 bytes

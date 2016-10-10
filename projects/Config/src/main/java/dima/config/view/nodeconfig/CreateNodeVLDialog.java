@@ -48,6 +48,12 @@ public class CreateNodeVLDialog extends JDialog{
 	private JLabel windowLabel;
 	private JTextField intervalTxtField;
 	private JTextField windowTxtField;
+	private JLabel sentIntervalLabel;
+	private JLabel windowOffsetLabel;
+	private JTextField sentIntervalTxtField;
+	private JTextField windowOffsetTxtField;
+	private JLabel windowEndLabel;
+	private JTextField windowEndTxtField;
 
 	private boolean isTx;
 	
@@ -68,7 +74,7 @@ public class CreateNodeVLDialog extends JDialog{
 	
 	private void initView(){
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(536, 300);
+        setSize(536, 380);
         setResizable(false);
         TWaverUtil.centerWindow(this);
         
@@ -120,7 +126,7 @@ public class CreateNodeVLDialog extends JDialog{
 	    
 	    vlIDTxtField=ConfigUtils.getNumberTextField();
 	    vlIDTxtField.setText("0");
-	    vlIDTxtField.setToolTipText("0~4095");
+	    vlIDTxtField.setToolTipText("0~65535");
 	    if(oldData!=null){
 	    	vlIDTxtField.setText(oldData.getVLID()+"");
 	    	vlIDTxtField.setEnabled(false);
@@ -177,10 +183,14 @@ public class CreateNodeVLDialog extends JDialog{
 	    inputPane.add(rcPane, "1,5,3,7");
 
 	    // TT
-	    ttPane = new JPanel(rclayout);
+	    LayoutManager ttlayout =  new TableLayout(new double[][] {
+            { 6,  80, TableLayout.FILL, 80, 6 }, 
+            { 4, 22, 4, 22, 4, 22, 4, 22, 4, 22, TableLayout.FILL, 4} });
+	    ttPane = new JPanel(ttlayout);
 	    ttPane.setBorder(BorderFactory.createTitledBorder("TT属性设置")); 
 	    ttPane.setEnabled(false);
-	    intervalLabel=new JLabel("周期:");
+	    
+	    intervalLabel=new JLabel("起始周期:");
 	    ttPane.add(intervalLabel, "1,1,f,0");
 	    
 	    intervalTxtField=ConfigUtils.getNumberTextField();
@@ -191,15 +201,48 @@ public class CreateNodeVLDialog extends JDialog{
 	    	intervalTxtField.setText(oldData.getTtInterval()+"");
 	    }
 	    
-	    windowLabel=new JLabel("窗口:");
-	    ttPane.add(windowLabel, "1,3,f,0");
+	    sentIntervalLabel=new JLabel("发送周期:");
+	    ttPane.add(sentIntervalLabel, "1,3,f,0");
+	    
+	    sentIntervalTxtField=ConfigUtils.getNumberTextField();
+	    sentIntervalTxtField.setText("0");
+	    sentIntervalTxtField.setEnabled(false);
+	    ttPane.add(sentIntervalTxtField, "3,3,f,0");
+	    if(oldData!=null){
+	    	sentIntervalTxtField.setText(oldData.getTtSentInterval()+"");
+	    }
+	    
+	    windowOffsetLabel=new JLabel("窗口偏移:");
+	    ttPane.add(windowOffsetLabel, "1,5,f,0");
+	    
+	    windowOffsetTxtField=ConfigUtils.getNumberTextField();
+	    windowOffsetTxtField.setText("0");
+	    windowOffsetTxtField.setEnabled(false);
+	    ttPane.add(windowOffsetTxtField, "3,5,f,0");
+	    if(oldData!=null){
+	    	windowOffsetTxtField.setText(oldData.getTtWindowOffset()+"");
+	    }
+	    
+	    windowLabel=new JLabel("窗口起始时间:");
+	    ttPane.add(windowLabel, "1,7,f,0");
 	    
 	    windowTxtField=ConfigUtils.getNumberTextField();
 	    windowTxtField.setText("0");
 	    windowTxtField.setEnabled(false);
-	    ttPane.add(windowTxtField, "3,3,f,0");
+	    ttPane.add(windowTxtField, "3,7,f,0");
 	    if(oldData!=null){
-	    	windowTxtField.setText(oldData.getTtWindow()+"");
+	    	windowTxtField.setText(oldData.getTtWindowStart()+"");
+	    }
+	    
+	    windowEndLabel=new JLabel("窗口结束时间:");
+	    ttPane.add(windowEndLabel, "1,9,f,0");
+	    
+	    windowEndTxtField=ConfigUtils.getNumberTextField();
+	    windowEndTxtField.setText("0");
+	    windowEndTxtField.setEnabled(false);
+	    ttPane.add(windowEndTxtField, "3,9,f,0");
+	    if(oldData!=null){
+	    	windowEndTxtField.setText(oldData.getTtWindowEnd()+"");
 	    }
 	    
 	    inputPane.add(ttPane, "5,5,7,7");
@@ -251,6 +294,7 @@ public class CreateNodeVLDialog extends JDialog{
 	    this.linkBox=new JComboBox<String>();
 	    linkBox.addItem("正常通信");
 	    linkBox.addItem("RTC");
+	    linkBox.addItem("PCF");
 	    pane.add(linkBox, "3,3,f,c");
 	    if(oldData!=null){
 	    	linkBox.setSelectedIndex(oldData.getUseOfLink());
@@ -331,20 +375,30 @@ public class CreateNodeVLDialog extends JDialog{
 	}
 	
 	private void switchTypeSelection(){
+		//TODO how to deal with other fields
 		if(isTx){
 			// send, tx
 			switch(typeBox.getSelectedIndex()){
-			case 0: // be
+			case 0: // be 
 				this.rcPane.setEnabled(false);
 				this.bagLabel.setEnabled(false);
 				this.bagTxtField.setEnabled(false);
 				this.jitterLabel.setEnabled(false);
 				this.jitterTxtField.setEnabled(false);
 				this.ttPane.setEnabled(false);
+				
 				this.intervalLabel.setEnabled(false);
 				this.intervalTxtField.setEnabled(false);
+				this.sentIntervalLabel.setEnabled(false);
+				this.sentIntervalTxtField.setEnabled(false);
+				
 				this.windowLabel.setEnabled(false);
 				this.windowTxtField.setEnabled(false);
+				this.windowOffsetLabel.setEnabled(false);
+				this.windowOffsetTxtField.setEnabled(false);
+				this.windowEndLabel.setEnabled(false);
+				this.windowEndTxtField.setEnabled(false);
+				
 				break;
 			case 1: // rc
 				this.rcPane.setEnabled(true);
@@ -355,8 +409,15 @@ public class CreateNodeVLDialog extends JDialog{
 				this.ttPane.setEnabled(false);
 				this.intervalLabel.setEnabled(false);
 				this.intervalTxtField.setEnabled(false);
+				this.sentIntervalLabel.setEnabled(false);
+				this.sentIntervalTxtField.setEnabled(false);
+				
 				this.windowLabel.setEnabled(false);
 				this.windowTxtField.setEnabled(false);
+				this.windowOffsetLabel.setEnabled(false);
+				this.windowOffsetTxtField.setEnabled(false);
+				this.windowEndLabel.setEnabled(false);
+				this.windowEndTxtField.setEnabled(false);
 				break;
 			case 2: // tt
 				this.rcPane.setEnabled(false);
@@ -367,8 +428,15 @@ public class CreateNodeVLDialog extends JDialog{
 				this.ttPane.setEnabled(true);
 				this.intervalLabel.setEnabled(true);
 				this.intervalTxtField.setEnabled(true);
+				this.sentIntervalLabel.setEnabled(true);
+				this.sentIntervalTxtField.setEnabled(true);
+				
 				this.windowLabel.setEnabled(true);
 				this.windowTxtField.setEnabled(true);
+				this.windowOffsetLabel.setEnabled(true);
+				this.windowOffsetTxtField.setEnabled(true);
+				this.windowEndLabel.setEnabled(true);
+				this.windowEndTxtField.setEnabled(true);
 				break;
 			}
 		}else{
@@ -378,11 +446,19 @@ public class CreateNodeVLDialog extends JDialog{
 			this.bagTxtField.setEnabled(false);
 			this.jitterLabel.setEnabled(false);
 			this.jitterTxtField.setEnabled(false);
+			
 			this.ttPane.setEnabled(false);
 			this.intervalLabel.setEnabled(false);
 			this.intervalTxtField.setEnabled(false);
+			this.sentIntervalLabel.setEnabled(false);
+			this.sentIntervalTxtField.setEnabled(false);
+			
 			this.windowLabel.setEnabled(false);
 			this.windowTxtField.setEnabled(false);
+			this.windowOffsetLabel.setEnabled(false);
+			this.windowOffsetTxtField.setEnabled(false);
+			this.windowEndLabel.setEnabled(false);
+			this.windowEndTxtField.setEnabled(false);
 		}
 	}
 	
@@ -397,17 +473,28 @@ public class CreateNodeVLDialog extends JDialog{
 			}
 			
 			vl=new NodeVL(nodeName, Integer.valueOf(vlIDStr));
+			if(vl.getVLID()<0 || vl.getVLID()>65535){
+				JOptionPane.showMessageDialog(this, "VL_ID必须在0~65535间");
+				return null;
+			}
 			
-			vl.setType(typeBox.getSelectedIndex()+1);
+			vl.setType((short)(typeBox.getSelectedIndex()+1));
 			vl.setBag(Integer.valueOf(bagTxtField.getText().trim()));
 			vl.setJitter(Integer.valueOf(jitterTxtField.getText().trim()));
+			
 			vl.setTtInterval(Integer.valueOf(intervalTxtField.getText().trim()));
-			vl.setTtWindow(Integer.valueOf(windowTxtField.getText().trim()));
-			vl.setNetworkType(this.networkBox.getSelectedIndex()+1);
-			vl.setUseOfLink(this.linkBox.getSelectedIndex());
-			vl.setRedudanceType(this.redudanceBox.getSelectedIndex());
+			vl.setTtSentInterval(Integer.valueOf(sentIntervalTxtField.getText().trim()));
+			
+			vl.setTtWindowOffset(Integer.valueOf(windowOffsetTxtField.getText().trim()));
+			vl.setTtWindowStart(Integer.valueOf(windowTxtField.getText().trim()));
+			vl.setTtWindowEnd(Integer.valueOf(windowEndTxtField.getText().trim()));
+			
+			vl.setNetworkType((short)(networkBox.getSelectedIndex()+1));
+			vl.setUseOfLink((short)(linkBox.getSelectedIndex()));
+			vl.setRedudanceType((short)(redudanceBox.getSelectedIndex()));
 			vl.setRtcInterval(Integer.valueOf(this.rtcField.getText()));
-			vl.setCompleteCheck(completeCheckBox.getSelectedIndex());
+			vl.setCompleteCheck((short)(completeCheckBox.getSelectedIndex()));
+			vl.setSwitchPortNo(0); //TODO for NMU
 		}catch(Exception ex){
 			JOptionPane.showMessageDialog(this, "输入格式有误:"+ex.getMessage());
 			return null;

@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -21,6 +23,7 @@ import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchMonitor;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
+import dima.config.view.netconfig.topo.SetRedundancyDialog;
 
 public class VersionPane extends JPanel{
 
@@ -47,7 +50,7 @@ public class VersionPane extends JPanel{
 	
 	private void initService(){
 		dao=ServiceFactory.getService(ConfigDAO.class);
-		System.out.println(dao.getClass().getSimpleName());
+		//System.out.println(dao.getClass().getSimpleName());
 	}
 	
 	private JPanel createInputPanel(){
@@ -57,29 +60,29 @@ public class VersionPane extends JPanel{
 		JPanel pane=new JPanel(layout);
 		pane.setBorder(BorderFactory.createTitledBorder("版本信息"));
 	    
-		JLabel label1=new JLabel("配置文件版本号(16进制)");
+		JLabel label1=new JLabel("配置文件版本号");
 		pane.add(label1,"1,1,f,0");
 		
-		versionField=ConfigUtils.getNumberTextField(8);
+		versionField=new JTextField(16);
 		pane.add(versionField,"3,1,f,0");
 		
-		JLabel label2=new JLabel("配置文件生成日期(16进制)");
+		JLabel label2=new JLabel("配置文件生成日期");
 		pane.add(label2,"1,3,f,0");
 		
-		dateField=ConfigUtils.getNumberTextField(8);
+		dateField=new JTextField(16);
 		pane.add(dateField,"3,3,f,0");
 		
 		JLabel label3=new JLabel("配置文件编号");
 		pane.add(label3,"1,5,f,0");
 		
-		fileNoField=ConfigUtils.getNumberTextField(8);
+		fileNoField=ConfigUtils.getNumberTextField(2);
 		pane.add(fileNoField,"3,5,f,0");
 		
 		List<SwitchDevice> switches = dao.readAllSwitchDevices(true);
 		if(switches!=null && switches.size()>0){
 			SwitchDevice sw = switches.get(0);
-			versionField.setText(Integer.toHexString(sw.getVersion()));
-			dateField.setText(Integer.toHexString(sw.getDate()));
+			versionField.setText(sw.getVersion());
+			dateField.setText(sw.getDate());
 			fileNoField.setText(sw.getFileNo()+"");
 		}
 	
@@ -116,48 +119,48 @@ public class VersionPane extends JPanel{
 	
 	private void changeVersion(){
 		String verStr=versionField.getText().trim();
-    	if(verStr.length()<=0){
-    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件版本不能为空");
+    	if(verStr.length()<0 || verStr.length()>16){
+    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件版本0~16字节，目前长度为"+verStr.length());
     		return;
     	}
     	String dateStr=dateField.getText().trim();
-    	if(dateStr.length()<=0){
-    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件生成日期不能为空");
+    	if(dateStr.length()<0 || dateStr.length()>16){
+    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件生成日期0~16字节，目前长度为"+dateStr.length());
     		return;
     	}
     	String fileNoStr=fileNoField.getText().trim();
-    	if(fileNoStr.length()<=0){
-    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件编号不能为空");
+    	if(fileNoStr.length()<0 || fileNoStr.length()>2){
+    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件编号0~15");
     		return;
     	}
     	
-    	int ver=0;
-    	int date=0;
-    	int fileNo=0;
+    	short fileNo=0;
     	try{
-	    	ver=Integer.valueOf(verStr, 16);
-	    	date=Integer.valueOf(dateStr, 16);
-	    	fileNo=Integer.valueOf(fileNoStr);
+	    	fileNo=Short.valueOf(fileNoStr);
+	    	if(fileNo<0 || fileNo>15){
+	    		JOptionPane.showMessageDialog(VersionPane.this, "配置文件编号0~15");
+	    		return;
+	    	}
     	}catch(Exception ex){
-    		JOptionPane.showMessageDialog(VersionPane.this, "输入数值格式不正确，"+ex.getMessage());
+    		JOptionPane.showMessageDialog(VersionPane.this, "输入数值格式不正确，范围0~15，错误:"+ex.getMessage());
     		return;
     	}
-    	
-    	ConfigContext.version=ver;
-    	ConfigContext.date=date;    
+
+    	ConfigContext.version=verStr;
+    	ConfigContext.date=dateStr;    
     	ConfigContext.fileNo=fileNo;
     	
     	List<SwitchDevice> switches = dao.readAllSwitchDevices(true);
     	for(SwitchDevice sw : switches){
-    		sw.setVersion(ver);
-    		sw.setDate(date);
+    		sw.setVersion(verStr);
+    		sw.setDate(dateStr);
     		sw.setFileNo(fileNo);
     		dao.saveSwitchDevice(sw, null);
     		
     		SwitchMonitor mon = dao.readSwitchMonitor(sw.getSwitchName());
     		if(mon!=null){
-    			mon.setVersion(ver);
-    			mon.setDate(date);
+    			mon.setVersion(verStr);
+    			mon.setDate(dateStr);
     			mon.setFileNo(fileNo);
     			dao.saveSwitchMonitor(mon);
     		}
@@ -165,8 +168,8 @@ public class VersionPane extends JPanel{
     	
     	List<NodeDevice> nodes = dao.readAllNodeDevices(true);
     	for(NodeDevice node : nodes){
-    		node.setVersion(ver);
-    		node.setDate(date);
+    		node.setVersion(verStr);
+    		node.setDate(dateStr);
     		node.setFileNo(fileNo);
     		dao.saveNodeDevice(node, null);
     	}

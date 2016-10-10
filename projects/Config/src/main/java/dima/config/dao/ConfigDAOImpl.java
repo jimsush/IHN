@@ -2,9 +2,11 @@ package dima.config.dao;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -40,8 +42,13 @@ public class ConfigDAOImpl implements ConfigDAO {
 					}
 					if(swDevice!=null){
 						allSwitches.put(swName, swDevice);
+						
+						if(swDevice.getNmu()!=null){
+							allNodes.put(swName, swDevice.getNmu());
+						}
 					}
-				}else if(fileName.startsWith("sw_") && fileName.endsWith("_nmu.bin")){
+				}
+				/*else if(fileName.startsWith("sw_") && fileName.endsWith("_nmu.bin")){
 					String swName=ConfigUtils.getSwitchName(fileName);
 					NodeDevice nmu = null;
 					try{
@@ -52,7 +59,8 @@ public class ConfigDAOImpl implements ConfigDAO {
 					if(nmu!=null){
 						allNodes.put(swName, nmu);
 					}
-				}else if(fileName.startsWith("fic_") && fileName.endsWith("_config.bin")){
+				}*/
+				else if(fileName.startsWith("fic_") && fileName.endsWith("_config.bin")){
 					String portNo=ConfigUtils.getPortNo(fileName);
 					NodeDevice curNode = null;
 					try{
@@ -99,11 +107,83 @@ public class ConfigDAOImpl implements ConfigDAO {
 							ConfigContext.REDUNDANCY=2;
 						}
 					}
+					
+					String version=p.getProperty(ConfigUtils.PROP_KEY_VERSION);
+					if(version!=null){
+						if(version.length()<=16){
+							ConfigContext.version=version;
+						}else{
+							ConfigContext.version=version.substring(0,15);
+						}
+					}
+					String date=p.getProperty(ConfigUtils.PROP_KEY_DATE);
+					if(date!=null){
+						if(date.length()<=16){
+							ConfigContext.date=date;
+						}else{
+							ConfigContext.date=date.substring(0,15);
+						}
+					}
+					String fileno=p.getProperty(ConfigUtils.PROP_KEY_FILENO);
+					if(fileno!=null){
+						try{
+							ConfigContext.fileNo=Integer.valueOf(fileno).shortValue();
+						}catch(Exception ex){
+							System.out.println("parse file no failed, "+ex.getMessage());
+						}
+					}
 				}
 			}
 		}
 	}
 
+	@Override
+	public void clearAll(){
+		if(ConfigContext.topoView!=null){
+			ConfigContext.topoView.clearAll();
+		}
+		
+		allSwitches.clear();
+		allNodes.clear();
+		swMonitors.clear();
+		
+		SimpleDateFormat sdt=new SimpleDateFormat("yyyymmddHHmmss");
+		String now = sdt.format(new Date());
+		String backupDirPath="./bak"+now;
+		File backupDir=new File(backupDirPath);
+		backupDir.mkdir();
+		
+		File curDirectory=new File(".");
+		File[] files = curDirectory.listFiles();
+		for(File file : files){
+			if(!file.isDirectory()){
+				String fileName = file.getName();
+				if(isBinFile(fileName)){
+					try{
+						File backupFile=new File(backupDirPath+"/"+fileName);
+						file.renameTo(backupFile);
+						//file.delete();
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
+	private boolean isBinFile(String fileName){
+		if(fileName.startsWith("sw_") && fileName.endsWith("_config.bin")){
+			return true;
+		}else if(fileName.startsWith("sw_") && fileName.endsWith("_nmu.bin")){
+			return true;
+		}else if(fileName.startsWith("fic_") && fileName.endsWith("_config.bin")){
+			return true;
+		}else if(fileName.startsWith("sw_") && fileName.endsWith("_mon.bin")){
+			return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public List<SwitchDevice> readAllSwitchDevices(boolean fromCache) {
 		List<SwitchDevice> list=new ArrayList<>();
@@ -134,6 +214,7 @@ public class ConfigDAOImpl implements ConfigDAO {
 				// update NMU first, otherwise the NMU will be deleted
 				NodeDevice oldNmu = allNodes.get(oldSwitch.getSwitchName());
 				if(oldNmu!=null){
+					/*
 					String oldNmuBinFile = ConfigUtils.getNMUConfigFileName(oldSwitch.getSwitchName());
 					String newNmuBinFile = ConfigUtils.getNMUConfigFileName(switchDevice.getSwitchName());
 					try{
@@ -142,7 +223,7 @@ public class ConfigDAOImpl implements ConfigDAO {
 						oldFile.renameTo(newFile);
 					}catch(Exception ex){
 						ex.printStackTrace();
-					}
+					}*/
 					
 					// update NMU cache
 					oldNmu.setNodeName(switchDevice.getSwitchName());
@@ -195,6 +276,7 @@ public class ConfigDAOImpl implements ConfigDAO {
 		allSwitches.remove(switchName);
 		
 		// remove this switch's NMU file
+		/*
 		String nmuBinFile = ConfigUtils.getNMUConfigFileName(switchName);
 		try{
 			File file=new File(nmuBinFile);
@@ -202,6 +284,7 @@ public class ConfigDAOImpl implements ConfigDAO {
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+		*/
 		allNodes.remove(switchName);
 		
 		// remove this switch's monitor file
@@ -249,6 +332,9 @@ public class ConfigDAOImpl implements ConfigDAO {
 
 	@Override
 	public void deleteNodeDevice(NodeDevice nodeDevice) {
+		if(nodeDevice==null)
+			return;
+		
 		String fileName=null;
 		if(nodeDevice.getType()==ConfigUtils.TYPE_NMU){
 			fileName=ConfigUtils.getNMUConfigFileName(nodeDevice.getNodeName());
@@ -300,6 +386,13 @@ public class ConfigDAOImpl implements ConfigDAO {
 		if(nodeName==null)
 			return null;
 		return allNodes.get(nodeName);
+	}
+	
+	@Override
+	public void updateNMUCache(NodeDevice nmu){
+		if(nmu!=null){
+			allNodes.put(nmu.getNodeName(), nmu);
+		}
 	}
 	
 	private void saveNode2File(NodeDevice nodeDevice){

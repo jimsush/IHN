@@ -3,13 +3,17 @@ package dima.config.common;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JTextField;
 
 import dima.config.common.controls.NumberDocument;
 import dima.config.common.controls.TableLayout;
+import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
@@ -25,8 +29,15 @@ public class ConfigUtils {
 	public static final int TYPE_NMU=1;
 	public static final int TYPE_SW=2;
 	
+	/** switch has 32 ports */
+	public static final int MAX_NUM_OF_PORTS=32;
+	
 	public static final String SYS_PROP_FILE="sys.properties";
 	public static final String PROP_KEY_REDUNDANCY="redundancy";
+	
+	public static final String PROP_KEY_VERSION="version";
+	public static final String PROP_KEY_DATE="date";
+	public static final String PROP_KEY_FILENO="fileno";
 	
 	public static final String TYPE_STR_SW="switch";
 	public static final String TYPE_STR_NODE="node";
@@ -35,6 +46,107 @@ public class ConfigUtils {
 	public static final String PROP_LINK_ADJUST_RATIO="mylink.adjust.ratio";
 	
 	public static final String[] SHADOW_SCALES={"s","m","l"};
+	
+	public static int getPortFullNo(int devId, int portShortNo){
+		int portNo=portShortNo+(devId<<16);
+		//Integer.toHexString(portNo)
+		return portNo;
+	}
+	
+	public static String intListToString(List<Integer> elements){
+		StringBuilder sb=new StringBuilder();
+		int i=0;
+		for(Integer intV : elements){
+			if(i>0){
+				sb.append(",");
+			}
+			sb.append(intV);
+			i++;
+		}
+		return sb.toString();
+	}
+	
+	public static String intListToString(List<Integer> elements, boolean isHex){
+		if(isHex){
+			StringBuilder sb=new StringBuilder();
+			int i=0;
+			for(Integer intV : elements){
+				if(i>0){
+					sb.append(",");
+				}
+				String hexPortNo=Integer.toHexString(intV);
+				sb.append(hexPortNo);
+				i++;
+			}
+			return sb.toString();
+		}else{
+			return intListToString(elements);
+		}
+	}
+	
+	public static List<Integer> stringToIntList(String str){
+		List<Integer> elements=new ArrayList<>();
+		String[] fs= str.split(",");
+		if(fs==null){
+			return elements;
+		}
+		for(String f : fs){
+			elements.add(Integer.valueOf(f.trim()));
+		}
+		return elements;
+	}
+	
+	public static List<Integer> stringToIntList(String str, boolean isHex){
+		if(isHex){
+			List<Integer> elements=new ArrayList<>();
+			String[] fs= str.split(",");
+			if(fs==null){
+				return elements;
+			}
+			for(String f : fs){
+				elements.add(Integer.valueOf(f.trim(), 16));
+			}
+			return elements;
+		}else{
+			return stringToIntList(str);
+		}
+	}
+	
+	/**
+	 * 0-63, result[0] is high code 32-63, result[1] is low code 0-31
+	 * @param portNos from 0 to 63
+	 * @return
+	 */
+	public static int[] listToIntBitSet(List<Integer> portNos){
+		int lowCode=0;
+		int highCode=0;
+		for(Integer portNo : portNos){
+			if(portNo>=32){
+				highCode += 1<<(portNo-32);
+			}else{
+				lowCode += 1<<(portNo);  
+			}
+		}
+		int[] res=new int[]{highCode, lowCode};
+		return res;
+	}
+	
+	/** 
+	 * port no is from 0 to 31
+	 * @param d bitmap number
+	 * @param offset =0
+	 * @return 0-31
+	 */
+	public static List<Integer> bitsetIntToList(int d, int offset){
+		List<Integer> list=new ArrayList<Integer>();
+		for(int i=0; i<32; i++){
+			int mask=1<<i;
+			if((d & mask)!=0){
+				list.add((offset+i)); 
+			}
+		}
+		return list;
+	}
 	
 	public static String buildPortId(Object deviceId, Object portNo){
 		return deviceId.toString()+"_port"+portNo;
@@ -79,7 +191,7 @@ public class ConfigUtils {
 	}
 	
 	public static String getNodeNameFromTwaverID(String twaverId){
-		int pos=twaverId.indexOf("_");
+		int pos=twaverId.lastIndexOf("_");
 		return twaverId.substring(0, pos);
 	}
 	
@@ -148,6 +260,15 @@ public class ConfigUtils {
 	
 	public static String buildShadowId(String dupNumber, int portNumber, int scale, boolean left){
 		String leftName= (left?"l":"r");
+		if(portNumber>=48){
+			portNumber=48;
+		}else if(portNumber>=32){
+			portNumber=32;
+		}else if(portNumber>=24){
+			portNumber=24;
+		}else{
+			portNumber=16;
+		}
 		return "shadow_"+dupNumber+"_"+portNumber+"-"+SHADOW_SCALES[scale%3]+"-"+leftName;
 	}
 	
@@ -249,10 +370,61 @@ public class ConfigUtils {
     	return new NumberResult<Integer>(false, 0, fieldName+"不明数据格式");
     }
     
+    public static int getNextUnusedSwitchPort(){
+    	ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+    	List<SwitchDevice> switches = dao.readAllSwitchDevices(true);
+    	
+    	for(SwitchDevice sw: switches){
+	    	Set<Integer> eportIds = sw.getEportSet();
+			Set<Integer> usedPortNos = new HashSet<>();
+			for(Integer portId : eportIds){
+				usedPortNos.add(portId & 0xffff); // low 2 bytes
+			}
+			// other nodes used this switch's ports
+			int swId=sw.getLocalDomainID();
+			List<NodeDevice> nodes = dao.readAllNodeDevices(true);
+			for(NodeDevice node : nodes){
+				int swId1=(node.getPortNo() >> 16) & 0xffff;
+				if(swId==swId1){
+					usedPortNos.add(node.getPortNo() & 0xffff); // low 2 bytes
+				}
+			}
+			
+			int maxPort=sw.getPortNumber();
+			for(int i=1; i<=maxPort; i++){
+				if(!usedPortNos.contains(i)){
+					return i + (sw.getLocalDomainID() <<16) ;
+				}
+			}
+    	}
+    	return 0;
+    }
+    
+    public static void copyHideFieldsForSwitch(SwitchDevice oldSwitchDevice, SwitchDevice newSwitchDevice){
+    	newSwitchDevice.setNmu(oldSwitchDevice.getNmu());
+    	
+    	newSwitchDevice.setVersion(oldSwitchDevice.getVersion());
+    	newSwitchDevice.setDate(oldSwitchDevice.getDate());
+    	newSwitchDevice.setFileNo(oldSwitchDevice.getFileNo());
+		
+    	newSwitchDevice.setDefaultPlanNo(oldSwitchDevice.getDefaultPlanNo());
+    	newSwitchDevice.setPlanNum(oldSwitchDevice.getPlanNum());
+    	newSwitchDevice.setPlanNo(oldSwitchDevice.getPlanNo());
+    	newSwitchDevice.setVlFwdConfigNum(oldSwitchDevice.getVlFwdConfigNum());
+    	newSwitchDevice.setPortsStatus(oldSwitchDevice.getPortsStatus());
+    	
+    }
+    
     public static void main(String[] args){
 		//String fullName=getSwitchConfigFileName("abc");
 		//String switchName=getSwitchName(fullName);
 		//System.out.println(switchName);
+    	
+    	
+    	List<Integer> ports = bitsetIntToList(0x02ffff01, 0);
+    	int[] masks=listToIntBitSet(ports);
+    	System.out.println(masks);
+    	
 		String str=getPortName(1,2);
 		System.out.println(str);
 		System.out.println(Integer.valueOf(str.substring(2), 16));

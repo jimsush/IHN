@@ -3,10 +3,13 @@ package dima.config.common;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import dima.config.view.netconfig.TopoView;
+
 public class ConfigContext {
 	
 	public static JFrame mainFrame;
 	public static JPanel rightPanel;
+	public static TopoView topoView;
 	
 	public static int REDUNDANCY=1;
 	
@@ -18,8 +21,8 @@ public class ConfigContext {
 	/** max of configuration table, 4*/
 	public static int MAX_NUM_CFGTABLE=4;
 	
-	public static int version=0;
-	public static int date=0;
-	public static int fileNo=0;
+	public static String version="";
+	public static String date="";
+	public static short fileNo=0;
 
 }

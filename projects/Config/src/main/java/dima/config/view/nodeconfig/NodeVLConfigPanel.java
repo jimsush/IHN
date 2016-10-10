@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import dima.config.common.ConfigContext;
@@ -79,7 +78,7 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		
 		initTopPanel();
 		
-		JScrollPane treePane = initCfgTablePanel();
+		//JScrollPane treePane = initCfgTablePanel();
 		
 		JPanel rightPane=new JPanel(new BorderLayout());
 		JPanel txPane=initTxVLPanel();
@@ -87,29 +86,34 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		JPanel rxPane=initRxVLPanel();
 		rightPane.add(rxPane, BorderLayout.SOUTH);
 		
-		JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, rightPane);
-		bottomPane.setDividerLocation(140);
-		
-		this.add(bottomPane, BorderLayout.CENTER);
+		//JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, rightPane);
+		//bottomPane.setDividerLocation(140);
+		//this.add(bottomPane, BorderLayout.CENTER);
+		this.add(rightPane, BorderLayout.CENTER);
 		
 		if(nodeBox.getSelectedItem()!=null){
 			String nodeName=nodeBox.getSelectedItem().toString();
+			this.currentNodeName=nodeName;
 			
-			fillTree(nodeName);
+			//fillTree(nodeName);
 			
 			// select the first cfg table
-			List<?> children = treeRoot.getChildren();
-			if(children!=null && children.size()>0){
-				Object child=children.get(0);
-				Element cfgTableElement=(Element)child;
+			//List<?> children = treeRoot.getChildren();
+			//if(children!=null && children.size()>0){
+			//	Object child=children.get(0);
+			//	Element cfgTableElement=(Element)child;
 				
-				cfgTableElement.setSelected(true);
-				fillTxTable(nodeName, cfgTableElement);
-				fillRxTable(nodeName, cfgTableElement);
-			}
+			//	cfgTableElement.setSelected(true);
+				fillTxTable(nodeName);
+				fillRxTable(nodeName);
+			//}
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 * @return
+	 */
 	private JScrollPane initCfgTablePanel() {
 		this.treebox=new TDataBox();
 		this.tree=new TTree(this.treebox, new Comparator<Element>(){
@@ -132,8 +136,8 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 					cfgTableElement=node.getElement();
 				}
 				
-				fillTxTable(currentNodeName, cfgTableElement);
-				fillRxTable(currentNodeName, cfgTableElement);
+				//fillTxTable(currentNodeName, cfgTableElement);
+				//fillRxTable(currentNodeName, cfgTableElement);
 		}});
 		
 		JScrollPane treePane=new JScrollPane(this.tree);
@@ -173,12 +177,14 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 				String nodeName=obj.toString();
 				currentNodeName=nodeName;
 				
-				fillTree(nodeName);
+				//fillTree(nodeName);
 				
-				Element ele = treebox.getLastSelectedElement();
+				//Element ele = treebox.getLastSelectedElement();
 				
-				fillTxTable(nodeName, ele);
-				fillRxTable(nodeName, ele);
+				//fillTxTable(nodeName, ele);
+				//fillRxTable(nodeName, ele);
+				fillTxTable(nodeName);
+				fillRxTable(nodeName);
 			}
 		});
 		
@@ -192,7 +198,7 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		leftPanel.add(sortingBox);
 		
 		JButton btnAddCfgTable=new JButton("创建配置表");
-		leftPanel.add(btnAddCfgTable);
+		//leftPanel.add(btnAddCfgTable);
 		btnAddCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -215,7 +221,7 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		});
 		
 		JButton btnDeleteCfgTable=new JButton("删除配置表");
-		leftPanel.add(btnDeleteCfgTable);
+		//leftPanel.add(btnDeleteCfgTable);
 		btnDeleteCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -266,11 +272,11 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 				if(obj==null){
 					return;
 				}
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId<=0){
-					return;
-				}
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId<=0){
+				//	return;
+				//}
 				
 				CreateNodeVLDialog dlg=new CreateNodeVLDialog(ConfigContext.mainFrame, 
 						"增加发送VL", obj.toString(), null, NodeVLConfigPanel.this, true);
@@ -341,14 +347,14 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId>0){
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId>0){
 					int nextVLID=getNextVLID(txBox);
 					NodeVL newVL=cloneNodeVL(copiedTxVL, nextVLID);
 					
 					addOrUpdateTxNodeVL(newVL, null);
-				}
+				//}
 			}
 		});
 		
@@ -366,8 +372,13 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		newVL.setType(vl.getType());
 		newVL.setBag(vl.getBag());
 		newVL.setJitter(vl.getJitter());
+		
 		newVL.setTtInterval(vl.getTtInterval());
-		newVL.setTtWindow(vl.getTtWindow());
+		newVL.setTtSentInterval(vl.getTtSentInterval());
+		newVL.setTtWindowStart(vl.getTtWindowStart());
+		newVL.setTtWindowEnd(vl.getTtWindowEnd());
+		newVL.setTtWindowOffset(vl.getTtWindowOffset());
+		
 		newVL.setNetworkType(vl.getNetworkType());
 		newVL.setCompleteCheck(vl.getCompleteCheck());
 		newVL.setRedudanceType(vl.getRedudanceType());
@@ -408,11 +419,11 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 				if(obj==null){
 					return;
 				}
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId<=0){
-					return;
-				}
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId<=0){
+				//	return;
+				//}
 				
 				CreateNodeVLDialog dlg=new CreateNodeVLDialog(ConfigContext.mainFrame, 
 						"增加接收VL", obj.toString(), null, NodeVLConfigPanel.this, false);
@@ -481,14 +492,14 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId>0){
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId>0){
 					int nextVLID=getNextVLID(rxBox);
 					NodeVL newVL=cloneNodeVL(copiedRxVL, nextVLID);
 					
 					addOrUpdateRxNodeVL(newVL, null);
-				}
+				//}
 			}
 		});
 		
@@ -536,14 +547,29 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 			attribute.setName("jitter");
 			attribute.setDisplayName("Jitter");
 			attributes.add(attribute);
+			
 			attribute = new ElementAttribute();
 			attribute.setName("ttInterval");
-			attribute.setDisplayName("TT周期");
+			attribute.setDisplayName("TT起始周期");
 			attributes.add(attribute);
 			attribute = new ElementAttribute();
-			attribute.setName("ttWindow");
-			attribute.setDisplayName("TT窗口");
+			attribute.setName("ttSentInterval");
+			attribute.setDisplayName("TT发送周期");
 			attributes.add(attribute);
+			
+			attribute = new ElementAttribute();
+			attribute.setName("ttWindowOffset");
+			attribute.setDisplayName("TT窗口偏移");
+			attributes.add(attribute);
+			attribute = new ElementAttribute();
+			attribute.setName("ttWindowStart");
+			attribute.setDisplayName("TT窗口起始时间");
+			attributes.add(attribute);
+			attribute = new ElementAttribute();
+			attribute.setName("ttWindowEnd");
+			attribute.setDisplayName("TT窗口结束时间");
+			attributes.add(attribute);
+			
 			
 			attribute = new ElementAttribute();
 			attribute.setName("networkType");
@@ -578,21 +604,21 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		table.getTableModel().sortColumn("VLID", TTableModel.SORT_ASCENDING);
 		
 		Map<Object, String> m1=new HashMap<Object, String>();
-		m1.put(1, "BE");
-		m1.put(2, "RC");
-		m1.put(3, "TT");
+		m1.put((short)1, "BE");
+		m1.put((short)2, "RC");
+		m1.put((short)3, "TT");
 		EnumTableCellRenderer r1=new EnumTableCellRenderer(m1);
 		table.getColumnByName("type").setCellRenderer(r1);
 		
 		Map<Object, String> enableMap=new HashMap<Object, String>();
-		enableMap.put(0, "NO");
-		enableMap.put(1, "YES");
+		enableMap.put((short)0, "NO");
+		enableMap.put((short)1, "YES");
 		
 		if(isTx){
 			Map<Object, String> m2=new HashMap<Object, String>();
-			m2.put(1, "网络A");
-			m2.put(2, "网络B");
-			m2.put(3, "BOTH");
+			m2.put((short)1, "网络A");
+			m2.put((short)2, "网络B");
+			m2.put((short)3, "BOTH");
 			EnumTableCellRenderer r2=new EnumTableCellRenderer(m2);
 			table.getColumnByName("networkType").setCellRenderer(r2);
 		}else{
@@ -604,8 +630,9 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		table.getColumnByName("redudanceType").setCellRenderer(r3);
 		
 		Map<Object, String> m4=new HashMap<Object, String>();
-		m4.put(0, "正常通信");
-		m4.put(1, "RTC");
+		m4.put((short)0, "正常通信");
+		m4.put((short)1, "RTC");
+		m4.put((short)2, "PCF");
 		EnumTableCellRenderer r4=new EnumTableCellRenderer(m4);
 		table.getColumnByName("useOfLink").setCellRenderer(r4);
 		
@@ -632,110 +659,121 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		return list;
 	}
 	
-	private void fillTxTable(String nodeName, Element cfgTableElement){
+	private void fillTxTable(String nodeName){//, Element cfgTableElement){
 		txBox.clear();
 		
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice nodeDevice = dao.readNodeDeviceFromCache(nodeName);
 		if(nodeDevice!=null){
-			List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getTxVLs();
+			//List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getTxVLs();
+					List<NodeVL> vls = nodeDevice.getTxVls();
 					if(vls!=null){
 						for(NodeVL vl : vls){
 							txBox.addElement(vl);
 						}
 					}
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 		}
 	}
 	
-	private void fillRxTable(String nodeName, Element cfgTableElement){
+	private void fillRxTable(String nodeName){//, Element cfgTableElement){
 		rxBox.clear();
 		
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice nodeDevice = dao.readNodeDeviceFromCache(nodeName);
 		if(nodeDevice!=null){
-			List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getRxVLs();
+			//List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getRxVLs();
+					List<NodeVL> vls = nodeDevice.getRxVls();
 					if(vls!=null){
 						for(NodeVL vl : vls){
 							rxBox.addElement(vl);
 						}
 					}
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 		}
 	}
 
 	public void addOrUpdateTxNodeVL(NodeVL newNodeVL, NodeVL oldVL){
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
-		List<NodeDeviceCfg> cfgs = node.getCfgs();
+		//List<NodeDeviceCfg> cfgs = node.getCfgs();
 		if(oldVL==null){
 			txBox.addElement(newNodeVL);
 
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getTxVLs();
-					if(vls==null){
-						vls =new ArrayList<NodeVL>();
-						cfg.setTxVLs(vls);
-					}
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getTxVLs();
+			//		if(vls==null){
+			//			vls =new ArrayList<NodeVL>();
+			//			cfg.setTxVLs(vls);
+			//		}
+					List<NodeVL> vls = node.getTxVls();
 					vls.add(newNodeVL);
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 			dao.saveNodeDevice(node, null);
 		}else{
 			txBox.removeElement(oldVL);
 
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getTxVLs();
-					if(vls==null){
-						vls =new ArrayList<NodeVL>();
-						cfg.setTxVLs(vls);
-						vls.add(newNodeVL);
-					}else{
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getTxVLs();
+			//		if(vls==null){
+			//			vls =new ArrayList<NodeVL>();
+			//			cfg.setTxVLs(vls);
+			//			vls.add(newNodeVL);
+			//		}else{
+						List<NodeVL> vls = node.getTxVls();
 						for(NodeVL vl : vls){
 							if(oldVL.getVLID()==vl.getVLID()){ //matched than update
 								vl.setBag(newNodeVL.getBag());
 								vl.setJitter(newNodeVL.getJitter());
 								vl.setType(newNodeVL.getType());  //1-BE、2-RC、3-TT
+								
 								vl.setTtInterval(newNodeVL.getTtInterval());
-								vl.setTtWindow(newNodeVL.getTtWindow());
+								vl.setTtSentInterval(newNodeVL.getTtSentInterval());
+								
+								vl.setTtWindowStart(newNodeVL.getTtWindowStart());
+								vl.setTtWindowOffset(newNodeVL.getTtWindowOffset());
+								vl.setTtWindowEnd(newNodeVL.getTtWindowEnd());
+								
 								vl.setNetworkType(newNodeVL.getNetworkType());
 								vl.setCompleteCheck(newNodeVL.getCompleteCheck());
 								vl.setRedudanceType(newNodeVL.getRedudanceType());
 								vl.setUseOfLink(newNodeVL.getUseOfLink());
 								vl.setRtcInterval(newNodeVL.getRtcInterval());
+								vl.setSwitchPortNo(newNodeVL.getSwitchPortNo());
 								break;
 							}
 						}
-					}
-					break;
-				}
-			}
+					//}
+			//		break;
+			//	}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 			txBox.addElement(newNodeVL);
@@ -743,61 +781,57 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 	
 	public void addOrUpdateRxNodeVL(NodeVL newNodeVL, NodeVL oldVL){
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
-		List<NodeDeviceCfg> cfgs = node.getCfgs();
+		List<NodeVL> vls = node.getRxVls();
+		//List<NodeDeviceCfg> cfgs = node.getCfgs();
 		if(oldVL==null){
 			rxBox.addElement(newNodeVL);
 	
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getRxVLs();
-					if(vls==null){
-						vls =new ArrayList<NodeVL>();
-						cfg.setRxVLs(vls);
-					}
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getRxVLs();
+			//		if(vls==null){
+			//			vls =new ArrayList<NodeVL>();
+			//			cfg.setRxVLs(vls);
+			//		}
 					vls.add(newNodeVL);
 					//this.sortConfigTable(vls);
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 		}else{
 			rxBox.removeElement(oldVL);
 			
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = cfg.getRxVLs();
-					if(vls==null){
-						vls =new ArrayList<NodeVL>();
-						cfg.setRxVLs(vls);
-						vls.add(newNodeVL);
-					}else{
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = cfg.getRxVLs();
+			//		if(vls==null){
+			//			vls =new ArrayList<NodeVL>();
+			//			cfg.setRxVLs(vls);
+			//			vls.add(newNodeVL);
+			//		}else{
 						for(NodeVL vl : vls){
 							if(oldVL.getVLID()==vl.getVLID()){
-								//vl.setBag(newNodeVL.getBag());
-								//vl.setJitter(newNodeVL.getJitter());
 								vl.setType(newNodeVL.getType());  //1-BE、2-RC、3-TT
-								//vl.setTtInterval(newNodeVL.getTtInterval());
-								//vl.setTtWindow(newNodeVL.getTtWindow());
-								//vl.setNetworkType(newNodeVL.getNetworkType());
 								vl.setCompleteCheck(newNodeVL.getCompleteCheck());
 								vl.setRedudanceType(newNodeVL.getRedudanceType());
 								vl.setUseOfLink(newNodeVL.getUseOfLink());
-								//vl.setRtcInterval(newNodeVL.getRtcInterval());
+								vl.setSwitchPortNo(newNodeVL.getSwitchPortNo());
 								break;
 							}
 						}
-					}
-					break;
-				}
-			}
+					//}
+					//break;
+				//}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 			
@@ -806,30 +840,32 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 	
 	public void deleteVL(NodeVL currentVL, boolean isTx){
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
 		if(node!=null){
-			List<NodeDeviceCfg> cfgs = node.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeVL> vls = isTx ? cfg.getTxVLs() : cfg.getRxVLs();
+			//List<NodeDeviceCfg> cfgs = node.getCfgs();
+			List<NodeVL> vls = isTx ? node.getTxVls() : node.getRxVls();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeVL> vls = isTx ? cfg.getTxVLs() : cfg.getRxVLs();
 					if(vls!=null){
 						Iterator<NodeVL> it = vls.iterator();
 						for( ; it.hasNext() ; ){
 							NodeVL vl = it.next();
 							if(vl.getVLID()==currentVL.getVLID()){
 								it.remove();
+								break;
 							}
 						}
 					}
-					break;
-				}
-			}
+				//	break;
+				//}
+			//}
 			dao.saveNodeDevice(node, null);
 		}
 		
@@ -840,7 +876,12 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @param nodeName
+	 */
 	private void fillTree(String nodeName){
+		/*
 		treebox.clear();
 		
 		if(nodeName==null){
@@ -867,10 +908,15 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 		}
 
 		tree.expandAll();
+		*/
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void addOrUpdateConfigTable(boolean isAdd, int cfgTableId) {
+		/*
 		Node cfgNode=null;
 		String twaverId = ConfigUtils.getCfgTableTwaverId(cfgTableId);
 		if(isAdd){
@@ -904,10 +950,15 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 			}
 			dao.saveNodeDevice(nodeDev, null);
 		}
+		*/
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void deleteConfigTable(int cfgTableId) {
+		/*
 		treebox.removeElementByID(ConfigUtils.getCfgTableTwaverId(cfgTableId));
 		
 		NodeDevice nodeDev = dao.readNodeDeviceFromCache(currentNodeName);
@@ -924,6 +975,7 @@ public class NodeVLConfigPanel extends JPanel implements ConfigTableCallback{
 			sortConfigTable(cfgs);
 			dao.saveNodeDevice(nodeDev, null);
 		}
+		*/
 	}
 	
 	private void sortConfigTable(List<NodeDeviceCfg> cfgs) {

@@ -19,6 +19,7 @@ import dima.config.common.controls.TableLayout;
 import twaver.TWaverUtil;
 
 /**
+ * @deprecated
  * create/update VL configuration table
  *
  */
@@ -155,7 +156,7 @@ public class CreateVLCfgTableDialog extends JDialog{
                 	}
                 	
                 	try{
-                		tablePane.addOrUpdateConfigTable(isAdd, cfgTableId, planNum, defaultPlanId);
+                		//tablePane.addOrUpdateConfigTable(isAdd, cfgTableId, planNum, defaultPlanId);
                 	}catch(Exception ex){
         				String msg=ex.getMessage();
         				if(msg!=null && msg.contains("already exist")){

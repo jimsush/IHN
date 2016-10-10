@@ -12,9 +12,15 @@ public class NodeMessage extends Node{
 	private String messageName;
 	private int vl;
 	private int maxOfLen;
-	private int useOfMessage=0;
-	private int snmpID;
-	private int loadID;
+	private short useOfMessage=0;
+	private short snmpID;
+	private short loadID;
+	
+	/*1-BE¡¢2-RC¡¢3-TT*/
+	private short type=1;
+	
+	private int sID;
+	private int dID;
 	
 	public NodeMessage(String nodeName, int messageID){
 		super(nodeName+"_"+messageID);
@@ -46,22 +52,22 @@ public class NodeMessage extends Node{
 	public void setMaxOfLen(int maxOfLen) {
 		this.maxOfLen = maxOfLen;
 	}
-	public int getUseOfMessage() {
+	public short getUseOfMessage() {
 		return useOfMessage;
 	}
-	public void setUseOfMessage(int useOfMessage) {
+	public void setUseOfMessage(short useOfMessage) {
 		this.useOfMessage = useOfMessage;
 	}
-	public int getSnmpID() {
+	public short getSnmpID() {
 		return snmpID;
 	}
-	public void setSnmpID(int snmpID) {
+	public void setSnmpID(short snmpID) {
 		this.snmpID = snmpID;
 	}
-	public int getLoadID() {
+	public short getLoadID() {
 		return loadID;
 	}
-	public void setLoadID(int loadID) {
+	public void setLoadID(short loadID) {
 		this.loadID = loadID;
 	}
 	public int getVl() {
@@ -69,6 +75,30 @@ public class NodeMessage extends Node{
 	}
 	public void setVl(int vl) {
 		this.vl = vl;
+	}
+
+	public short getType() {
+		return type;
+	}
+
+	public void setType(short type) {
+		this.type = type;
+	}
+
+	public int getSID() {
+		return sID;
+	}
+
+	public void setSID(int sID) {
+		this.sID = sID;
+	}
+
+	public int getDID() {
+		return dID;
+	}
+
+	public void setDID(int dID) {
+		this.dID = dID;
 	}
 	
 	

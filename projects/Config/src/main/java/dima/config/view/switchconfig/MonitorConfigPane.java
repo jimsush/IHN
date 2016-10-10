@@ -19,7 +19,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import dima.config.common.ConfigContext;
@@ -40,7 +39,6 @@ import twaver.Node;
 import twaver.TDataBox;
 import twaver.table.TElementTable;
 import twaver.table.TTableModel;
-import twaver.tree.ElementNode;
 import twaver.tree.TTree;
 
 public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
@@ -83,7 +81,8 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		
 		if(switchBox.getSelectedItem()!=null){
 			String switchName=switchBox.getSelectedItem().toString();
-			
+			this.currentSwitchName=switchName;
+			/*
 			fillTree(switchName);
 			
 			// select the first cfg table
@@ -95,6 +94,8 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 				cfgTableElement.setSelected(true);
 				fillTable(switchName, cfgTableElement);
 			}
+			*/
+			fillTable(switchName);
 		}
 	}
 	
@@ -126,15 +127,16 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 				String switchName=obj.toString();
 				currentSwitchName=switchName;
 				
-				fillTree(switchName);
+				//fillTree(switchName);
 				
-				Element ele = treebox.getLastSelectedElement();
-				fillTable(switchName, ele);
+				//Element ele = treebox.getLastSelectedElement();
+				//fillTable(switchName, ele);
+				fillTable(switchName);
 			}
 		});
 		
 		JButton btnAddConfigTable=new JButton("创建配置表");
-		switchPanel.add(btnAddConfigTable);
+		//switchPanel.add(btnAddConfigTable);
 		btnAddConfigTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -157,7 +159,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		});
 
 		JButton btnDeleteConfigTable=new JButton("删除配置表");
-		switchPanel.add(btnDeleteConfigTable);
+		//switchPanel.add(btnDeleteConfigTable);
 		btnDeleteConfigTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -204,6 +206,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 	}
 	
 	private void initBottomPanel(){
+		/*
 		// tree panel
 		this.treebox=new TDataBox();
 		this.tree=new TTree(this.treebox, new Comparator<Element>(){
@@ -229,6 +232,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		}});
 		
 		JScrollPane treePane=new JScrollPane(this.tree);
+		*/
 		
 		// right: button, table
 		JPanel btnTbPanel=new JPanel(new BorderLayout());
@@ -294,14 +298,14 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId>0){
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId>0){
 					int nextPortId=getNextMonitorPortId();
-					SwitchMonitorPort newVL=cloneMonitorPort(copiedMonitorPort, cfgTableId, nextPortId);
+					SwitchMonitorPort newVL=cloneMonitorPort(copiedMonitorPort, 1, nextPortId);
 					
 					addOrUpdateSwitchMonitor(newVL, null);
-				}
+				//}
 			}
 		});
 		
@@ -322,10 +326,11 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		btnTbPanel.add(tablePanel, BorderLayout.CENTER);
 		
 		// main split panel
-		JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, btnTbPanel);
-		bottomPane.setDividerLocation(140);
+		//JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, btnTbPanel);
+		//bottomPane.setDividerLocation(140);
 		
-		this.add(bottomPane, BorderLayout.CENTER);
+		//this.add(bottomPane, BorderLayout.CENTER);
+		this.add(btnTbPanel, BorderLayout.CENTER);
 	}
 	
 	private SwitchMonitorPort cloneMonitorPort(SwitchMonitorPort currentMon, int configTableId, int portId) {
@@ -335,6 +340,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		newMon.setPortInputPortList(currentMon.getPortInputPortList());
 		newMon.setPortOutputPortList(currentMon.getPortOutputPortList());
 		newMon.setPortVLList(currentMon.getPortVLList());
+		newMon.setLocationId(currentMon.getLocationId());
 		return newMon;
 	}
 	
@@ -353,7 +359,15 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		return maxId+1;
 	}
 
+	/**
+	 * @deprecated
+	 * @param switchName
+	 */
 	private void fillTree(String switchName){
+		if(true)
+			return;
+		
+		/*
 		treebox.clear();
 		
 		if(switchName==null){
@@ -380,29 +394,31 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		}
 		
 		tree.expandAll();
+		*/
 	}
 	
-	private void fillTable(String switchName, Element cfgTableElement){
+	private void fillTable(String switchName){//, Element cfgTableElement){
 		tablebox.clear();
 		
-		if(cfgTableElement==null || cfgTableElement.getParent()==null){
-			return;
-		}
+		//if(cfgTableElement==null || cfgTableElement.getParent()==null){
+		//	return;
+		//}
 		
-		int cfgTableId=ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//int cfgTableId=ConfigUtils.getCurrentCfgTableId(cfgTableElement);
 		
 		SwitchMonitor mon = dao.readSwitchMonitor(switchName);
 		if(mon!=null){
-			List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
-			for(SwitchMonitorCfg cfg : cfgs){
-				if(cfgTableId==cfg.getCfgTableId()){
-					List<SwitchMonitorPort> ports = cfg.getMonitorPorts();
+			//List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
+			//for(SwitchMonitorCfg cfg : cfgs){
+			//	if(cfgTableId==cfg.getCfgTableId()){
+			//		List<SwitchMonitorPort> ports = cfg.getMonitorPorts();
+					List<SwitchMonitorPort> ports =mon.getMonitorPorts();
 					for(SwitchMonitorPort port : ports){
 						tablebox.addElement(port);
 					}
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 		}
 	}
 	
@@ -413,14 +429,17 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 
 			SwitchMonitor mon = dao.readSwitchMonitor(currentSwitchName);
 			if(mon!=null){
-				List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
-				if(cfgs!=null){
-					for(SwitchMonitorCfg cfg : cfgs){
-						cfg.setMirrorPortNum(0);
-						cfg.setMonitorPorts(new ArrayList<>());
-					}
-					dao.saveSwitchMonitor(mon);
-				}
+				//List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
+				//if(cfgs!=null){
+				//	for(SwitchMonitorCfg cfg : cfgs){
+				//		cfg.setMirrorPortNum(0);
+				//		cfg.setMonitorPorts(new ArrayList<>());
+				//	}
+				List<SwitchMonitorPort> monitorPorts = mon.getMonitorPorts();
+				monitorPorts.clear();
+				
+				dao.saveSwitchMonitor(mon);
+				//}
 			}
 		}
 	}
@@ -438,7 +457,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 			
 			SwitchMonitorPort m=(SwitchMonitorPort)element;
 			SwitchMonitor mon = dao.readSwitchMonitor(m.getSwitchName());
-			if(mon!=null){
+			/*if(mon!=null){
 				List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
 				if(cfgs!=null){
 					for(SwitchMonitorCfg cfg : cfgs){
@@ -458,10 +477,19 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 							break;
 						}
 					}
+				}*/
+				
+				List<SwitchMonitorPort> ports = mon.getMonitorPorts();
+				Iterator<SwitchMonitorPort> it = ports.iterator();
+				for(; it.hasNext(); ){
+					SwitchMonitorPort monPort = it.next();
+					if(monPort.getPortId()==m.getPortId()){
+						it.remove();
+						break;
+					}
 				}
 				
 				dao.saveSwitchMonitor(mon);
-			}
 		}
 	}
 
@@ -477,14 +505,15 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		}
 		
 		this.currentSwitchName=obj.toString();
-		Element cfgTableElement = treebox.getLastSelectedElement();
+		
+		/*Element cfgTableElement = treebox.getLastSelectedElement();
 		int curCfgTableId=ConfigUtils.getCurrentCfgTableId(cfgTableElement);
 		if(curCfgTableId<=0){
 			JOptionPane.showMessageDialog(ConfigContext.mainFrame, "请选择一个配置表");
 			return;
-		}
+		}*/
 
-		CreateMonitorDialog dialog=new CreateMonitorDialog(ConfigContext.mainFrame, "添加记录", obj.toString(), curCfgTableId, null, this);
+		CreateMonitorDialog dialog=new CreateMonitorDialog(ConfigContext.mainFrame, "添加记录", obj.toString(), 1, null, this);
 		dialog.setVisible(true);
 	}
 
@@ -516,8 +545,13 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		attributes.add(attribute);
 
 		attribute = new ElementAttribute();
+		attribute.setName("locationId");
+		attribute.setDisplayName("交换机位置");
+		attributes.add(attribute);
+		
+		attribute = new ElementAttribute();
 		attribute.setName("portId");
-		attribute.setDisplayName("监控编号");
+		attribute.setDisplayName("监控口编号");
 		attributes.add(attribute);
 		
 		attribute = new ElementAttribute();
@@ -575,7 +609,10 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 			tablebox.addElement(newMonitorPort);
 			
 			SwitchMonitor mon = dao.readSwitchMonitor(this.currentSwitchName);
-			if(mon!=null){
+			if(mon==null){
+				mon=new SwitchMonitor(this.currentSwitchName);
+			}
+				/*
 				List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
 				for(SwitchMonitorCfg cfg : cfgs){
 					if(cfg.getCfgTableId()==newMonitorPort.getConfigTableId()){
@@ -600,8 +637,24 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 						dao.saveSwitchMonitor(mon);
 						return;
 					}
-				}
-			}
+				}*/
+				
+				List<SwitchMonitorPort> monitorPorts = mon.getMonitorPorts();
+				monitorPorts.add(newMonitorPort);
+				Collections.sort(monitorPorts, new Comparator<SwitchMonitorPort>(){
+					@Override
+					public int compare(SwitchMonitorPort o1, SwitchMonitorPort o2) {
+						if(o2==null){
+							return 1;
+						}
+						if(o1==null){
+							return -1;
+						}
+						return o1.getPortId()-o2.getPortId();
+					}
+				});
+				
+				dao.saveSwitchMonitor(mon);
 		}else{ // for update
 			tablebox.removeElementByID(oldMonitorPort.getSwitchName()+"-"+oldMonitorPort.getConfigTableId()
 			                           +"-"+oldMonitorPort.getPortId());
@@ -609,10 +662,10 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 			
 			SwitchMonitor mon = dao.readSwitchMonitor(currentSwitchName);
 			if(mon!=null){
-				List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
-				for(SwitchMonitorCfg cfg : cfgs){
-					if(cfg.getCfgTableId()==newMonitorPort.getConfigTableId()){
-						List<SwitchMonitorPort> ports = cfg.getMonitorPorts();
+				//List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
+				//for(SwitchMonitorCfg cfg : cfgs){
+				//	if(cfg.getCfgTableId()==newMonitorPort.getConfigTableId()){
+						List<SwitchMonitorPort> ports = mon.getMonitorPorts();
 						for(SwitchMonitorPort port : ports){
 							if(port.getPortId()==oldMonitorPort.getPortId()){
 								port.setPortEnableMonitor(newMonitorPort.getPortEnableMonitor());
@@ -620,19 +673,24 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 								port.setPortInputPortList(newMonitorPort.getPortInputPortList());
 								port.setPortOutputPortList(newMonitorPort.getPortOutputPortList());
 								port.setPortVLList(newMonitorPort.getPortVLList());
+								port.setLocationId(newMonitorPort.getLocationId());
 								break;
 							}
 						}
 						dao.saveSwitchMonitor(mon);
 						return;
-					}
-				}
+					//}
+				//}
 			}
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void addOrUpdateConfigTable(boolean isAdd, int cfgTableId){
+		/*
 		Node cfgNode=null;
 		String twaverId = ConfigUtils.getCfgTableTwaverId(cfgTableId);
 		if(isAdd){
@@ -679,10 +737,15 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		
 		mon.setNumberOfConfigTable(cfgs.size());
 		dao.saveSwitchMonitor(mon);
+		*/
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void deleteConfigTable(int cfgTableId){
+		/*
 		treebox.removeElementByID(ConfigUtils.getCfgTableTwaverId(cfgTableId));
 		
 		SwitchMonitor mon = dao.readSwitchMonitor(currentSwitchName);
@@ -701,6 +764,7 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 			sortConfigTable(cfgs);
 			dao.saveSwitchMonitor(mon);
 		}
+		*/
 	}
 
 	private void sortConfigTable(List<SwitchMonitorCfg> cfgs){

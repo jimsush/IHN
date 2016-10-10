@@ -11,9 +11,13 @@ import dima.config.common.models.SwitchMonitor;
 
 public interface ConfigDAO {
 	
+	public void clearAll();
+	
 	public List<SwitchDevice> readAllSwitchDevices(boolean fromCache);
 	
 	public SwitchDevice readSwitchDevice(String switchName, boolean fromCache);
+	
+	public void updateNMUCache(NodeDevice nmu);
 	
 	/**
 	 * 

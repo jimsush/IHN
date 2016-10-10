@@ -5,384 +5,843 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Date;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import dima.config.common.ConfigContext;
 import dima.config.common.ConfigUtils;
+import dima.config.common.models.NodeBin;
 import dima.config.common.models.NodeDevice;
-import dima.config.common.models.NodeDeviceCfg;
 import dima.config.common.models.NodeMessage;
 import dima.config.common.models.NodeVL;
+import dima.config.common.models.SwitchBin;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchMonitor;
-import dima.config.common.models.SwitchMonitorCfg;
 import dima.config.common.models.SwitchMonitorPort;
 import dima.config.common.models.SwitchVL;
-import dima.config.common.models.SwitchVLCfg;
-import dima.config.common.models.SwitchVLPlan;
+import dima.config.common.services.ConfigDAO;
+import dima.config.common.services.ServiceFactory;
 
 public class BinFileHandler {
 
 	public static void main(String[] args) throws Exception{
-		List<Integer> list1=bitsetIntToList(0x01020304, 0);
-		List<Integer> list2 = bitsetIntToList(0x01010101, 32);
+		List<Integer> list1=ConfigUtils.bitsetIntToList(0x01020304, 0);
+		List<Integer> list2 = ConfigUtils.bitsetIntToList(0x01010101, 32);
 		list2.addAll(list1);
-		int b[] = listToIntBitSet(list2);
+		int b[] = ConfigUtils.listToIntBitSet(list2);
 		System.out.println(list2+"b="+Integer.toHexString(b[0])+" "+Integer.toHexString(b[1]));
 	}
+	
+	
+	
 	
 	public static SwitchDevice readSwitch(String swName) throws Exception{
 		String fileName=ConfigUtils.getSwitchConfigFileName(swName);
 		FileInputStream in = new FileInputStream(fileName);
-		SwitchDevice sw=new SwitchDevice(swName);
+		SwitchBin bin=new SwitchBin();
+		
 		try {
-			int data=readInt(in);
-			sw.setVersion(data);
-        	System.out.println("version:"+data);
-        	
-        	data=readInt(in);
-        	sw.setDate(data);
-        	System.out.println("date:"+data);
-        	
-        	data=readInt(in);
-        	sw.setFileNo(data);
-        	System.out.println("file id:"+data);
-        	
-        	int tableNumber=readInt(in);
-        	System.out.println("table total number:"+tableNumber);
-        	
-        	byte[] names=new byte[16];
+			byte[] bs=new byte[16];
         	for(int i=0; i<16; i++){
-        		names[i]=readByte(in);
+        		bs[i]=readByte(in);
         	}
-        	String switchName=bytesToString(names);
-        	System.out.println("switch name:"+switchName);
-        	
-        	data=readInt(in);
-        	sw.setLocationId(data);
-        	System.out.println("location ID:"+data);
-        	
-        	data=readInt(in);
-        	sw.setPortNumber(data);
-        	System.out.println("port number:"+data);
-        	
-        	data=readInt(in);
-        	sw.setLocalDomainID(data);
-        	System.out.println("local ID:"+data);
-        	
-        	data=readInt(in);
-        	sw.setEportNumber(data);
-        	System.out.println("eport number:"+data);
-        	
-        	StringBuilder sb1=new StringBuilder();
-        	int a1=0;
-        	for(int i=0; i<6; i++){
-        		data=readInt(in); //0x10004, 65540
-        		if(data>0){
-        			String hexPortId=Integer.toHexString(data); //10004
-        			if(a1==0){
-        				sb1.append(hexPortId);
-        			}else{
-        				sb1.append(",").append(hexPortId);
-        			}
-        			a1++;
-        		}
+        	String version=bytesToString(bs);		
+        	bin.setVersion(version);
+        	if(version==null || version.equals("")){
+        		bin.setVersion(ConfigContext.version);
         	}
-        	sw.setEportFEPortNos(sb1.toString());
-        	System.out.println("eport FE:"+sw.getEportFEPortNos());
+        	System.out.println("");
+			System.out.println("version:"+version);
         	
-        	data=readInt(in);
-        	sw.setEnableTimeSyncVL(data==1);
-        	System.out.println("Time sync VL enable:"+data);
+			for(int i=0; i<16; i++){
+        		bs[i]=readByte(in);
+        	}
+        	String date=bytesToString(bs);
+        	bin.setDate(date);
+        	if(date==null || date.equals("")){
+        		bin.setDate(ConfigContext.date);
+        	}
+			System.out.println("date:"+date);
+			
+			int data=readInt(in); //3
+			System.out.println("file length:"+data+" for "+fileName);
+			
+        	short fileNo=readShort(in);
+        	bin.setFileNo(fileNo);  //4
+        	//System.out.println("file id:"+fileNo);
         	
-        	data=readInt(in);
-        	sw.setTimeSyncVL(data);
-        	System.out.println("Time sync VL:"+data);
-        	
-        	data=readInt(in);
-        	sw.setTimeSyncRole(data);
-        	System.out.println("Time sync role(0-SM 1-SC):"+data);
-        	
-        	data=readInt(in);
-        	sw.setOverallInterval(data);
-        	System.out.println("interval:"+data);
-        	
-        	data=readInt(in);
-        	sw.setClusterInterval(data);
-        	System.out.println("cluster interval:"+data);
-        	
-        	for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){
-        		data=readInt(in);
-        		System.out.println("file offset:"+data);
+        	short switchNumber=readShort(in); //5
+        	System.out.println("switch total number:"+switchNumber);
+        	for(short i=0; i<switchNumber; i++){
+        		int locationId=readInt(in);
+        		System.out.println("switch "+i+" location id:"+locationId);
+        		int startPosition=readInt(in);
+        		System.out.println("switch "+i+" startPosition:"+startPosition);
         	}
         	
-        	List<SwitchVLCfg> vlCfgs=sw.getVlCfgs();
-        	if(vlCfgs==null){
-        		vlCfgs=new ArrayList<>();
-        		sw.setVlCfgs(vlCfgs);
-        	}
-        	
-        	int[] cfgPlanNums=new int[tableNumber];
-        	for(int i=0; i<tableNumber; i++){ 
-        		SwitchVLCfg vlCfg=new SwitchVLCfg();
-        		vlCfgs.add(vlCfg);
+        	for(short x=0; x<switchNumber; x++){
+        		byte[] names=new byte[16];
+            	for(int i=0; i<16; i++){
+            		names[i]=readByte(in);
+            	}
+            	String switchName=bytesToString(names);
+            	System.out.println("switch name:"+switchName);
+            	
+            	SwitchDevice sw=new SwitchDevice(swName); //8
+        		bin.addSwitchConfig(sw);
+        		sw.setVersion(version);
+        		sw.setDate(date);
+        		sw.setFileNo(fileNo);
         		
-        		data=readInt(in);
-        		System.out.println("table id:"+data);
-        		vlCfg.setCfgTableId(data);
+        		int locationId=readInt(in); //9
+        		System.out.println("switch "+x+" location id:"+locationId);
+        		sw.setLocationId(locationId);
         		
-        		cfgPlanNums[i]=readInt(in);
-        		System.out.println("cfgNum of plan:"+cfgPlanNums[i]);
-        		vlCfg.setPlanNum(cfgPlanNums[i]);
+        		byte domainId=readByte(in); //10
+        		System.out.println("switch "+x+" local domain id:"+domainId);
+        		sw.setLocalDomainID(domainId);
         		
-        		data=readInt(in);
-        		System.out.println("default plan id:"+data);
-        		vlCfg.setDefaultPlanId(data);
-        	}
-        	
-        	int[][] vlNum=new int[tableNumber][]; // table1: 3 plans, table2: 4 plans
-        	for(int i=0; i<tableNumber; i++){
-        		vlNum[i]=new int[cfgPlanNums[i]];
-        		SwitchVLCfg vlCfg = vlCfgs.get(i);
-        		List<SwitchVLPlan> plans=vlCfg.getPlans();
-        		if(plans==null){
-        			plans=new ArrayList<>();
-        			vlCfg.setPlans(plans);
-        		}
+        		short portNum=readShort(in); //11
+        		System.out.println("switch "+x+" portNum:"+portNum);
+        		sw.setPortNumber(portNum);
         		
-        		for(int k=0; k<cfgPlanNums[i]; k++){
-        			SwitchVLPlan plan=new SwitchVLPlan();
-        			plans.add(plan);
-        			
-        			data=readInt(in);
-        			System.out.println("plan id:"+data);
-        			plan.setPlanId(data);
-        			
-        			vlNum[i][k]=readInt(in);
-            		System.out.println("VL number:"+vlNum[i][k]);
-            		plan.setVlNum(vlNum[i][k]);
-        		}
-        	}
- 
-        	for(int i=0; i<tableNumber; i++){
+        		byte eportNum=readByte(in); //12
+        		System.out.println("switch "+x+" eportNum:"+eportNum);
+        		sw.setEportNumber(eportNum);
         		
-        		SwitchVLCfg vlCfg = vlCfgs.get(i);
-        		List<SwitchVLPlan> plans = vlCfg.getPlans();
-        		
-        		for(int k=0; k<cfgPlanNums[i]; k++){
-        			
-        			SwitchVLPlan plan = plans.get(k);
-        			
-        			for(int j=0; j<vlNum[i][k]; j++){
-        				List<SwitchVL> vls=plan.getVls();
-        				if(vls==null){
-        					vls=new ArrayList<>();
-        					plan.setVls(vls);
-        				}
-        				
-        				data=readInt(in);
-        				SwitchVL vl=new SwitchVL(swName, vlCfg.getCfgTableId(), plan.getPlanId(), data);
-        				vls.add(vl);
-        				System.out.println("VL id:"+data);
-        				
-        				data=readInt(in);
-        				vl.setType(data);
-        				System.out.println("VL type:"+data);
-        				
-        				data=readInt(in);
-        				vl.setInputPortNo(data);
-        				System.out.println("input port:"+data);
-        				
-        				data=readInt(in);
-        				List<Integer> highOutPorts = bitsetIntToList(data, 32);
-        				System.out.println("high output ports:"+highOutPorts);
-        				
-        				data=readInt(in);
-        				List<Integer> lowOutPorts = bitsetIntToList(data, 0);
-        				System.out.println("low output ports:"+lowOutPorts);
-        				lowOutPorts.addAll(highOutPorts);
-        				vl.setOutputPortNos(lowOutPorts); //low+high
-        				System.out.println("final output ports:"+lowOutPorts);
-        				
-        				data=readInt(in);
-        				System.out.println("reserved:"+data);
-        				
-        				data=readInt(in);
-        				vl.setBag(data);
-        				System.out.println("BAG:"+data);
-        				
-        				data=readInt(in);
-        				vl.setJitter(data);
-        				System.out.println("Jitter:"+data);
-        				
-        				data=readInt(in);
-        				vl.setTtInterval(data);
-        				System.out.println("tt send interval:"+data);
-        				
-        				data=readInt(in);
-        				vl.setTtWindow(data);
-        				System.out.println("tt send window:"+data);
-        				
-        				data=readInt(in);
-        				System.out.println("reserved:"+data);
-        				
-        				data=readInt(in);
-        				System.out.println("reserved:"+data);
+        		List<Integer> eportNos=new ArrayList<>();
+        		for(int i=0; i<6; i++){
+        			int eportNo=readInt(in); //13, eports, 4*6
+        			if(eportNo>0){
+        				eportNos.add(eportNo); //high 2 bytes(switch id), low 2 bytes(port number)
         			}
         		}
+        		sw.setEportNos(eportNos);
+        		System.out.println("switch "+x+" eports: "+eportNos);
+        		
+        		byte vlEnabled=readByte(in); //14
+        		System.out.println("switch "+x+" vlEnabled:"+vlEnabled);
+        		sw.setEnableTimeSyncVL(vlEnabled==1);
+        		
+        		short vl1=readShort(in); //15
+        		System.out.println("switch "+x+" time sync vl1:"+vl1);
+        		sw.setTimeSyncVL1(vl1);
+        		
+        		short vl2=readShort(in); //16
+        		System.out.println("switch "+x+" time sync vl2:"+vl2);
+        		sw.setTimeSyncVL2(vl2);
+        		
+        		short pcfvl=readShort(in); //17
+        		System.out.println("switch "+x+" PCF vl:"+pcfvl);
+        		sw.setPcfVL(pcfvl);
+        		
+        		byte roleOfTimeSync=readByte(in); //18
+        		System.out.println("switch "+x+" roleOfTimeSync:"+roleOfTimeSync);
+        		sw.setTimeSyncRole(roleOfTimeSync);
+        		
+        		int interval=readInt(in); //19
+        		System.out.println("switch "+x+" overall interval:"+interval);
+        		sw.setOverallInterval(interval);
+        		
+        		short clusterNumber=readShort(in); //20
+        		System.out.println("switch "+x+" clusterNumber:"+clusterNumber);
+        		sw.setClusterInterval(clusterNumber);
+        		
+        		short defaultPlanNo=readShort(in); //21
+        		System.out.println("switch "+x+" defaultPlanNo:"+defaultPlanNo);
+        		sw.setDefaultPlanNo(defaultPlanNo);
+        		short planNumber=readShort(in); //22
+        		System.out.println("switch "+x+" planNumber:"+planNumber);
+        		sw.setPlanNum(planNumber);
+        		short planNo=readShort(in); //23
+        		System.out.println("switch "+x+" planNo:"+planNo);
+        		sw.setPlanNo(planNo);
+        		
+        		short vlForwardNumber=readShort(in); //24
+        		System.out.println("switch "+x+" vlForwardNumber:"+vlForwardNumber);
+        		
+        		int portsStatus=readInt(in); //25
+            	System.out.println("switch "+x+" portStatus:"+portsStatus);
+            	sw.setPortsStatus(portsStatus);
+            	
+        		int vlNumber=readInt(in); //26
+        		System.out.println("switch "+x+" vlNumber:"+vlNumber);
+        		
+        		List<SwitchVL> vls = sw.getVls();
+        		for(int j=0; j<vlNumber; j++){
+        			int vlID=readShort2(in); //27
+            		System.out.println("switch "+x+" vlID:"+vlID);
+            		
+            		SwitchVL vl=new SwitchVL(sw.getSwitchName(), vlID);
+            		vls.add(vl);
+            		
+            		short type=readShort(in); //28
+            		System.out.println("switch "+x+" vl type:"+type);
+            		vl.setType(type);
+            		
+            		short inputPort=readShort(in); //29
+            		System.out.println("switch "+x+" vl inputPort:"+inputPort);
+            		vl.setInputPortNo(inputPort);
+            		
+            		int outputPorts=readInt(in); //30
+            		System.out.println("switch "+x+" vl outputPorts:"+outputPorts);
+            		List<Integer> portList = ConfigUtils.bitsetIntToList(outputPorts, 0);
+            		vl.setOutputPortNos(portList);
+            		
+            		int bag=readShort2(in); //31
+            		System.out.println("switch "+x+" vl bag:"+bag);
+            		vl.setBag(bag);
+            		
+            		int jitter=readShort2(in); //31
+            		System.out.println("switch "+x+" vl jitter:"+jitter);
+            		vl.setJitter(jitter);
+            		
+            		short priority=readShort(in); //32
+            		System.out.println("switch "+x+" vl priority:"+priority);
+            		vl.setPriority(priority);
+            		
+            		int ttStart=readInt(in); //33
+            		vl.setTtInterval(ttStart);
+            		int ttSentInterval=readInt(in); //34
+            		vl.setTtSentInterval(ttSentInterval);
+            		int ttWindowOffset=readInt(in); //35
+            		vl.setTtWindowOffset(ttWindowOffset);
+            		int ttWindowStart=readInt(in); //36
+            		vl.setTtWindowStart(ttWindowStart);
+            		int ttWindowEnd=readInt(in); //37
+            		vl.setTtWindowEnd(ttWindowEnd);
+        		}
+        		
+        		// below is for NMU
+            	byte[] bs1=new byte[16];
+                for(int i=0; i<16; i++){
+                	bs1[i]=readByte(in); //38
+                }
+                String nmuversion=bytesToString(bs1);
+                	
+                bs1=new byte[16];
+                for(int i=0; i<16; i++){
+                	bs1[i]=readByte(in); //39
+                }
+                String nmudate=bytesToString(bs1);
+                	
+                int nmuFileNo=readInt(in); //40
+                short nmuConfigNumber=readShort(in); //41
+                System.out.println("NMU nmuConfigNumber: "+nmuConfigNumber);
+                	
+                bs1=new byte[16];
+                for(int i=0; i<16; i++){
+                	bs1[i]=readByte(in); //42
+                }
+                String nmuName=bytesToString(bs1);
+                NodeDevice nmu=new NodeDevice(nmuName, ConfigUtils.TYPE_NMU);
+                sw.setNmu(nmu);
+                nmu.setVersion(nmuversion);
+                nmu.setDate(nmudate);
+                nmu.setFileNo((short)nmuFileNo);
+                	
+                int nmuLocationId=readInt(in); //43
+                nmu.setLocationId(nmuLocationId);
+                	
+                int nmuPortId=readInt(in);//44
+                nmu.setPortNo(nmuPortId);
+                	
+                byte roleOfNM=readByte(in); //45
+                nmu.setRoleOfNM(roleOfNM);
+                byte roleOfNetworkLoad=readByte(in); //46
+                nmu.setRoleOfNetworkLoad(roleOfNetworkLoad);
+                byte nmuRoleOfTimeSync=readByte(in); //47
+                nmu.setRoleOfTimeSync(nmuRoleOfTimeSync);
+                	
+                int rtcSentInterval=readInt(in);  //48
+                nmu.setRtcSendInterval(rtcSentInterval);
+                	
+                int sendMsgNum=readInt(in);  //49
+                data=readInt(in);  //50
+                System.out.println("NMU send msg offset: "+data);
+                
+                int receiveMsgNum=readInt(in);  //51
+                data=readInt(in);  //52
+                System.out.println("NMU receive msg offset: "+data);
+                
+                int sendVLNum=readInt(in);  //53
+                data=readInt(in);  //54
+                System.out.println("NMU send vl offset: "+data);
+                
+                int receiveVLNum=readInt(in);  //55
+                data=readInt(in);  //56
+                System.out.println("NMU receive vl offset: "+data);
+                	
+                List<NodeMessage> txMsgs = nmu.getTxMsgs();
+                for(int i=0; i<sendMsgNum; i++){
+                	int msgId=readInt(in);  //57
+                	NodeMessage msg=new NodeMessage(nmu.getNodeName(), msgId);
+                	txMsgs.add(msg);
+                		
+                	bs1=new byte[16];
+                    for(int m=0; m<16; m++){
+                    	bs1[m]=readByte(in); //58
+                    }
+                    String msgName=bytesToString(bs1);
+                    msg.setMessageName(msgName);
+                    	
+                    int vlid1=readShort2(in);  //59
+                    msg.setVl(vlid1);
+                    System.out.println("VL ID: "+vlid1);
+                    	
+                    int msgMaxOfLen=readInt(in);  //60
+                    msg.setMaxOfLen(msgMaxOfLen);
+                    short msgType=readShort(in);  //61
+                    msg.setType(msgType);
+                    int sid=readInt(in);  //62
+                    msg.setSID(sid);
+                    int did=readInt(in);  //63
+                    msg.setDID(did);
+                    	
+                    short use=readShort(in);  //64
+                    msg.setUseOfMessage(use);
+                    short snmpId=readShort(in);  //65
+                    msg.setSnmpID(snmpId);
+                    short loaderId=readShort(in);  //66
+                    msg.setLoadID(loaderId);
+                }
+                	
+                List<NodeMessage> rxMsgs = nmu.getRxMsgs();
+                for(int i=0; i<receiveMsgNum; i++){
+                	int msgId=readInt(in);  //67
+                	NodeMessage msg=new NodeMessage(nmu.getNodeName(), msgId);
+                	rxMsgs.add(msg);
+                		
+                	bs1=new byte[16];
+                    for(int m=0; m<16; m++){
+                    	bs1[m]=readByte(in); //68
+                    }
+                    String msgName=bytesToString(bs1);
+                    msg.setMessageName(msgName);
+                    	
+                    int vlid1=readShort2(in);  //69
+                    msg.setVl(vlid1);
+                    System.out.println("VL ID: "+vlid1);
+                    	
+                    int msgMaxOfLen=readInt(in);  //70
+                    msg.setMaxOfLen(msgMaxOfLen);
+                    short msgType=readShort(in);  //71
+                    msg.setType(msgType);
+                    int sid=readInt(in);  //72
+                    msg.setSID(sid);
+                    int did=readInt(in);  //73
+                    msg.setDID(did);
+                    	
+                    short use=readShort(in);  //74
+                    msg.setUseOfMessage(use);
+                    short snmpId=readShort(in);  //75
+                    msg.setSnmpID(snmpId);
+                    short loaderId=readShort(in);  //76
+                    msg.setLoadID(loaderId);
+                }
+                	
+                List<NodeVL> txVls = nmu.getTxVls();
+                for(int i=0; i<sendVLNum; i++){
+                	int vlid=readShort2(in);  //77
+                	NodeVL svl=new NodeVL(nmu.getNodeName(), vlid);
+                    txVls.add(svl);
+                    
+                    short vltype=readShort(in);  //78
+                    svl.setType(vltype);
+                    
+                    int vlbag=readShort2(in);  //79
+                    svl.setBag(vlbag);
+                    int vljitter=readShort2(in);  //79
+                    svl.setJitter(vljitter);
+                    	
+                    int vlTtStart=readInt(in);  //80
+                    svl.setTtInterval(vlTtStart);
+                    int vlTtSentInterval=readInt(in);  //81
+                    svl.setTtSentInterval(vlTtSentInterval);
+                    	
+                    int vlTtWindowOffset=readInt(in);  //82
+                    svl.setTtWindowOffset(vlTtWindowOffset);
+                    int vlTtWindowStart=readInt(in);  //83
+                    svl.setTtWindowStart(vlTtWindowStart);
+                    int vlTtWindowEnd=readInt(in);  //84
+                    svl.setTtWindowEnd(vlTtWindowEnd);
+                    	
+                    short vlnetwork=readShort(in);  //85
+                    svl.setNetworkType(vlnetwork);
+                    short vlRedudancy=readShort(in);  //86
+                    svl.setRedudanceType(vlRedudancy);
+                    short vlUseOfLink=readShort(in);  //87
+                    svl.setUseOfLink(vlUseOfLink);
+                    	
+                    int vlRtcInterval=readInt(in);  //88
+                    svl.setRtcInterval(vlRtcInterval);
+                    int vlSwitchPortNos=readInt(in);  //89
+                    svl.setSwitchPortNo(vlSwitchPortNos);
+                }
+                	
+                List<NodeVL> rxVls = nmu.getRxVls();
+                for(int i=0; i<receiveVLNum; i++){
+                	int vlid=readShort2(in);  //90
+                	NodeVL svl=new NodeVL(nmu.getNodeName(), vlid);
+                    rxVls.add(svl);
+                    	
+                    short vltype=readShort(in);  //91
+                    svl.setType(vltype);
+                    short vlComplete=readShort(in);  //92
+                    svl.setCompleteCheck(vlComplete);
+                    	
+                    short vlRedudancy=readShort(in);  //93
+                    svl.setRedudanceType(vlRedudancy);
+                    	
+                    short vlUseOfLink=readShort(in);  //94
+                    svl.setUseOfLink(vlUseOfLink);
+                    int vlSwitchPortNos=readInt(in);  //95
+                    svl.setSwitchPortNo(vlSwitchPortNos);
+                }
         	}
-        }catch(Exception ex){
+        	
+        	int checksum=readInt(in);  //95 checksum is for whole file
+            System.out.println("switch checksum:"+checksum);
+		}catch(Exception ex){
         	ex.printStackTrace();
         }finally{
         	in.close();
         }
-		return sw;
+		
+		if(bin.getSwCfgs().size()>0){
+			return bin.getSwCfgs().get(0);
+		}else{
+			return null;
+		}
 	}
 	
-	public static void writeSwitch(SwitchDevice sw) throws Exception{
-		String fileName=ConfigUtils.getSwitchConfigFileName(sw.getSwitchName());
+	public static void writeSwitch(SwitchDevice sc0) throws Exception{
+		SwitchBin sw=new SwitchBin();
+		sw.addSwitchConfig(sc0);
+		List<SwitchDevice> cfgs = sw.getSwCfgs();
+		
+		String fileName=ConfigUtils.getSwitchConfigFileName(sc0.getSwitchName());
 		OutputStream out = new FileOutputStream(fileName); 
+		
+		Map<Integer, Integer[]> switchConfigOffsets=new HashMap<>();
+		Map<Integer, Integer[]> txMsgOffsets=new HashMap<>();
+        Map<Integer, Integer[]> rxMsgOffsets=new HashMap<>();
+        Map<Integer, Integer[]> txVLOffsets=new HashMap<>();
+        Map<Integer, Integer[]> rxVLOffsets=new HashMap<>();
+        
+		List<Byte> list=new ArrayList<Byte>();
 		int curPos=0;
+
 		try {
-			if(sw.getVersion()==0){
-				out.write(toBytes(ConfigContext.version));
-			}else{
-				out.write(toBytes(sw.getVersion())); //version
+			String ver=sw.getVersion();
+			if(ver==null || "".equals(ver)){
+				ver=ConfigContext.version;
 			}
-			curPos+=4;
+			byte[] bytes1 = stringToBytes(ver, 16);
+			outWriteBytes(list, bytes1);
+            curPos+=16;
 			
-            if(sw.getDate()==0){
-            	if(ConfigContext.date>0){
-            		out.write(toBytes(ConfigContext.date));
-            	}else{
-		            String today=getToday();
-		            // 8421 encoding
-		            out.write(toBytes(Integer.valueOf(today, 16)));
-            	}
-            }else{
-            	out.write(toBytes(sw.getDate()));
-            }
+            String dat=sw.getDate();
+			if(dat==null || "".equals(dat)){
+				dat=ConfigContext.date;
+			}
+			bytes1 = stringToBytes(dat, 16);
+            outWriteBytes(list, bytes1);
+            curPos+=16;
+            
+            outWriteBytes(list, toBytes(0)); //3, file length 
             curPos+=4;
             
             if(sw.getFileNo()==0){
-            	out.write(toBytes(ConfigContext.fileNo));
+            	outWriteBytes(list, toBytes(ConfigContext.fileNo));
             }else{
-            	out.write(toBytes(sw.getFileNo()));
+            	outWriteBytes(list, toBytes(sw.getFileNo()));
             }
-            curPos+=4;
+            curPos+=2;
             
-            out.write(toBytes(sw.getNumberOfConfigTable()));
-            curPos+=4;
-            
-            byte[] bytes1 = stringToBytes(sw.getSwitchName(), 16);
-            for(int i=0; i<16; i++){
-            	out.write(bytes1[i]);
-            }
-            curPos+=16;
-            
-            out.write(toBytes(sw.getLocationId()));
-            curPos+=4;
-            out.write(toBytes(sw.getPortNumber()));
-            curPos+=4;
-            out.write(toBytes(sw.getLocalDomainID()));
-            curPos+=4;
-            
-            out.write(toBytes(sw.getEportNumber()));
-            curPos+=4;
-            
-            List<Integer> portIds=sw.getEportFEs();
-            int portSize=portIds.size();
-            for(int i=0; i<6; i++){
-            	if(portSize>i){
-            		int portNo=portIds.get(i);
-            		out.write(toBytes(portNo)); //0x10004, 65540
-            	}else{
-            		out.write(toBytes(0));
-            	}
-            }
-            curPos+=(4*6);
-            
-            out.write(toBytes(sw.isEnableTimeSyncVL()?1:0));
-            curPos+=4;
-            out.write(toBytes(sw.getTimeSyncVL()));
-            curPos+=4;
-            out.write(toBytes(sw.getTimeSyncRole()));
-            curPos+=4;
-            
-            out.write(toBytes(sw.getOverallInterval()));
-            curPos+=4;
-            out.write(toBytes(sw.getClusterInterval()));
-            curPos+=4;
-            
-            List<SwitchVLCfg> vlCfgs = sw.getVlCfgs();
-            int cfgSize=vlCfgs.size();
-            for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){
-            	if(cfgSize<=i){
-            		out.write(toBytes(0));
-            	}else{
-            		out.write(toBytes(curPos+4*ConfigContext.MAX_NUM_CFGTABLE+4*3*i));
-            	}
-            }
-            curPos+=(4*ConfigContext.MAX_NUM_CFGTABLE);
+            int cfgNum = cfgs.size();
+            outWriteBytes(list, toBytes((short)cfgNum));
+            curPos+=2;
   
-            for(SwitchVLCfg cfg : vlCfgs){
-            	out.write(toBytes(cfg.getCfgTableId()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getPlanNum()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getDefaultPlanId()));
-            	curPos+=4;
+            int swIdx=0;
+            for(SwitchDevice sc : cfgs){	
+            	outWriteBytes(list, toBytes(sc.getLocationId())); //location ID, 6
+                curPos+=4;
+                
+                outWriteBytes(list, toBytes(0)); //file offset, 7
+                switchConfigOffsets.put(swIdx, new Integer[]{curPos, 0});
+                curPos+=4;
+                
+                swIdx++;
             }
             
-            for(SwitchVLCfg cfg : vlCfgs){
-            	List<SwitchVLPlan> plans = cfg.getPlans();
-            	for(SwitchVLPlan plan : plans){
-            		out.write(toBytes(plan.getPlanId()));
-            		curPos+=4;
-            		out.write(toBytes(plan.getVlNum()));
-            		curPos+=4;
-            	}
-            }
+            // for each switch configuration
+            swIdx=0;
+            for(SwitchDevice sc : cfgs){
+            	Integer[] swpos = switchConfigOffsets.get(swIdx);
+            	swpos[1]=curPos;
+            	
+            	bytes1 = stringToBytes(sc.getSwitchName(), 16); 
+            	outWriteBytes(list, bytes1); // 8
+            	curPos+=16;
+            
+            	outWriteBytes(list, toBytes(sc.getLocationId()));
+            	curPos+=4;
+            
+            	outWriteBytes(list, (byte)sc.getLocalDomainID());
+                curPos+=1;
+                
+                outWriteBytes(list,toBytes((short)sc.getPortNumber()));
+                curPos+=2;
 
-            for(SwitchVLCfg cfg : vlCfgs){
-            	List<SwitchVLPlan> plans = cfg.getPlans();
-            	for(SwitchVLPlan plan : plans){
-            		List<SwitchVL> vls = plan.getVls();
-            		for(SwitchVL vl : vls){
-            			out.write(toBytes(vl.getVLID()));
-            			curPos+=4;
-            			out.write(toBytes(vl.getType()));
-            			curPos+=4;
-            			out.write(toBytes(vl.getInputPortNo()));
-            			curPos+=4;
-	                	int[] outputPorts=listToIntBitSet(vl.getOutputPortNos());
-	                	out.write(toBytes(outputPorts[0]));
-	                	curPos+=4;
-	                	out.write(toBytes(outputPorts[1]));
-	                	curPos+=4;
-	                	
-	                	out.write(toBytes(0));
-	                	curPos+=4;
-	                	
-	                	out.write(toBytes(vl.getBag()));
-	                	curPos+=4;
-	                	out.write(toBytes(vl.getJitter()));
-	                	curPos+=4;
-	                	
-	                	out.write(toBytes(vl.getTtInterval()));
-	                	curPos+=4;
-	                	out.write(toBytes(vl.getTtWindow()));
-	                	curPos+=4;
-	                	
-	                	out.write(toBytes(0));
-	                	curPos+=4;
-	                	out.write(toBytes(0));
-	                	curPos+=4;
-            		}
-            	}
+                outWriteBytes(list, (byte)sc.getEportNumber());
+                curPos+=1;
+            
+	            List<Integer> eportNos=sc.getEportNos(); //13, eports, 4*6
+	            for(Integer eportNo : eportNos){
+	            	outWriteBytes(list, toBytes(eportNo));
+	            	curPos+=4;
+	            }
+	            int realEportNum=eportNos.size();
+	            for(int n=realEportNum; n<6; n++){
+	            	outWriteBytes(list, toBytes(0)); // fill 0
+	            	curPos+=4;
+	            }
+	            
+	            outWriteBytes(list, sc.isEnableTimeSyncVL()? (byte)1:(byte)0);
+	            curPos+=1;
+            
+	            outWriteBytes(list, toBytes(sc.getTimeSyncVL1()));
+	            curPos+=2;
+	            
+	            outWriteBytes(list, toBytes(sc.getTimeSyncVL2()));
+	            curPos+=2;
+	            
+	            outWriteBytes(list, toBytes(sc.getPcfVL())); 
+	            curPos+=2;
+	            
+	            outWriteBytes(list, (byte)sc.getTimeSyncRole());
+	            curPos+=1;
+            
+	            outWriteBytes(list,toBytes(sc.getOverallInterval()));
+	            curPos+=4;
+	            outWriteBytes(list,toBytes((short)sc.getClusterInterval()));
+	            curPos+=2;
+	            
+	            outWriteBytes(list,toBytes(sc.getDefaultPlanNo()));//TODO 21 default plan ID
+	            curPos+=2;
+            
+	            outWriteBytes(list,toBytes(sc.getPlanNum()));//TODO 22 plan number
+	            curPos+=2;
+	            
+	            outWriteBytes(list,toBytes(sc.getPlanNo()));//TODO 23 plan number
+	            curPos+=2;
+
+	            outWriteBytes(list, toBytes(sc.getVlFwdConfigNum())); //TODO 24 forward VL number
+	            curPos+=2;
+	            
+	            int portsStatus = sc.getPortsStatus();
+	            outWriteBytes(list, toBytes(portsStatus)); //25 port status
+	            curPos+=4;
+	            
+	            List<SwitchVL> vls = sc.getVls();
+	            outWriteBytes(list, toBytes(vls.size())); //26 VL Number
+	            curPos+=4;
+	           
+	            // switch forward VL
+	            for(SwitchVL vl : vls){
+	            	outWriteBytes(list, toBytes((short)vl.getVLID())); //27, vl_id
+	            	curPos+=2;
+	            	outWriteBytes(list, toBytes(vl.getType()));
+	            	curPos+=2;
+	            	outWriteBytes(list, toBytes(vl.getInputPortNo()));
+	            	curPos+=2;
+	            		
+	            	int[] outputPorts=ConfigUtils.listToIntBitSet(vl.getOutputPortNos());
+	            	outWriteBytes(list, toBytes(outputPorts[1]));
+	            	curPos+=4;
+	                
+	            	outWriteBytes(list, toBytes((short)vl.getBag()));
+	            	curPos+=2;
+	            	outWriteBytes(list, toBytes((short)vl.getJitter()));
+	            	curPos+=2;
+	                
+	            	outWriteBytes(list, toBytes(vl.getPriority()));
+	            	curPos+=2;
+	            			
+	            	outWriteBytes(list,toBytes(vl.getTtInterval()));
+		            curPos+=4;
+		            outWriteBytes(list,toBytes(vl.getTtSentInterval()));
+		            curPos+=4;
+		            outWriteBytes(list,toBytes(vl.getTtWindowOffset())); //35
+		            curPos+=4;
+		            outWriteBytes(list,toBytes(vl.getTtWindowStart())); //36
+		            curPos+=4;
+		            outWriteBytes(list,toBytes(vl.getTtWindowEnd())); //37
+		            curPos+=4;
+	            }
+	            
+	            // NMU
+	            int startOfNmuPosition=curPos;
+	            NodeDevice nmu=sc.getNmu();
+	            if(nmu==null){
+	            	nmu=new NodeDevice(sc.getSwitchName(), ConfigUtils.TYPE_NMU);
+	            	sc.setNmu(nmu);
+	            	
+	            	ConfigDAO dao= ServiceFactory.getService(ConfigDAO.class);
+	            	dao.updateNMUCache(nmu);
+	            }
+	            String nmuver=nmu.getVersion();
+				if(nmuver==null || "".equals(nmuver)){
+					nmuver=ConfigContext.version;
+				}
+				bytes1 = stringToBytes(nmuver, 16);
+				outWriteBytes(list, bytes1);
+				curPos+=16;
+				
+				String nmudate=nmu.getDate();
+				if(nmudate==null || "".equals(nmudate)){
+					nmudate=ConfigContext.date;
+				}
+				bytes1 = stringToBytes(nmudate, 16);
+				outWriteBytes(list, bytes1);
+				curPos+=16;
+				
+				int nmuFileNo=nmu.getFileNo();
+				if(nmuFileNo==0){
+					nmuFileNo=ConfigContext.fileNo;
+				}
+				outWriteBytes(list, toBytes(nmuFileNo)); //TODO 40, file no.
+				curPos+=4;
+				
+				outWriteBytes(list, toBytes((short)1)); //TODO 41, number of configuration table
+				curPos+=2;
+				
+				String nmuname=nmu.getNodeName();
+				if(nmuname==null){
+					nmuname="";
+				}
+				bytes1 = stringToBytes(nmuname, 16);
+				outWriteBytes(list, bytes1); //42
+				curPos+=16;
+				
+				outWriteBytes(list, toBytes(nmu.getLocationId())); //43
+				curPos+=4;
+				outWriteBytes(list, toBytes(nmu.getPortNo())); //44
+				curPos+=4;
+				outWriteBytes(list, (byte)nmu.getRoleOfNM());
+				curPos+=1;
+				outWriteBytes(list, (byte)nmu.getRoleOfNetworkLoad());
+				curPos+=1;
+				outWriteBytes(list, (byte)nmu.getRoleOfTimeSync());
+				curPos+=1;
+				outWriteBytes(list, toBytes(nmu.getRtcSendInterval()));//48
+				curPos+=4;
+				
+				List<NodeMessage> txMsgs = nmu.getTxMsgs();
+				outWriteBytes(list, toBytes(txMsgs.size()));//49
+				curPos+=4;
+				
+				Integer[] txMsgStartPosition=new Integer[]{curPos, 0};
+				txMsgOffsets.put(swIdx, txMsgStartPosition);
+				outWriteBytes(list, toBytes(0));//TODO 50 tx msg start position
+				curPos+=4;
+				
+				List<NodeMessage> rxMsgs = nmu.getRxMsgs();
+				outWriteBytes(list, toBytes(rxMsgs.size()));//51
+				curPos+=4;
+				
+				Integer[] rxMsgStartPosition=new Integer[]{curPos, 0};
+				rxMsgOffsets.put(swIdx, rxMsgStartPosition);
+				outWriteBytes(list, toBytes(0));//TODO 52 rx msg start position
+				curPos+=4;
+				
+				List<NodeVL> txVls = nmu.getTxVls();
+				outWriteBytes(list, toBytes(txVls.size()));//53
+				curPos+=4;
+
+				Integer[] txVLStartPosition=new Integer[]{curPos, 0};
+				txVLOffsets.put(swIdx, txVLStartPosition);
+				outWriteBytes(list, toBytes(0));//TODO 54, send vl start position
+				curPos+=4;
+	
+				List<NodeVL> rxVls = nmu.getRxVls();
+				outWriteBytes(list, toBytes(rxVls.size()));//55
+				curPos+=4;
+				
+				Integer[] rxVLStartPosition=new Integer[]{curPos, 0};
+				rxVLOffsets.put(swIdx, rxVLStartPosition);
+				outWriteBytes(list, toBytes(0));//TODO 56, receive vl start position
+				curPos+=4;
+				
+				// send messages
+				txMsgStartPosition[1]=curPos-startOfNmuPosition;
+				for(NodeMessage msg : txMsgs){
+					outWriteBytes(list, toBytes(msg.getMessageID()));//57
+					curPos+=4;
+					
+					String msgName=msg.getMessageName();
+					if(msgName==null){
+						msgName="";
+					}
+					bytes1 = stringToBytes(msgName, 16);
+					outWriteBytes(list, bytes1); //58
+					curPos+=16;
+					
+					outWriteBytes(list, toBytes((short)msg.getVl()));//59
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getMaxOfLen()));//60
+					curPos+=4;
+
+					outWriteBytes(list, toBytes(msg.getType()));//61
+					curPos+=2;
+					outWriteBytes(list, toBytes(msg.getSID()));//62
+					curPos+=4;
+					outWriteBytes(list, toBytes(msg.getDID()));//63
+					curPos+=4;
+					
+					outWriteBytes(list, toBytes(msg.getUseOfMessage()));//64
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getSnmpID()));//65
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getLoadID()));//66
+					curPos+=2;
+				}
+				
+				rxMsgStartPosition[1]=curPos-startOfNmuPosition;
+				for(NodeMessage msg : rxMsgs){
+					outWriteBytes(list, toBytes(msg.getMessageID()));//67
+					curPos+=4;
+					
+					String msgName=msg.getMessageName();
+					if(msgName==null){
+						msgName="";
+					}
+					bytes1 = stringToBytes(msgName, 16);
+					outWriteBytes(list, bytes1); //68
+					curPos+=16;
+					
+					outWriteBytes(list, toBytes((short)msg.getVl()));//69
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getMaxOfLen()));//70
+					curPos+=4;
+
+					outWriteBytes(list, toBytes(msg.getType()));//71
+					curPos+=2;
+					outWriteBytes(list, toBytes(msg.getSID()));//72
+					curPos+=4;
+					outWriteBytes(list, toBytes(msg.getDID()));//73
+					curPos+=4;
+					
+					outWriteBytes(list, toBytes(msg.getUseOfMessage()));//74
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getSnmpID()));//75
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(msg.getLoadID()));//76
+					curPos+=2;
+				}
+
+				txVLStartPosition[1]=curPos-startOfNmuPosition;
+				for(NodeVL vl : txVls){
+					outWriteBytes(list, toBytes((short)vl.getVLID())); //77
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getType())); //78
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes((short)vl.getBag())); //79
+					curPos+=2;
+					outWriteBytes(list, toBytes((short)vl.getJitter())); //TODO 79???
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(vl.getTtInterval())); 
+					curPos+=4;
+					outWriteBytes(list, toBytes(vl.getTtSentInterval())); 
+					curPos+=4;
+					outWriteBytes(list, toBytes(vl.getTtWindowOffset())); //82 
+					curPos+=4;
+					outWriteBytes(list, toBytes(vl.getTtWindowStart())); //83
+					curPos+=4;
+					outWriteBytes(list, toBytes(vl.getTtWindowEnd())); //84
+					curPos+=4;
+					
+					outWriteBytes(list, toBytes(vl.getNetworkType())); //85
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getRedudanceType())); //86
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getUseOfLink())); //87
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getRtcInterval())); //88
+					curPos+=4;
+					outWriteBytes(list, toBytes(vl.getSwitchPortNo())); //TODO: 89, input port nos
+					curPos+=4;
+				}
+				
+				rxVLStartPosition[1]=curPos-startOfNmuPosition;
+				for(NodeVL vl : rxVls){
+					outWriteBytes(list, toBytes((short)vl.getVLID())); //90
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getType())); //91
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(vl.getCompleteCheck())); //92
+					curPos+=2;
+					outWriteBytes(list, toBytes(vl.getRedudanceType())); //93
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(vl.getUseOfLink())); //94
+					curPos+=2;
+					
+					outWriteBytes(list, toBytes(vl.getSwitchPortNo())); //95
+					curPos+=4;
+				}
+
+				swIdx++;
             }
-            System.out.println("write "+curPos+" for "+sw.getSwitchName() +" to "+fileName);
+ 
+            // set total length of file
+            setBytesInList(list, 32, toBytes(curPos+4)); //add 4 bytes of checksum
+            
+            // set each switch's start position
+            for(Map.Entry<Integer, Integer[]> entry: switchConfigOffsets.entrySet()){
+            	Integer[] switchPosOffset = entry.getValue();
+            	setBytesInList(list, switchPosOffset[0], toBytes(switchPosOffset[1]));
+            }
+            // set each NMU's start position of rx/tx messages and VLs
+            for(Map.Entry<Integer, Integer[]> entry: txMsgOffsets.entrySet()){
+            	Integer[] addressAndOffset = entry.getValue();
+            	setBytesInList(list, addressAndOffset[0], toBytes(addressAndOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: rxMsgOffsets.entrySet()){
+            	Integer[] addressAndOffset = entry.getValue();
+            	setBytesInList(list, addressAndOffset[0], toBytes(addressAndOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: txVLOffsets.entrySet()){
+            	Integer[] addressAndOffset = entry.getValue();
+            	setBytesInList(list, addressAndOffset[0], toBytes(addressAndOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: rxVLOffsets.entrySet()){
+            	Integer[] addressAndOffset = entry.getValue();
+            	setBytesInList(list, addressAndOffset[0], toBytes(addressAndOffset[1]));
+            }
+            
+            int checksum=genChecksum(list);
+			outWriteBytes(list, toBytes(checksum)); // 96, switch checksum for whole file
+			curPos+=4;
+			
+            for(Byte b : list){
+            	out.write(b);
+            }
+            
+            System.out.println("write "+curPos+" to "+fileName);
         }catch(Exception ex){
         	ex.printStackTrace();
         }finally{
@@ -397,271 +856,235 @@ public class BinFileHandler {
 		}else{
 			fileName=ConfigUtils.getNodeConfigFileName(nameOrOrPortNo); 
 		}
+		
 		FileInputStream in = new FileInputStream(fileName);
-		NodeDevice nodeDev=null;
+		NodeBin bin=new NodeBin();
+		
 		try {
-			int data=readInt(in);
-			int version=data;
-        	System.out.println("version:"+data);
-        	
-        	data=readInt(in);
-        	int date=data;
-        	System.out.println("date:"+data);
-        	
-        	data=readInt(in);
-        	int fileNo=data;
-        	System.out.println("file id:"+data);
-        	
-        	int tableNumber=readInt(in);
-        	System.out.println("table total number:"+tableNumber);
-        	
-        	byte[] names=new byte[16];
+			byte[] bs=new byte[16];
         	for(int i=0; i<16; i++){
-        		names[i]=readByte(in);
+        		bs[i]=readByte(in);
         	}
-        	String nodeName=bytesToString(names);
-        	System.out.println("node name:"+nodeName);
+        	String version=bytesToString(bs);
+        	bin.setVersion(version);
+        	if(version==null || version.equals("")){
+        		bin.setVersion(ConfigContext.version);
+        	}
+        	System.out.println("");
+			System.out.println("version:"+version);
         	
-        	nodeDev=new NodeDevice(nodeName, type);
-        	nodeDev.setVersion(version);
-        	nodeDev.setDate(date);
-        	nodeDev.setFileNo(fileNo);
+			for(int i=0; i<16; i++){
+        		bs[i]=readByte(in);
+        	}
+        	String date=bytesToString(bs);
+        	bin.setDate(date);
+        	if(date==null || date.equals("")){
+        		bin.setDate(ConfigContext.date);
+        	}
+			System.out.println("date:"+date);
         	
-        	data=readInt(in);
-        	nodeDev.setLocationId(data);
-        	System.out.println("location ID:"+data);
+			int data=readInt(in);
+			System.out.println("file length:"+data +" for "+fileName);
+			
+			short fileNo=readShort(in);
+			bin.setFileNo(fileNo);  //4
+        	System.out.println("file id:"+fileNo);
         	
-        	data=readInt(in);
-        	nodeDev.setPortNo(data);
-        	System.out.println("port no:"+data);
-        	
-        	data=readInt(in);
-        	nodeDev.setRoleOfNM(data);
-        	System.out.println("Role of NM:"+data);
-        	
-        	data=readInt(in);
-        	nodeDev.setRoleOfNetworkLoad(data);
-        	System.out.println("Role of net loading:"+data);
-        	
-        	data=readInt(in);
-        	nodeDev.setRoleOfTimeSync(data);
-        	System.out.println("Role of time sync:"+data);
-        	
-        	data=readInt(in);
-        	nodeDev.setRtcSendInterval(data);
-        	System.out.println("RTC send interval:"+data);
-        	
-        	for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){
-        		data=readInt(in);
-        		System.out.println("file offset:"+data);
+        	short nodeNumber=readShort(in);//5
+        	System.out.println("table total number:"+nodeNumber);
+        	for(short i=0; i<nodeNumber; i++){
+        		int locationId=readInt(in); //6
+        		System.out.println("node "+i+" location id:"+locationId);
+        		int startPosition=readInt(in); //7
+        		System.out.println("node "+i+" startPosition:"+startPosition);
         	}
         	
-        	int[] txNums=new int[tableNumber];
-        	int[] rxNums=new int[tableNumber];
-        	int[] txVLNums=new int[tableNumber];
-        	int[] rxVLNums=new int[tableNumber];
-        	
-        	List<NodeDeviceCfg> cfgs = nodeDev.getCfgs();
-        	for(int i=0; i<tableNumber; i++){
-        		NodeDeviceCfg cfg=new NodeDeviceCfg();
-        		cfgs.add(cfg);
+        	for(short x=0; x<nodeNumber; x++){
+            	byte[] names=new byte[16];
+                for(int i=0; i<16; i++){
+                	names[i]=readByte(in); //8
+                }
+               	String nodeName=bytesToString(names);
+               	System.out.println("node name:"+nodeName);
+               	
+               	NodeDevice node=new NodeDevice(nodeName, ConfigUtils.TYPE_NODE);
+        		bin.addNode(node);
         		
-        		data=readInt(in);
-        		System.out.println("table id:"+data);
-        		cfg.setCfgTableId(data);
+               	int locationId=readInt(in); //9
+        		System.out.println("node "+x+" location id:"+locationId);
+        		node.setLocationId(locationId);
         		
-        		data=readInt(in);
-        		txNums[i]=data;
-        		System.out.println("tx Number:"+data);
+        		int portId=readInt(in); //10
+        		System.out.println("node "+x+" portId:"+portId);
+        		node.setPortNo(portId);
         		
-        		data=readInt(in);
-        		rxNums[i]=data;
-        		System.out.println("rx Number:"+data);
+        		byte roleOfNM=readByte(in); //11
+        		System.out.println("node "+x+" roleOfNM:"+roleOfNM);
+        		node.setRoleOfNM(roleOfNM);
+        		byte roleOfNetworkLoad=readByte(in); //12
+        		System.out.println("node "+x+" roleOfNetworkLoad:"+roleOfNetworkLoad);
+        		node.setRoleOfNetworkLoad(roleOfNetworkLoad);
+        		byte roleOfTimerSync=readByte(in); //13
+        		System.out.println("node "+x+" roleOfTimerSync:"+roleOfTimerSync);
+        		node.setRoleOfTimerSync(roleOfTimerSync);
         		
-        		data=readInt(in);
-        		txVLNums[i]=data;
-        		System.out.println("tx VL Number:"+data);
+        		int rtcSendInterval=readInt(in); //14
+        		System.out.println("node "+x+" rtcSendInterval:"+rtcSendInterval);
+        		node.setRtcSendInterval(rtcSendInterval);
+        		byte roleOfTimeSync=readByte(in); //15
+        		System.out.println("node "+x+" roleOfTimeSync:"+roleOfTimeSync);
+        		node.setRoleOfTimeSync(roleOfTimeSync);
         		
-        		data=readInt(in);
-        		rxVLNums[i]=data;
-        		System.out.println("rx VL Number:"+data);
-        	}
-        	
-        	for(int i=0; i<tableNumber; i++){
-        		NodeDeviceCfg cfg = cfgs.get(i);
+        		data=readInt(in); //16
+        		System.out.println("node "+x+" overall interval:"+data);
+        		node.setOverallInterval(data);
         		
-        		List<NodeMessage> txMessages=new ArrayList<>();
-        		cfg.setTxMessages(txMessages);
-        		for(int j=0; j<txNums[i]; j++){
-        			data=readInt(in);
-        			NodeMessage msg=new NodeMessage(nodeName, data);
-        			txMessages.add(msg);
-            		System.out.println("tx message id:"+data);
-            		
-            		byte[] names2=new byte[16];
-                	for(int x=0; x<16; x++){
-                		names2[x]=readByte(in);
-                	}
-                	String txMsgName=bytesToString(names2);
-                	msg.setMessageName(txMsgName);
-                	System.out.println("tx message name:"+txMsgName);
-            		
-            		data=readInt(in);
-            		msg.setVl(data);
-            		System.out.println("tx VL:"+data);
-            		
-            		data=readInt(in);
-            		msg.setMaxOfLen(data);
-            		System.out.println("tx max of length:"+data);
-            		
-            		data=readInt(in);
-            		msg.setUseOfMessage(data);
-            		System.out.println("tx use:"+data);
-            		
-            		data=readInt(in);
-            		msg.setSnmpID(data);
-            		System.out.println("tx snmp id:"+data);
-            		
-            		data=readInt(in);
-            		msg.setLoadID(data);
-            		
-            		System.out.println("tx loader id:"+data);
-        		}
-        	}
-        	
-        	for(int i=0; i<tableNumber; i++){
-        		NodeDeviceCfg cfg = cfgs.get(i);
-        		List<NodeMessage> rxMessages=new ArrayList<>();
-            	cfg.setRxMessages(rxMessages);
+        		short clusterInterval=readShort(in); //17
+        		System.out.println("node "+x+" cluster interval:"+clusterInterval);
+        		node.setClusterInterval(clusterInterval);
         		
-        		for(int j=0; j<rxNums[i]; j++){
-        			data=readInt(in);
-        			NodeMessage msg=new NodeMessage(nodeName, data);
-        			rxMessages.add(msg);
-            		System.out.println("rx message id:"+data);
-            		
-            		byte[] names2=new byte[16];
-                	for(int x=0; x<16; x++){
-                		names2[x]=readByte(in);
-                	}
-                	String rxMsgName=bytesToString(names2);
-                	msg.setMessageName(rxMsgName);
-                	System.out.println("rx message name:"+rxMsgName);
-            		
-            		data=readInt(in);
-            		msg.setVl(data);
-            		System.out.println("rx VL:"+data);
-            		
-            		data=readInt(in);
-            		msg.setMaxOfLen(data);
-            		System.out.println("rx max of length:"+data);
-            		
-            		data=readInt(in);
-            		msg.setUseOfMessage(data);
-            		System.out.println("rx use:"+data);
-            		
-            		data=readInt(in);
-            		msg.setSnmpID(data);
-            		System.out.println("rx snmp id:"+data);
-            		
-            		data=readInt(in);
-            		msg.setLoadID(data);
-            		System.out.println("rx loader id:"+data);
-        		}
-        	}
-
-        	for(int i=0; i<tableNumber; i++){
-        		NodeDeviceCfg cfg = cfgs.get(i);
-        		List<NodeVL> txVLs=new ArrayList<>();
-            	cfg.setTxVLs(txVLs);
-            	
-        		for(int j=0; j<txVLNums[i]; j++){
-        			data=readInt(in);
+        		int txMsgNum=readInt(in); //18
+        		data=readInt(in); //19
+        		int rxMsgNum=readInt(in); //20
+        		data=readInt(in); //21
+        		int txVLNum=readInt(in); //22
+        		data=readInt(in); //23
+        		int rxVLNum=readInt(in); //24
+        		data=readInt(in); //25
+        		
+        		List<NodeMessage> txMsgs = node.getTxMsgs();
+        		for(int i=0; i<txMsgNum; i++){
+        			data=readInt(in); //26
+        			NodeMessage msg=new NodeMessage(node.getNodeName(), data);
+        			txMsgs.add(msg);
         			
-        			NodeVL vl=new NodeVL(nodeName, data);
-        			txVLs.add(vl);
-            		System.out.println("tx VL id:"+data);
-  
-            		data=readInt(in);
-            		vl.setType(data);
-            		System.out.println("tx VL type:"+data);
-            		
-            		data=readInt(in);
-            		vl.setBag(data);
-            		System.out.println("tx VL BAG:"+data);
-            		
-            		data=readInt(in);
-            		vl.setJitter(data);
-            		System.out.println("tx VL Jitter:"+data);
-            		
-            		data=readInt(in);
-            		vl.setTtInterval(data);
-            		System.out.println("tx VL TT sending frequency:"+data);
-            		
-            		data=readInt(in);
-            		vl.setTtWindow(data);
-            		System.out.println("tx VL TT sending window:"+data);
-            		
-            		data=readInt(in);
-            		data=readInt(in);
-            		
-            		data=readInt(in);
-            		vl.setNetworkType(data);
-            		System.out.println("tx VL network choosen:"+data);
-            		
-            		data=readInt(in);
-            		vl.setRedudanceType(data);
-            		System.out.println("tx VL redundancy:"+data);
-            		
-            		data=readInt(in);
-            		vl.setUseOfLink(data);
-            		System.out.println("tx VL use of Link:"+data);
-            		
-            		data=readInt(in);
-            		vl.setRtcInterval(data);
-            		System.out.println("tx VL RTC frequency:"+data);
-            		
-            		data=readInt(in);
+        			names=new byte[16];
+                	for(int k=0; k<16; k++){
+                		names[k]=readByte(in); //27
+                	}
+                	String msgName=bytesToString(names);
+                	msg.setMessageName(msgName);
+                	
+                	int vlid=readShort2(in); //28
+                	msg.setVl(vlid);
+                	System.out.println("VL ID: "+vlid);
+                	
+                	data=readInt(in); //29
+                	msg.setMaxOfLen(data);
+                	short msgtype=readShort(in); //30
+                	msg.setType(msgtype);
+                	data=readInt(in); //31
+                	msg.setSID(data);
+                	data=readInt(in); //32
+                	msg.setDID(data);
+                	short msgUse=readShort(in); //33
+                	msg.setUseOfMessage(msgUse);
+                	short snmpID=readShort(in); //34
+                	msg.setSnmpID(snmpID);
+                	short loadID=readShort(in);//35
+                	msg.setLoadID(loadID);
+        		}
+        		List<NodeMessage> rxMsgs = node.getRxMsgs();
+        		for(int i=0; i<rxMsgNum; i++){
+        			data=readInt(in); //36
+        			NodeMessage msg=new NodeMessage(node.getNodeName(), data);
+        			rxMsgs.add(msg);
+        			
+        			names=new byte[16];
+                	for(int k=0; k<16; k++){
+                		names[k]=readByte(in); //37
+                	}
+                	String msgName=bytesToString(names);
+                	msg.setMessageName(msgName);
+                	
+                	int vlid=readShort2(in); //38
+                	msg.setVl(vlid);
+                	System.out.println("VL ID:"+vlid);
+                	
+                	data=readInt(in); //39
+                	msg.setMaxOfLen(data);
+                	short msgtype=readShort(in); //40
+                	msg.setType(msgtype);
+                	data=readInt(in); //41
+                	msg.setSID(data);
+                	data=readInt(in); //42
+                	msg.setDID(data);
+                	short msgUse=readShort(in); //43
+                	msg.setUseOfMessage(msgUse);
+                	short snmpID=readShort(in); //44
+                	msg.setSnmpID(snmpID);
+                	short loadID=readShort(in);//45
+                	msg.setLoadID(loadID);
+        		}
+        		
+        		short sdata=0;
+        		List<NodeVL> txVls = node.getTxVls();
+        		for(int i=0; i<txVLNum; i++){
+        			data=readShort2(in); //46, VL_ID
+        			NodeVL vl=new NodeVL(node.getNodeName(), data);
+        			txVls.add(vl);
+        			
+        			sdata=readShort(in); //47
+        			vl.setType(sdata);
+        			
+        			data=readShort2(in); //48
+        			vl.setBag(data);
+        			data=readShort2(in); //48
+        			vl.setJitter(data);
+        			
+        			data=readInt(in);// 49
+        			vl.setTtInterval(data);
+        			data=readInt(in);// 50
+        			vl.setTtSentInterval(data);
+        			data=readInt(in);// 51
+        			vl.setTtWindowOffset(data);
+        			data=readInt(in);// 52
+        			vl.setTtWindowStart(data);
+        			data=readInt(in);// 53
+        			vl.setTtWindowEnd(data);
+        			sdata=readShort(in); //54
+        			vl.setNetworkType(sdata);
+        			sdata=readShort(in); //55
+        			vl.setRedudanceType(sdata);
+        			sdata=readShort(in); //56
+        			vl.setUseOfLink(sdata);
+        			data=readInt(in);// 57
+        			vl.setRtcInterval(data);
+        			data=readInt(in);// 58
+        			vl.setSwitchPortNo(data);
+        		}
+        		List<NodeVL> rxVls = node.getRxVls();
+        		for(int i=0; i<rxVLNum; i++){
+        			data=readShort2(in); //59, VL_ID
+        			NodeVL vl=new NodeVL(node.getNodeName(), data);
+        			rxVls.add(vl);
+        			
+        			sdata=readShort(in); //60
+        			vl.setType(sdata);
+        			sdata=readShort(in); //61
+        			vl.setCompleteCheck(sdata);
+        			sdata=readShort(in); //62
+        			vl.setRedudanceType(sdata);
+        			sdata=readShort(in); //63
+        			vl.setUseOfLink(sdata);
+        			data=readInt(in);// 64
+        			vl.setSwitchPortNo(data);
         		}
         	}
         	
-        	
-        	for(int i=0; i<tableNumber; i++){
-        		NodeDeviceCfg cfg = cfgs.get(i);
-        		List<NodeVL> rxVLs=new ArrayList<>();
-            	cfg.setRxVLs(rxVLs);
-            	
-        		for(int j=0; j<rxVLNums[i]; j++){
-        			data=readInt(in);
-        			NodeVL vl=new NodeVL(nodeName, data);
-        			rxVLs.add(vl);
-            		System.out.println("rx VL id:"+data);
-  
-            		data=readInt(in);
-            		vl.setType(data);
-            		System.out.println("rx VL type:"+data);
-            		
-            		data=readInt(in);
-            		vl.setCompleteCheck(data);
-            		System.out.println("rx VL complete check:"+data);
-            		
-            		data=readInt(in);
-            		vl.setRedudanceType(data);
-            		System.out.println("rx VL redundancy:"+data);
-            		
-            		data=readInt(in);
-            		vl.setUseOfLink(data);
-            		System.out.println("rx VL use of Link:"+data);
-            		
-            		data=readInt(in);
-        		}
-        	}
+        	data=readInt(in);
+    		System.out.println("node bin file checksum: "+data);
+    		
         }catch(Exception ex){
         	ex.printStackTrace();
         }finally{
         	in.close();
         }
-		return nodeDev;
+		
+		if(bin.getNodeCfgs()!=null && bin.getNodeCfgs().size()>0){
+			return bin.getNodeCfgs().get(0);
+		}
+		return null;
 	}
 	
 	public static void writeNMUOrNode(NodeDevice nodeDev) throws Exception{
@@ -669,183 +1092,282 @@ public class BinFileHandler {
 		
 		int portNo=nodeDev.getPortNo();		
 		if(ConfigUtils.TYPE_NMU==nodeDev.getType()){
-			fileName=ConfigUtils.getNMUConfigFileName(nodeDev.getNodeName());
+			//fileName=ConfigUtils.getNMUConfigFileName(nodeDev.getNodeName());
+			ConfigDAO dao= ServiceFactory.getService(ConfigDAO.class);
+			SwitchDevice sw = dao.readSwitchDevice(nodeDev.getNodeName(), true);
+			sw.setNmu(nodeDev);
+			writeSwitch(sw);
+			return;
 		}else{
 			fileName=ConfigUtils.getNodeConfigFileName(portNo+"");
 		}
 		
-		int curPos=0;
+		NodeBin nb=new NodeBin();
+		nb.addNode(nodeDev);
+		List<NodeDevice> nodeCfgs = nb.getNodeCfgs();
+
+		Map<Integer, Integer[]> nodeConfigOffsets=new HashMap<>();
+		Map<Integer, Integer[]> txMsgOffsets=new HashMap<>();
+        Map<Integer, Integer[]> rxMsgOffsets=new HashMap<>();
+        Map<Integer, Integer[]> txVLOffsets=new HashMap<>();
+        Map<Integer, Integer[]> rxVLOffsets=new HashMap<>();
+        
+        int curPos=0;
+		List<Byte> list=new ArrayList<Byte>();
 		OutputStream out = new FileOutputStream(fileName); 
+		
 		try {
-			if(nodeDev.getVersion()==0){
-				out.write(toBytes(ConfigContext.version));
-			}else{
-				out.write(toBytes(nodeDev.getVersion())); //version
+			String ver=nodeDev.getVersion();
+			if(ver==null || "".equals(ver)){
+				ver=ConfigContext.version;
 			}
-			curPos+=4;
+			byte[] bytes1 = stringToBytes(ver, 16);
+            outWriteBytes(list, bytes1);
+            curPos+=16;
 			
-            if(nodeDev.getDate()==0){
-            	if(ConfigContext.date>0){
-            		out.write(toBytes(ConfigContext.date));
-            	}else{
-		            String today=getToday();
-		            // 8421 encoding
-		            out.write(toBytes(Integer.valueOf(today, 16)));
-            	}
-            }else{
-            	out.write(toBytes(nodeDev.getDate()));
-            }
-            curPos+=4;
-            
-            if(nodeDev.getFileNo()==0){
-            	out.write(toBytes(ConfigContext.fileNo));
-            }else{
-            	out.write(toBytes(nodeDev.getFileNo()));
-            }
-            curPos+=4;
-            
-            List<NodeDeviceCfg> cfgs = nodeDev.getCfgs();
-            out.write(toBytes(cfgs.size()));
-            curPos+=4;
-            
-            byte[] bytes1 = stringToBytes(nodeDev.getNodeName(), 16);
-            for(int i=0; i<16; i++){
-            	out.write(bytes1[i]);
-            }
+            String dat=nodeDev.getDate();
+			if(dat==null || "".equals(dat)){
+				dat=ConfigContext.date;
+			}
+			bytes1 = stringToBytes(dat, 16);
+            outWriteBytes(list, bytes1);
             curPos+=16;
             
-            out.write(toBytes(nodeDev.getLocationId()));
-            curPos+=4;
-            out.write(toBytes(portNo));
+            outWriteBytes(list, toBytes(0)); //3, file length 
             curPos+=4;
             
-            out.write(toBytes(nodeDev.getRoleOfNM()));
-            curPos+=4;
-            out.write(toBytes(nodeDev.getRoleOfNetworkLoad()));
-            curPos+=4;
-            out.write(toBytes(nodeDev.getRoleOfTimeSync()));
-            curPos+=4;
-            out.write(toBytes(nodeDev.getRtcSendInterval()));
-            curPos+=4;
-            
-            int cfgSize=cfgs.size();
-            for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){
-            	if(cfgSize<=i){
-            		out.write(toBytes(0));
-            	}else{
-            		out.write(toBytes(curPos+4*ConfigContext.MAX_NUM_CFGTABLE+4*5*i));
-            	}
+            if(nb.getFileNo()==0){
+            	outWriteBytes(list, toBytes(ConfigContext.fileNo));
+            }else{
+            	outWriteBytes(list, toBytes(nb.getFileNo())); //4
             }
-            curPos+=(4*ConfigContext.MAX_NUM_CFGTABLE);
+            curPos+=2;
             
-			for(NodeDeviceCfg cfg : cfgs){
-            	out.write(toBytes(cfg.getCfgTableId()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getTxMessages().size()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getRxMessages().size()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getTxVLs().size()));
-            	curPos+=4;
-            	out.write(toBytes(cfg.getRxVLs().size()));
-            	curPos+=4;
+            int cfgNum = nodeCfgs.size();
+            outWriteBytes(list, toBytes((short)cfgNum)); //5
+            curPos+=2;
+            
+            //for each switch configuration
+            int nodeIdx=0;
+            for(NodeDevice nd1 : nodeCfgs){	
+            	outWriteBytes(list, toBytes(nd1.getLocationId())); //location ID, 6
+                curPos+=4;
+                
+                outWriteBytes(list, toBytes(0)); //file offset, 7
+                nodeConfigOffsets.put(nodeIdx, new Integer[]{curPos, 0});
+                curPos+=4;
+                
+                nodeIdx++;
             }
             
-			for(NodeDeviceCfg cfg : cfgs){
-            	for(NodeMessage msg : cfg.getTxMessages()){
-            		out.write(toBytes(msg.getMessageID()));
-            		curPos+=4;
-            		
-            		byte[] b1 = stringToBytes(msg.getMessageName(), 16);
-                    for(int x=0; x<16; x++){
-                    	out.write(b1[x]);
-                    }
-                    curPos+=16;
-                    
-                    out.write(toBytes(msg.getVl()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getMaxOfLen()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getUseOfMessage()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getSnmpID()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getLoadID()));
-                    curPos+=4;
-            	}
-            }
+            // for each Node configuration
+            nodeIdx=0;
+            int nodeStartPosition=0;
+            for(NodeDevice nd1 : nodeCfgs){	
+            	Integer[] pos = nodeConfigOffsets.get(nodeIdx);
+            	pos[1]=curPos;
+            	nodeStartPosition=curPos;
 
-			for(NodeDeviceCfg cfg : cfgs){
-            	for(NodeMessage msg : cfg.getRxMessages()){
-            		out.write(toBytes(msg.getMessageID()));
-            		curPos+=4;
-            		
-            		byte[] b1 = stringToBytes(msg.getMessageName(), 16);
-                    for(int x=0; x<16; x++){
-                    	out.write(b1[x]);
-                    }
-                    curPos+=16;
-                    
-                    out.write(toBytes(msg.getVl()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getMaxOfLen()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getUseOfMessage()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getSnmpID()));
-                    curPos+=4;
-                    out.write(toBytes(msg.getLoadID()));
-                    curPos+=4;
+            	bytes1 = stringToBytes(nd1.getNodeName(), 16); 
+            	outWriteBytes(list, bytes1); // 8
+            	curPos+=16;
+            
+            	outWriteBytes(list, toBytes(nd1.getLocationId()));//9
+            	curPos+=4;
+            	outWriteBytes(list, toBytes(nd1.getPortNo()));//10
+            	curPos+=4;
+            	outWriteBytes(list, (byte)nd1.getRoleOfNM());//11
+            	curPos+=1;
+            	outWriteBytes(list, (byte)nd1.getRoleOfNetworkLoad());//12
+            	curPos+=1;
+            	outWriteBytes(list, (byte)nd1.getRoleOfTimerSync());//13
+            	curPos+=1;
+            	outWriteBytes(list, toBytes(nd1.getRtcSendInterval()));//14
+            	curPos+=4;
+            	outWriteBytes(list, (byte)nd1.getRoleOfTimeSync());//15
+            	curPos+=1;
+            	outWriteBytes(list, toBytes(nd1.getOverallInterval()));//16
+            	curPos+=4;
+            	outWriteBytes(list, toBytes(nd1.getClusterInterval()));// 17
+            	curPos+=2;
+            	
+            	List<NodeMessage> txMsgs = nd1.getTxMsgs();
+            	outWriteBytes(list, toBytes(txMsgs.size()));// 18
+            	curPos+=4;
+            	
+            	Integer[] txMsgStartPosition=new Integer[]{curPos, 0};
+            	txMsgOffsets.put(nodeIdx, txMsgStartPosition);
+            	outWriteBytes(list, toBytes(0)); // 19, send msg offset
+            	curPos+=4;
+            	
+            	List<NodeMessage> rxMsgs = nd1.getRxMsgs();
+            	outWriteBytes(list, toBytes(rxMsgs.size()));// 20
+            	curPos+=4;
+            	
+            	Integer[] rxMsgStartPosition=new Integer[]{curPos, 0};
+            	rxMsgOffsets.put(nodeIdx, rxMsgStartPosition);
+            	outWriteBytes(list, toBytes(0));// 21 receive msg offset
+            	curPos+=4;
+            	
+            	List<NodeVL> txVls = nd1.getTxVls();
+            	outWriteBytes(list, toBytes(txVls.size()));// 22
+            	curPos+=4;
+            	
+            	Integer[] txVLStartPosition=new Integer[]{curPos, 0};
+            	txVLOffsets.put(nodeIdx, txVLStartPosition);
+            	outWriteBytes(list, toBytes(0));// 23 send VL offset
+            	curPos+=4;
+            	
+            	List<NodeVL> rxVls = nd1.getRxVls();
+            	outWriteBytes(list, toBytes(rxVls.size()));// 24
+            	curPos+=4;
+            	
+            	Integer[] rxVLStartPosition=new Integer[]{curPos, 0};
+            	rxVLOffsets.put(nodeIdx, rxVLStartPosition);
+            	outWriteBytes(list, toBytes(0));// 25 receive VL offset
+            	curPos+=4;
+            	
+            	txMsgStartPosition[1]=curPos-nodeStartPosition;
+            	for(NodeMessage msg : txMsgs){
+            		outWriteBytes(list, toBytes(msg.getMessageID()));// 26
+                	curPos+=4;
+                	
+                	bytes1 = stringToBytes(msg.getMessageName(), 16);
+                	outWriteBytes(list, bytes1); //27
+                	curPos+=16;
+                	
+                	outWriteBytes(list, toBytes((short)msg.getVl()));// 28
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getMaxOfLen()));// 29
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getType()));// 30
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getSID()));// 31
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getDID()));// 32
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getUseOfMessage()));// 33
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getSnmpID()));// 34
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getLoadID()));// 35
+                	curPos+=2;
             	}
-            }
-
-			for(NodeDeviceCfg cfg : cfgs){
-            	for(NodeVL vl : cfg.getTxVLs()){
-            		out.write(toBytes(vl.getVLID()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getType()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getBag()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getJitter()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getTtInterval()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getTtWindow()));
-            		curPos+=4;
-            		out.write(toBytes(0));
-            		curPos+=4;
-            		out.write(toBytes(0));
-            		curPos+=4;
-            		out.write(toBytes(vl.getNetworkType()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getRedudanceType()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getUseOfLink()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getRtcInterval()));
-            		curPos+=4;
-            		out.write(toBytes(0));
-            		curPos+=4;
+            	
+            	rxMsgStartPosition[1]=curPos-nodeStartPosition;
+            	for(NodeMessage msg : rxMsgs){
+            		outWriteBytes(list, toBytes(msg.getMessageID()));// 36
+                	curPos+=4;
+                	
+                	bytes1 = stringToBytes(msg.getMessageName(), 16);//37 
+                	outWriteBytes(list, bytes1); // 8
+                	curPos+=16;
+                	
+                	outWriteBytes(list, toBytes((short)msg.getVl()));// 38
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getMaxOfLen()));// 39
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getType()));// 40
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getSID()));// 41
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getDID()));// 42
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(msg.getUseOfMessage()));// 43
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getSnmpID()));// 44
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(msg.getLoadID()));// 45
+                	curPos+=2;
             	}
+            	
+            	txVLStartPosition[1]=curPos-nodeStartPosition;
+            	for(NodeVL vl : txVls){
+            		outWriteBytes(list, toBytes((short)vl.getVLID()));// 46
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getType()));// 47
+                	curPos+=2;
+                	outWriteBytes(list, toBytes((short)vl.getBag()));// 48
+                	curPos+=2;
+                	outWriteBytes(list, toBytes((short)vl.getJitter()));// 48
+                	curPos+=2;
+                	
+                	outWriteBytes(list, toBytes(vl.getTtInterval()));// 49
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(vl.getTtSentInterval()));// 50
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(vl.getTtWindowOffset()));// 51
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(vl.getTtWindowStart()));// 52
+                	curPos+=4;
+                	outWriteBytes(list, toBytes(vl.getTtWindowEnd()));// 53
+                	curPos+=4;
+                	
+                	outWriteBytes(list, toBytes(vl.getNetworkType()));// 54
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getRedudanceType()));// 55
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getUseOfLink()));// 56
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getRtcInterval()));// 57
+                	curPos+=4;
+                	
+                	outWriteBytes(list, toBytes(vl.getSwitchPortNo()));// 58
+                	curPos+=4;
+            	}
+            	
+            	rxVLStartPosition[1]=curPos-nodeStartPosition;
+            	for(NodeVL vl : rxVls){
+            		outWriteBytes(list, toBytes((short)vl.getVLID()));// 59
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getType()));// 60
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getCompleteCheck()));// 61
+                	curPos+=2;
+                	
+                	outWriteBytes(list, toBytes(vl.getRedudanceType()));// 62
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getUseOfLink()));// 63
+                	curPos+=2;
+                	outWriteBytes(list, toBytes(vl.getSwitchPortNo()));// 64
+                	curPos+=4;
+            	}
+            	
+            	nodeIdx++;
             }
             
-			for(NodeDeviceCfg cfg : cfgs){
-            	for(NodeVL vl : cfg.getRxVLs()){
-            		out.write(toBytes(vl.getVLID()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getType()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getCompleteCheck()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getRedudanceType()));
-            		curPos+=4;
-            		out.write(toBytes(vl.getUseOfLink()));
-            		curPos+=4;
-            		out.write(toBytes(0));
-            		curPos+=4;
-            	}
+            // set file length
+            setBytesInList(list, 32, toBytes(curPos+4)); //add checksum
+            
+            for(Map.Entry<Integer, Integer[]> entry: nodeConfigOffsets.entrySet()){
+            	Integer[] nodePosOffset = entry.getValue();
+            	setBytesInList(list, nodePosOffset[0], toBytes(nodePosOffset[1]));
             }
+            for(Map.Entry<Integer, Integer[]> entry: txMsgOffsets.entrySet()){
+            	Integer[] nodePosOffset = entry.getValue();
+            	setBytesInList(list, nodePosOffset[0], toBytes(nodePosOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: rxMsgOffsets.entrySet()){
+            	Integer[] nodePosOffset = entry.getValue();
+            	setBytesInList(list, nodePosOffset[0], toBytes(nodePosOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: txVLOffsets.entrySet()){
+            	Integer[] nodePosOffset = entry.getValue();
+            	setBytesInList(list, nodePosOffset[0], toBytes(nodePosOffset[1]));
+            }
+            for(Map.Entry<Integer, Integer[]> entry: rxVLOffsets.entrySet()){
+            	Integer[] nodePosOffset = entry.getValue();
+            	setBytesInList(list, nodePosOffset[0], toBytes(nodePosOffset[1]));
+            }
+            
+            int checksum=genChecksum(list);
+        	outWriteBytes(list, toBytes(checksum)); // 65, checksum for whole bin file
+        	curPos+=4;
+
+            for(Byte b : list){
+            	out.write(b);
+            }
+            
 			System.out.println("write "+curPos+" to "+fileName);
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -859,87 +1381,87 @@ public class BinFileHandler {
 		FileInputStream in = new FileInputStream(fileName);
 		SwitchMonitor mon=new SwitchMonitor(swName);
 		try {
+			byte[] bs=new byte[16];
+        	for(int i=0; i<16; i++){
+        		bs[i]=readByte(in);
+        	}
+        	String version=bytesToString(bs);
+        	mon.setVersion(version);
+        	if(version==null || version.equals("")){
+        		mon.setVersion(ConfigContext.version);
+        	}
+        	System.out.println("");
+			System.out.println("monitor version:"+version);
+        	
+			for(int i=0; i<16; i++){
+        		bs[i]=readByte(in);
+        	}
+        	String date=bytesToString(bs);
+        	mon.setDate(date);
+        	if(date==null || date.equals("")){
+        		mon.setDate(ConfigContext.date);
+        	}
+			System.out.println("date:"+date);
+        	
 			int data=readInt(in);
-			mon.setVersion(data);
-        	System.out.println("version:"+data);
+			System.out.println("file length: "+data+" "+fileName);
+			
+			int fileNo=readInt(in);
+        	mon.setFileNo(fileNo);
+        	System.out.println("file id:"+fileNo);
         	
-        	data=readInt(in);
-        	mon.setDate(data);
-        	System.out.println("date:"+data);
+        	short tableNumber=readShort(in);
+        	System.out.println("monitor table total number:"+tableNumber);
         	
-        	data=readInt(in);
-        	mon.setFileNo(data);
-        	System.out.println("file id:"+data);
-        	
-        	int tableNumber=readInt(in);
-        	mon.setNumberOfConfigTable(tableNumber);
-        	System.out.println("table total number:"+tableNumber);
-        	
-        	data=readInt(in);
-        	mon.setLocationId(data);
-        	System.out.println("location id:"+data);
-        	
-        	for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){
-        		data=readInt(in);
-        		System.out.println("file "+i+" offset: "+data);
-        	}
-        	
-        	int[] portNos=new int[tableNumber];
+        	List<Integer> planNos=new ArrayList<>();
         	for(int i=0; i<tableNumber; i++){
         		data=readInt(in);
-        		portNos[i]=data;
-        		System.out.println("file "+i+" port No.: "+data);
+        		planNos.add(data);
+        		data=readInt(in);
         	}
         	
-        	List<SwitchMonitorCfg> cfgs=mon.getMonitorCfgs();
-        	if(cfgs==null){
-        		cfgs=new ArrayList<>();
-        		mon.setMonitorCfgs(cfgs);
-        	}
-        	
+        	List<SwitchMonitorPort> monPorts = mon.getMonitorPorts();
+        	Iterator<Integer> it=planNos.iterator();
         	for(int i=0; i<tableNumber; i++){
-        		int cfgTableId=i+1;
-        		SwitchMonitorCfg cfg=new SwitchMonitorCfg(cfgTableId);
-        		cfg.setMirrorPortNum(portNos[i]);
-        		cfgs.add(cfg);
+        		Integer planNo = it.next();
         		
-        		for(int j=0; j<portNos[i]; j++){
-        			int portId=j+1;
-        			SwitchMonitorPort monPort=new SwitchMonitorPort(swName,cfgTableId,portId);
-					cfg.addMonitorPort(monPort);
-					
-					data = readInt(in);
-					monPort.setPortEnableMonitor(data);
-					System.out.println("monitor status: " + data);
-
-					data = readInt(in);
-					monPort.setPortMonitorMode(data);
-					System.out.println("monitor mode: " + data);
-
-					data = readInt(in);
-					List<Integer> inputPorts = bitsetIntToList(data, 0);
-					monPort.setPortInputPortList(inputPorts);
-					System.out.println("input ports: " + inputPorts);
-
-					data = readInt(in);
-					List<Integer> highOputPorts = bitsetIntToList(data, 32);
-					data = readInt(in);
-					List<Integer> lowOputPorts = bitsetIntToList(data, 0);
-					lowOputPorts.addAll(highOputPorts);
-					monPort.setPortOutputPortList(lowOputPorts);
-					System.out.println("output ports: " + inputPorts);
-
-					data = readInt(in);
-					System.out.println("VL number: " + data);
-
-					List<Integer> vls = new ArrayList<>();
-					monPort.setPortVLList(vls);
-					for (int x = 0; x < data; x++) {
-						data = readInt(in);
-						vls.add(data);
-					}
-					System.out.println("VL: " + vls);
+        		int locationId=readShort2(in);
+        		short portNo=readShort(in);  //7
+        		SwitchMonitorPort port=new SwitchMonitorPort(mon.getSwitchName(), planNo, portNo);
+        		port.setLocationId(locationId);
+        		monPorts.add(port);
+        		
+        		System.out.println("monitor "+i+" port No "+portNo);
+        		
+        		short status=readShort(in); //8
+        		port.setPortEnableMonitor(status);
+        		
+        		short mode=readShort(in); //9
+        		port.setPortMonitorMode(mode);
+        		
+        		short inputPortNum=readShort(in); //10
+        		System.out.println("monitor "+i+" inputPortNum "+inputPortNum);
+        		
+        		int inputPort=readInt(in); //11
+        		List<Integer> inputPorts = ConfigUtils.bitsetIntToList(inputPort, 0);
+        		port.setPortInputPortList(inputPorts);
+        		System.out.println("monitor "+i+" input ports "+inputPorts);
+        		
+        		short outputPortNum=readShort(in); //12
+        		System.out.println("monitor "+i+" outputPortNum "+outputPortNum);
+        		
+        		int outputPort=readInt(in); //13
+        		List<Integer> outputPorts = ConfigUtils.bitsetIntToList(outputPort, 0);
+        		port.setPortOutputPortList(outputPorts);
+        		System.out.println("monitor "+i+" output ports "+outputPorts);
+        		
+        		int vlNum=readShort2(in); //14
+        		List<Integer> vls=port.getPortVLList();
+        		for(int n=0; n<vlNum; n++){
+        			int vl=readShort2(in); //15, VL, 2*N
+        			vls.add(vl);
         		}
+        		System.out.println("monitor "+i+" VL "+vls);
         	}
         	
 		}catch(Exception ex){
@@ -954,83 +1476,108 @@ public class BinFileHandler {
 		String fileName=ConfigUtils.getMonitorConfigFileName(mon.getSwitchName());
 		OutputStream out = new FileOutputStream(fileName); 
 		int curPos=0;
+		List<Byte> list=new ArrayList<>();
+		
 		try {
-			if(mon.getVersion()==0){
-				out.write(toBytes(ConfigContext.version));
-			}else{
-				out.write(toBytes(mon.getVersion())); // version
+			String ver=mon.getVersion();
+			if(ver==null || "".equals(ver)){
+				ver=ConfigContext.version;
 			}
-			curPos+=4;
+			byte[] bytes1 = stringToBytes(ver, 16);
+            outWriteBytes(list, bytes1); //1
+            curPos+=16;
 			
-            if(mon.getDate()==0){
-            	if(ConfigContext.date>0){
-            		out.write(toBytes(ConfigContext.date));
-            	}else{
-            		String today=getToday();
-		            // 8421 encoding
-		            out.write(toBytes(Integer.valueOf(today, 16)));
-            	}
+            String date=mon.getDate();
+			if(date==null || "".equals(date)){
+				date=ConfigContext.date;
+			}
+			bytes1 = stringToBytes(date, 16);
+            outWriteBytes(list, bytes1); //2
+            curPos+=16;
+            
+            outWriteBytes(list, toBytes(0)); //3, length of file, will set in the end 
+            curPos+=4;
+            
+            if(mon.getFileNo()==0){ //4
+            	outWriteBytes(list, toBytes((int)ConfigContext.fileNo));
             }else{
-            	out.write(toBytes(mon.getDate()));
+            	outWriteBytes(list, toBytes(mon.getFileNo()));
             }
             curPos+=4;
             
-            if(mon.getFileNo()==0){
-            	out.write(toBytes(ConfigContext.fileNo));
-            }else{
-            	out.write(toBytes(mon.getFileNo()));
-            }
-            curPos+=4;
+            List<SwitchMonitorPort> monPorts = mon.getMonitorPorts();
+            outWriteBytes(list, toBytes((short)monPorts.size())); //5
+            curPos+=2;
             
-            out.write(toBytes(mon.getNumberOfConfigTable()));
-            curPos+=4;
-            
-            out.write(toBytes(mon.getLocationId()));
-            curPos+=4;
-            
-            List<SwitchMonitorCfg> cfgs = mon.getMonitorCfgs();
-            int cfgSize=cfgs.size();
-            for(int i=0; i<ConfigContext.MAX_NUM_CFGTABLE; i++){ //offset
-            	if(cfgSize<=i){
-            		out.write(toBytes(0));
-            	}else{
-            		out.write(toBytes(curPos+4*ConfigContext.MAX_NUM_CFGTABLE+4*i));
-            	}
-            }
-            curPos+=(4*ConfigContext.MAX_NUM_CFGTABLE); 
-            
-            for(SwitchMonitorCfg cfg : cfgs){
-            	out.write(toBytes(cfg.getMirrorPortNum()));
-            	curPos+=4;
+            Map<Integer, Integer[]> offsets=new HashMap<>();//key is the index of monitor item
+            int i=0;
+            for(SwitchMonitorPort monPort : monPorts){
+            	outWriteBytes(list, toBytes(monPort.getConfigTableId()));
+                curPos+=4;
+                
+                outWriteBytes(list, toBytes(0)); //7, will set in the end
+                offsets.put(i, new Integer[]{curPos, 0});
+                curPos+=4;
+                
+                i++;
             }
             
-            for(SwitchMonitorCfg cfg : cfgs){
-            	List<SwitchMonitorPort> ports = cfg.getMonitorPorts();
-            	for(SwitchMonitorPort port : ports){
-					out.write(toBytes(port.getPortEnableMonitor()));
-					curPos+=4;
-					out.write(toBytes(port.getPortMonitorMode()));
-					curPos+=4;
-					
-					int[] intputPorts = listToIntBitSet(port.getPortInputPortList());
-					out.write(toBytes(intputPorts[1]));
-					curPos+=4;
-					
-					int[] outputPorts = listToIntBitSet(port.getPortOutputPortList());
-					out.write(toBytes(outputPorts[0]));
-					curPos+=4;
-					out.write(toBytes(outputPorts[1]));
-					curPos+=4;
-					
-					out.write(toBytes(port.getPortVLList().size()));
-					curPos+=4;
-					
-					for (Integer vl : port.getPortVLList()) {
-						out.write(toBytes(vl));
-						curPos+=4;
-					}
-            	}
+            i=0;
+            for(SwitchMonitorPort monPort : monPorts){
+            	Integer[] locs = offsets.get(i);
+            	locs[1]=curPos; //start position for current monitor item
+            	
+            	outWriteBytes(list, toBytes((short)monPort.getLocationId()));//6
+                curPos+=2;
+                outWriteBytes(list, toBytes((short)monPort.getPortId()));//7
+                curPos+=2;
+                outWriteBytes(list, toBytes((short)monPort.getPortEnableMonitor()));//8
+                curPos+=2;
+                outWriteBytes(list, toBytes((short)monPort.getPortMonitorMode()));//9
+                curPos+=2;
+                
+                List<Integer> inputPorts = monPort.getPortInputPortList();
+                outWriteBytes(list, toBytes((short)inputPorts.size()));//10
+                curPos+=2;
+                
+                int[] inputPortsBitset=ConfigUtils.listToIntBitSet(inputPorts);
+                outWriteBytes(list, toBytes(inputPortsBitset[1]));//11
+                curPos+=4;
+                
+                List<Integer> outputPorts = monPort.getPortOutputPortList();
+                outWriteBytes(list, toBytes((short)outputPorts.size()));//12
+                curPos+=2;
+                
+                int[] outputPortsBitset=ConfigUtils.listToIntBitSet(outputPorts);
+                outWriteBytes(list, toBytes(outputPortsBitset[1]));//13
+                curPos+=4;
+                
+                List<Integer> vls = monPort.getPortVLList();
+                outWriteBytes(list, toBytes((short)vls.size())); //14
+                curPos+=2;
+                
+                Collections.sort(vls);
+                for(Integer vlid : vls){
+                	outWriteBytes(list, toBytes(vlid.shortValue()));//15, 2*N
+                	curPos+=2;
+                }
+                
+                i++;
             }
+            
+            // TODO no checksum?
+            
+            setBytesInList(list, 32, toBytes(curPos));
+            
+            for(Map.Entry<Integer, Integer[]> entry: offsets.entrySet()){
+            	Integer[] offset = entry.getValue();
+            	setBytesInList(list, offset[0], toBytes(offset[1]));
+            }
+            
+            for(Byte b : list){
+            	out.write(b);
+            }
+            
             System.out.println("write "+curPos+" to "+fileName);
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -1040,34 +1587,7 @@ public class BinFileHandler {
 	}
 	
 	/** [0] is high code, [1] is low code; port no is from 0-16, 16 is NMU */
-	private static int[] listToIntBitSet(List<Integer> portNos){
-		int lowCode=0;
-		int highCode=0;
-		for(Integer portNo : portNos){
-			if(portNo>=32){
-				highCode += 1<<(portNo-32);
-			}else{
-				lowCode += 1<<(portNo);  // port no is from 0-16, 16 is NMU
-			}
-		}
-		int[] res=new int[]{highCode, lowCode};
-		return res;
-	}
-	
-	/** 
-	 * port no is from 0 to 16, 16 is NMU port
-	 */
-	private static List<Integer> bitsetIntToList(int d, int offset){
-		List<Integer> list=new ArrayList<Integer>();
-		for(int i=0; i<32; i++){
-			int mask=1<<i;
-			if((d & mask)!=0){
-				list.add((offset+i)); 
-			}
-		}
-		return list;
-	}
-	
+
 	public static byte[] stringToBytes(String str, int bytesLen){
 		byte[] result=new byte[bytesLen];
 		if(str==null){
@@ -1088,8 +1608,9 @@ public class BinFileHandler {
     			nameLen=i;
     		}
     	}
-    	if(nameLen==-1)
+    	if(nameLen==-1){
     		nameLen=names.length;
+    	}
     	
     	byte[] newnames=new byte[nameLen];
     	for(int i=0; i<nameLen; i++){
@@ -1104,8 +1625,7 @@ public class BinFileHandler {
 	    for(int i = 0; i < bits.length; i++){  
 	        if(bits[i] == '1'){
 	            bitSet.set(i, true);
-	        }
-	        else{
+	        }else{
 	            bitSet.set(i, false);
 	        }                
 	    }
@@ -1121,11 +1641,36 @@ public class BinFileHandler {
 		return result;
 	}
 	
+	public static byte[] toBytes(short i) {
+		byte[] result = new byte[2];
+		result[0] = (byte) ((i >> 8) & 0xFF);
+		result[1] = (byte) (i & 0xFF);
+		return result;
+	}
+	
 	public static int toInt(byte[] b) {
 		int value = 0;
 	    for (int i = 0; i < 4; i++) {
 	        int shift = (4 - 1 - i) * 8;
 	        value += (b[i] & 0x000000FF) << shift;
+	    }
+	    return value;
+	}
+	
+	public static short toShort(byte[] b) {
+		int value = 0;
+	    for (int i = 0; i < 2; i++) {
+	        int shift = (2 - 1 - i) * 8;
+	        value += (b[i] & 0x00FF) << shift;
+	    }
+	    return (short)value;
+	}
+	
+	public static int toShort2(byte[] b) {
+		int value = 0;
+	    for (int i = 0; i < 2; i++) {
+	        int shift = (2 - 1 - i) * 8;
+	        value += (b[i] & 0x00FF) << shift;
 	    }
 	    return value;
 	}
@@ -1140,6 +1685,26 @@ public class BinFileHandler {
 		return toInt(bs);
 	}
 	
+	private static short readShort(FileInputStream in){
+		byte[] bs=new byte[2];
+		try{
+			in.read(bs, 0, 2);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return toShort(bs);
+	}
+	
+	private static int readShort2(FileInputStream in){
+		byte[] bs=new byte[2];
+		try{
+			in.read(bs, 0, 2);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		return toShort2(bs);
+	}
+	
 	public static byte readByte(FileInputStream in){
 		byte[] bs=new byte[1];
 		try{
@@ -1150,22 +1715,38 @@ public class BinFileHandler {
 		return bs[0];
 	}
 
-	@SuppressWarnings("deprecation")
-	private static String getToday(){
-		Date today=new Date();
-        StringBuilder date1=new StringBuilder();
-        date1.append(today.getYear()+1900);
-        if(today.getMonth()<9){
-        	date1.append("0").append(today.getMonth()+1);
-        }else{
-        	date1.append(today.getMonth()+1);
-        }
-        if(today.getDate()<10){
-        	date1.append("0").append(today.getDate());
-        }else{
-        	date1.append(today.getDate());
-        }
-        return date1.toString();
+	private static void outWriteBytes(List<Byte> list, byte[] bs){
+		if(bs!=null){
+			for(byte b : bs){
+				list.add(b);
+			}
+		}
+	}
+	
+	private static void outWriteBytes(List<Byte> list, byte b){
+		list.add(b);
+	}
+	
+	/*** update list in place */
+	private static void setBytesInList(List<Byte> list, int pos, byte[] bs){
+		if(bs==null){
+			return;
+		}
+		if(list==null){
+			return;
+		}
+		
+		for(int i=0; i<bs.length; i++){
+			list.set(pos+i, bs[i]);
+		}
+	}
+	
+	private static int genChecksum(List<Byte> bs){
+		int sum=0;
+		for(Byte b : bs){
+			sum+=b;
+		}
+		return sum;
 	}
 
 }

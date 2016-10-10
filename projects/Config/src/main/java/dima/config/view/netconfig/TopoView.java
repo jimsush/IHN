@@ -24,6 +24,7 @@ import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
+import dima.config.view.importfile.ImportFileActions;
 import dima.config.view.netconfig.topo.SetRedundancyDialog;
 import dima.config.view.netconfig.topo.TopoServiceImpl;
 import twaver.Element;
@@ -45,6 +46,8 @@ public class TopoView extends JPanel implements UpdateCallback{
 		initUI();
 		
 		initPopupMenu();
+		
+		ConfigContext.topoView=this;
 	}
 	
 	private void initService(){
@@ -130,6 +133,52 @@ public class TopoView extends JPanel implements UpdateCallback{
 							}
 				      });
 			    	popMenu.add(item);
+			    	popMenu.addSeparator();
+			    	
+			    	item=new JMenuItem("导入topo_ctrl");
+			    	  item.addActionListener(new ActionListener(){
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+								dao.clearAll();
+								
+								ImportFileActions.openImportTopoCtrlAction();
+							}
+				      });
+			    	popMenu.add(item);
+	
+			    	item=new JMenuItem("导入config_ctrl");
+			    	  item.addActionListener(new ActionListener(){
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								ImportFileActions.openImportConfigCtrlAction();
+							}
+				      });
+			    	popMenu.add(item);
+			    	popMenu.addSeparator();
+			    	
+			    	item=new JMenuItem("导入ADC");
+			    	  item.addActionListener(new ActionListener(){
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+								dao.clearAll();
+								
+								ImportFileActions.openImportADCAction();
+							}
+				      });
+			    	popMenu.add(item);
+			    	
+			    	popMenu.addSeparator();
+			    	item=new JMenuItem("清空所有设备");
+			    	  item.addActionListener(new ActionListener(){
+							@Override
+							public void actionPerformed(ActionEvent arg0) {
+								ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+								dao.clearAll();
+							}
+				      });
+			    	popMenu.add(item);
 				}
 				return popMenu;
 			}
@@ -164,26 +213,26 @@ public class TopoView extends JPanel implements UpdateCallback{
 		}
 		
 		Map<Integer, SwitchDevice> id2Switches=new HashMap<>();
-		Map<String, List<Integer>> switchPorts=new HashMap<>();
+		Map<String, List<Integer>> switch2EportNos=new HashMap<>();
 		// prepare
 		for(SwitchDevice curSw : switches){
 			id2Switches.put(curSw.getLocalDomainID(), curSw);
-			switchPorts.put(curSw.getSwitchName(), curSw.getEportFEs());
+			switch2EportNos.put(curSw.getSwitchName(), curSw.getEportNos());
 		}
 		
 		// find the first and second switches
 		for(SwitchDevice curSw : switches){
-			List<Integer> ports = switchPorts.get(curSw.getSwitchName());
-			if(ports.size()>0){
-				for(Integer peerPort : ports){
-					int swId=(peerPort>>16) & 0xffff;
-					SwitchDevice sw = id2Switches.get(swId);
-					if(sw!=null){
-						if(curSw.getLocalDomainID()<sw.getLocalDomainID()){
+			List<Integer> eportFullNos = switch2EportNos.get(curSw.getSwitchName());
+			if(eportFullNos.size()>0){
+				for(Integer peerPortFullNo : eportFullNos){
+					int peerSwitchId=(peerPortFullNo>>16) & 0xffff;
+					SwitchDevice peerSw = id2Switches.get(peerSwitchId);
+					if(peerSw!=null){
+						if(curSw.getLocalDomainID()<peerSw.getLocalDomainID()){
 							sortedSwitches.add(curSw);
-							sortedSwitches.add(sw);
+							sortedSwitches.add(peerSw);
 						}else{
-							sortedSwitches.add(sw);
+							sortedSwitches.add(peerSw);
 							sortedSwitches.add(curSw);
 						}
 						break;
@@ -261,6 +310,10 @@ public class TopoView extends JPanel implements UpdateCallback{
 	
 	public void updateAttachment(int newRedundancy){
 		topoService.updateAttachment(newRedundancy);
+	}
+
+	public void clearAll() {
+		this.box.clear();
 	}
 	
 

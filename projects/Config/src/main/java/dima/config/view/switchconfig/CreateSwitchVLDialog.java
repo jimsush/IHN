@@ -34,8 +34,8 @@ public class CreateSwitchVLDialog extends JDialog{
 	private static final long serialVersionUID = 4478166130836141013L;
 	
 	private String switchName;
-	private int currentCfgTableId;
-	private int currentPlanId;
+	//private int currentCfgTableId;
+	//private int currentPlanId;
 	
 	private ConfigDAO dao;
 	private SwitchVL oldData;
@@ -45,8 +45,8 @@ public class CreateSwitchVLDialog extends JDialog{
 	
 	private JComboBox<String> typeBox;
 	
-	private JComboBox<String> beBox;
-	private JLabel beLabel;
+	private JComboBox<String> priorityBox;
+	private JLabel priorityLabel;
 	
 	private JPanel rcPane;
 	private JLabel bagLabel;
@@ -55,10 +55,20 @@ public class CreateSwitchVLDialog extends JDialog{
 	private JTextField jitterTxtField;
 	
 	private JPanel ttPane;
+	
 	private JLabel intervalLabel;
 	private JTextField intervalTxtField;
-	private JLabel windowLabel;
-	private JTextField windowTxtField;
+	
+	private JLabel sentIntervalLabel;
+	private JTextField sentIntervalTxtField;
+	
+	private JLabel windowStartLabel;
+	private JTextField windowStartTxtField;
+	
+	private JLabel windowOffsetLabel;
+	private JTextField windowOffsetTxtField;
+	private JLabel windowEndLabel;
+	private JTextField windowEndTxtField;
 	
 	private int PORT_NUM=16;
 	private JButton[] inputButtons=null;
@@ -67,14 +77,13 @@ public class CreateSwitchVLDialog extends JDialog{
 	private VLConfigPane tablePanel;
 	
 	public CreateSwitchVLDialog(Window parent, String title, String switchName, 
-			int currentCfgTableId, int currentPlanId,
 			SwitchVL data, VLConfigPane tablePanel){
 		super(parent, title, ModalityType.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
 		
 		this.switchName=switchName;
-		this.currentCfgTableId=currentCfgTableId;
-		this.currentPlanId=currentPlanId;
+		///this.currentCfgTableId=currentCfgTableId;
+		//this.currentPlanId=currentPlanId;
 		this.oldData=data;
 		this.tablePanel=tablePanel;
 		
@@ -124,7 +133,18 @@ public class CreateSwitchVLDialog extends JDialog{
 	}
 	
 	private int getButtonAreaHeight(){
-		int height=44+(((PORT_NUM-11)/4+1)+3)*50;
+		int height=0;
+		if(PORT_NUM==48){
+			height=500;
+		}else if(PORT_NUM==32){
+			height=470;
+		}else if(PORT_NUM==16){
+			height=360;
+		}else if(PORT_NUM<=5){
+			height=270;
+		}else{
+			height=64+(((PORT_NUM-11)/4+1)+3)*50;
+		}
 		System.out.println("button area height:"+height);
 		return height;
 	}
@@ -148,7 +168,7 @@ public class CreateSwitchVLDialog extends JDialog{
 	    
 	    vlIDTxtField=ConfigUtils.getNumberTextField();
 	    vlIDTxtField.setText("0");
-	    vlIDTxtField.setToolTipText("0~4095");
+	    vlIDTxtField.setToolTipText("0~65535");
 	    if(oldData!=null){
 	    	vlIDTxtField.setText(oldData.getVLID()+"");
 	    	vlIDTxtField.setEnabled(false);
@@ -175,14 +195,17 @@ public class CreateSwitchVLDialog extends JDialog{
 			}
 		});
 
-	    beLabel=new JLabel("BE优先级:");
-	    inputPane.add(beLabel, "5,3,f,0");
+	    priorityLabel=new JLabel("优先级:");
+	    inputPane.add(priorityLabel, "5,3,f,0");
 	    
-	    beBox=new JComboBox<>();
-	    beBox.addItem("高");
-	    beBox.addItem("低");
-	    beBox.setSelectedIndex(0);
-	    inputPane.add(beBox, "7,3,f,0");
+	    priorityBox=new JComboBox<>();
+	    priorityBox.addItem("低");
+	    priorityBox.addItem("高");
+	    priorityBox.setSelectedIndex(0);
+	    inputPane.add(priorityBox, "7,3,f,0");
+	    if(oldData!=null){
+	    	priorityBox.setSelectedIndex(oldData.getPriority());
+	    }
 	    
 	    // RC
 	    LayoutManager rclayout =  new TableLayout(new double[][] {
@@ -214,21 +237,60 @@ public class CreateSwitchVLDialog extends JDialog{
 	    inputPane.add(rcPane, "1,5,3,7");
 
 	    // TT
-	    ttPane = new JPanel(rclayout);
+	    LayoutManager ttlayout =  new TableLayout(new double[][] {
+            { 6,  80, TableLayout.FILL, 80, 6 }, 
+            { 4, 22, 4, 22, 4,22,4,22,4,22, TableLayout.FILL, 4} });
+	    ttPane = new JPanel(ttlayout);
 	    ttPane.setBorder(BorderFactory.createTitledBorder("TT属性设置")); 
-	    intervalLabel=new JLabel("周期:");
+	    intervalLabel=new JLabel("起始周期:");
 	    ttPane.add(intervalLabel, "1,1,f,0");
 	    
 	    intervalTxtField=ConfigUtils.getNumberTextField();
 	    intervalTxtField.setText("0");
 	    ttPane.add(intervalTxtField, "3,1,f,0");
+	    if(oldData!=null){
+	    	intervalTxtField.setText(oldData.getTtInterval()+"");
+	    }
 	    
-	    windowLabel=new JLabel("窗口:");
-	    ttPane.add(windowLabel, "1,3,f,0");
+	    sentIntervalLabel=new JLabel("发送周期:");
+	    ttPane.add(sentIntervalLabel, "1,3,f,0");
 	    
-	    windowTxtField=ConfigUtils.getNumberTextField();
-	    windowTxtField.setText("0");
-	    ttPane.add(windowTxtField, "3,3,f,0");
+	    sentIntervalTxtField=ConfigUtils.getNumberTextField();
+	    sentIntervalTxtField.setText("0");
+	    ttPane.add(sentIntervalTxtField, "3,3,f,0");
+	    if(oldData!=null){
+	    	sentIntervalTxtField.setText(oldData.getTtSentInterval()+"");
+	    }
+	    
+	    windowOffsetLabel=new JLabel("窗口偏移:");
+	    ttPane.add(windowOffsetLabel, "1,5,f,0");
+	    
+	    windowOffsetTxtField=ConfigUtils.getNumberTextField();
+	    windowOffsetTxtField.setText("0");
+	    ttPane.add(windowOffsetTxtField, "3,5,f,0");
+	    if(oldData!=null){
+	    	windowOffsetTxtField.setText(oldData.getTtWindowOffset()+"");
+	    }
+	    
+	    windowStartLabel=new JLabel("窗口起始时间:");
+	    ttPane.add(windowStartLabel, "1,7,f,0");
+	    
+	    windowStartTxtField=ConfigUtils.getNumberTextField();
+	    windowStartTxtField.setText("0");
+	    ttPane.add(windowStartTxtField, "3,7,f,0");
+	    if(oldData!=null){
+	    	windowStartTxtField.setText(oldData.getTtWindowStart()+"");
+	    }
+	    
+	    windowEndLabel=new JLabel("窗口结束时间:");
+	    ttPane.add(windowEndLabel, "1,9,f,0");
+	    
+	    windowEndTxtField=ConfigUtils.getNumberTextField();
+	    windowEndTxtField.setText("0");
+	    ttPane.add(windowEndTxtField, "3,9,f,0");
+	    if(oldData!=null){
+	    	windowEndTxtField.setText(oldData.getTtWindowEnd()+"");
+	    }
 	    
 	    inputPane.add(ttPane, "5,5,7,7");
 	    
@@ -365,46 +427,66 @@ public class CreateSwitchVLDialog extends JDialog{
 	private void switchTypeSelection(){
 		switch(typeBox.getSelectedIndex()){
 		case 0: //be
-			beBox.setEnabled(true);
-			beLabel.setEnabled(true);
+			priorityBox.setEnabled(true);
+			priorityLabel.setEnabled(true);
 			rcPane.setEnabled(false);
 			bagLabel.setEnabled(false);
 			bagTxtField.setEnabled(false);
 			jitterLabel.setEnabled(false);
 			jitterTxtField.setEnabled(false);
 			ttPane.setEnabled(false);
-			windowTxtField.setEnabled(false);
-			windowLabel.setEnabled(false);
+			
+			windowOffsetTxtField.setEnabled(false);
+			windowOffsetLabel.setEnabled(false);
+			windowStartTxtField.setEnabled(false);
+			windowStartLabel.setEnabled(false);
+			windowEndTxtField.setEnabled(false);
+			windowEndLabel.setEnabled(false);
+			
 			intervalTxtField.setEnabled(false);
 			intervalLabel.setEnabled(false);
+			sentIntervalTxtField.setEnabled(false);
+			sentIntervalLabel.setEnabled(false);
 			break;
 		case 1: //rc
-			beBox.setEnabled(false);
-			beLabel.setEnabled(false);
+			priorityBox.setEnabled(false);
+			priorityLabel.setEnabled(false);
 			rcPane.setEnabled(true);
 			bagLabel.setEnabled(true);
 			bagTxtField.setEnabled(true);
 			jitterLabel.setEnabled(true);
 			jitterTxtField.setEnabled(true);
 			ttPane.setEnabled(false);
-			windowTxtField.setEnabled(false);
-			windowLabel.setEnabled(false);
+			windowOffsetTxtField.setEnabled(false);
+			windowOffsetLabel.setEnabled(false);
+			windowStartTxtField.setEnabled(false);
+			windowStartLabel.setEnabled(false);
+			windowEndTxtField.setEnabled(false);
+			windowEndLabel.setEnabled(false);
 			intervalTxtField.setEnabled(false);
 			intervalLabel.setEnabled(false);
+			sentIntervalTxtField.setEnabled(false);
+			sentIntervalLabel.setEnabled(false);
 			break;
 		case 2: //tt
-			beBox.setEnabled(false);
-			beLabel.setEnabled(false);
+			priorityBox.setEnabled(false);
+			priorityLabel.setEnabled(false);
 			rcPane.setEnabled(false);
 			bagLabel.setEnabled(false);
 			bagTxtField.setEnabled(false);
 			jitterLabel.setEnabled(false);
 			jitterTxtField.setEnabled(false);
 			ttPane.setEnabled(true);
-			windowTxtField.setEnabled(true);
-			windowLabel.setEnabled(true);
+			windowOffsetTxtField.setEnabled(true);
+			windowOffsetLabel.setEnabled(true);
+			windowStartTxtField.setEnabled(true);
+			windowStartLabel.setEnabled(true);
+			windowEndTxtField.setEnabled(true);
+			windowEndLabel.setEnabled(true);
 			intervalTxtField.setEnabled(true);
 			intervalLabel.setEnabled(true);
+			sentIntervalTxtField.setEnabled(true);
+			sentIntervalLabel.setEnabled(true);
 			break;
 		}
 	}
@@ -419,27 +501,32 @@ public class CreateSwitchVLDialog extends JDialog{
 				return null;
 			}
 			
-			vl=new SwitchVL(swName, currentCfgTableId, currentPlanId, Integer.valueOf(vlIDStr));
-			if(vl.getVLID()<0 || vl.getVLID()>4095){
-				JOptionPane.showMessageDialog(this, "VL_ID必须在0~4095间");
+			int vlid=Integer.valueOf(vlIDStr);
+			if(vlid<0 || vlid>65535){
+				JOptionPane.showMessageDialog(this, "VL_ID必须在0~65535间");
 				return null;
 			}
 			
-			vl.setType(typeBox.getSelectedIndex()+1);
-			vl.setBe(beBox.getSelectedIndex());
+			vl=new SwitchVL(swName, vlid);
+			
+			vl.setType((short)(typeBox.getSelectedIndex()+1));
+			vl.setPriority((short)priorityBox.getSelectedIndex());
 			vl.setBag(Integer.valueOf(bagTxtField.getText().trim()));
 			vl.setJitter(Integer.valueOf(jitterTxtField.getText().trim()));
 			vl.setTtInterval(Integer.valueOf(intervalTxtField.getText().trim()));
-			vl.setTtWindow(Integer.valueOf(windowTxtField.getText().trim()));
+			vl.setTtSentInterval(Integer.valueOf(sentIntervalTxtField.getText().trim()));
+			vl.setTtWindowStart(Integer.valueOf(windowStartTxtField.getText().trim()));
+			vl.setTtWindowOffset(Integer.valueOf(windowOffsetTxtField.getText().trim()));
+			vl.setTtWindowEnd(Integer.valueOf(windowEndTxtField.getText().trim()));
 			
-			vl.setInputPortNo(-1);
+			vl.setInputPortNo((short)-1);
 			for(int i=0; i<=PORT_NUM; i++){
 				if(Color.RED.equals(inputButtons[i].getBackground())){
-					vl.setInputPortNo(i);
+					vl.setInputPortNo((short)i);
 					break;
 				}
 			}
-			if(vl.getInputPortNo()==-1){
+			if(vl.getInputPortNo()==(short)-1){
 				JOptionPane.showMessageDialog(this, "没有选择输入端口");
 				return null;
 			}

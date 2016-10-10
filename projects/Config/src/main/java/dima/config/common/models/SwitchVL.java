@@ -11,30 +11,38 @@ public class SwitchVL extends Node{
 	private static final long serialVersionUID = 9109774742013527877L;
 	
 	private String switchName;
-	private int cfgTableId;
-	private int planId;
 	
 	private int VLID;
-	private int type;  //1-BE、2-RC、3-TT
-	private int be;
-	private int bag;
-	private int jitter;
-	private int ttInterval=0;
-	private int ttWindow=0;
-	private int inputPortNo;
+	private short type;  //1-BE、2-RC、3-TT
+	
+	private short inputPortNo;
+	
 	private List<Integer> outputPortNos;
 	
-	public SwitchVL(String switchName, int cfgTableId,int planId, int VLID){
-		super(switchName+"_"+cfgTableId+"_"+planId+"_"+VLID);
+	private int bag;
+	private int jitter;
+	
+	private short priority;
+	
+	/** tt start interval */
+	private int ttInterval=0;
+	
+	private int ttSentInterval=0;
+	
+	private int ttWindowOffset=0;
+	private int ttWindowStart=0;
+	private int ttWindowEnd=0;
+	
+	public SwitchVL(String switchName, int VLID){
+		super(switchName+"_"+VLID);
 		
 		this.switchName=switchName;
-		this.cfgTableId=cfgTableId;
-		this.planId=planId;
 		this.VLID=VLID;
 	}
 	
-	public SwitchVL(String switchName, int cfgTableId,int planId,int VLID, int type, int bag, int jitter, int inputPortNo, int[] outputPortNoList){
-		this(switchName, cfgTableId, planId, VLID);
+	public SwitchVL(String switchName, int VLID, 
+			short type, int bag, int jitter, short inputPortNo, int[] outputPortNoList){
+		this(switchName, VLID);
 		
 		this.type=type;
 		this.bag=bag;
@@ -61,10 +69,10 @@ public class SwitchVL extends Node{
 	public void setVLID(int vLID) {
 		VLID = vLID;
 	}
-	public int getType() {
+	public short getType() {
 		return type;
 	}
-	public void setType(int type) {
+	public void setType(short type) {
 		this.type = type;
 	}
 	public int getBag() {
@@ -85,16 +93,16 @@ public class SwitchVL extends Node{
 	public void setTtInterval(int ttInterval) {
 		this.ttInterval = ttInterval;
 	}
-	public int getTtWindow() {
-		return ttWindow;
+	public int getTtWindowOffset() {
+		return ttWindowOffset;
 	}
-	public void setTtWindow(int ttWindow) {
-		this.ttWindow = ttWindow;
+	public void setTtWindowOffset(int ttWindowOffset) {
+		this.ttWindowOffset = ttWindowOffset;
 	}
-	public int getInputPortNo() {
+	public short getInputPortNo() {
 		return inputPortNo;
 	}
-	public void setInputPortNo(int inputPortNo) {
+	public void setInputPortNo(short inputPortNo) {
 		this.inputPortNo = inputPortNo;
 	}
 	public List<Integer> getOutputPortNos() {
@@ -103,40 +111,42 @@ public class SwitchVL extends Node{
 	public void setOutputPortNos(List<Integer> outputPortNos) {
 		this.outputPortNos = outputPortNos;
 	}
-	public int getBe() {
-		return be;
-	}
-	public void setBe(int be) {
-		this.be = be;
-	}
-	/**
-	 * @return the cfgTableId
-	 */
-	public int getCfgTableId() {
-		return cfgTableId;
-	}
-	/**
-	 * @param cfgTableId the cfgTableId to set
-	 */
-	public void setCfgTableId(int cfgTableId) {
-		this.cfgTableId = cfgTableId;
-	}
-	/**
-	 * @return the planId
-	 */
-	public int getPlanId() {
-		return planId;
-	}
-	/**
-	 * @param planId the planId to set
-	 */
-	public void setPlanId(int planId) {
-		this.planId = planId;
-	}
 	
 	@Override
 	public String toString(){
-		return switchName+" cfgTab:"+cfgTableId+" plan:"+planId+" VLID:"+VLID;
+		return switchName+" VLID:"+VLID;
+	}
+
+	public short getPriority() {
+		return priority;
+	}
+
+	public void setPriority(short priority) {
+		this.priority = priority;
+	}
+
+	public int getTtSentInterval() {
+		return ttSentInterval;
+	}
+
+	public void setTtSentInterval(int ttSentInterval) {
+		this.ttSentInterval = ttSentInterval;
+	}
+
+	public int getTtWindowStart() {
+		return ttWindowStart;
+	}
+
+	public void setTtWindowStart(int ttWindowStart) {
+		this.ttWindowStart = ttWindowStart;
+	}
+
+	public int getTtWindowEnd() {
+		return ttWindowEnd;
+	}
+
+	public void setTtWindowEnd(int ttWindowEnd) {
+		this.ttWindowEnd = ttWindowEnd;
 	}
 
 }

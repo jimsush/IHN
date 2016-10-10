@@ -13,12 +13,18 @@ public class SwitchMonitorPort extends Node{
 	
 	private int configTableId=1;
 	
+	private int locationId;
+	
 	private int portId;
 	
 	private int portEnableMonitor;
+	
 	private int portMonitorMode; // port or VL
+	
 	private List<Integer> portInputPortList=new ArrayList<>();  //0-16
+	
 	private List<Integer> portOutputPortList=new ArrayList<>(); 
+	
 	private List<Integer> portVLList=new ArrayList<>();
 	
 	public SwitchMonitorPort(){
@@ -72,6 +78,9 @@ public class SwitchMonitorPort extends Node{
 	}
 
 	public List<Integer> getPortInputPortList() {
+		if(portInputPortList==null){
+			portInputPortList=new ArrayList<>();
+		}
 		return portInputPortList;
 	}
 
@@ -80,6 +89,9 @@ public class SwitchMonitorPort extends Node{
 	}
 
 	public List<Integer> getPortOutputPortList() {
+		if(portOutputPortList==null){
+			portOutputPortList=new ArrayList<>();
+		}
 		return portOutputPortList;
 	}
 
@@ -88,6 +100,9 @@ public class SwitchMonitorPort extends Node{
 	}
 
 	public List<Integer> getPortVLList() {
+		if(portVLList==null){
+			portVLList=new ArrayList<>();
+		}
 		return portVLList;
 	}
 
@@ -98,6 +113,14 @@ public class SwitchMonitorPort extends Node{
 	@Override
 	public String toString(){
 		return switchName+" "+configTableId+" "+portId;
+	}
+
+	public int getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(int locationId) {
+		this.locationId = locationId;
 	}
 	
 }

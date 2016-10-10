@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import dima.config.common.ConfigContext;
@@ -29,8 +28,6 @@ import dima.config.common.controls.EnumTableCellRenderer;
 import dima.config.common.controls.ListDataTableCellRenderer;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchVL;
-import dima.config.common.models.SwitchVLCfg;
-import dima.config.common.models.SwitchVLPlan;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
 import twaver.Element;
@@ -81,6 +78,7 @@ public class VLConfigPane extends JPanel{
 			String switchName=switchBox.getSelectedItem().toString();
 			this.currentSwitchName=switchName;
 			
+			/*
 			fillTree(switchName);
 			
 			// select the first Plan
@@ -100,6 +98,9 @@ public class VLConfigPane extends JPanel{
 					}
 				}
 			}
+			*/
+			
+			fillTable(switchName, 0, 0);
 		}
 	}
 	
@@ -137,6 +138,7 @@ public class VLConfigPane extends JPanel{
 				String switchName=obj.toString();
 				currentSwitchName=switchName;
 				
+				/*
 				fillTree(switchName);
 				
 				Element ele = treebox.getLastSelectedElement();
@@ -144,6 +146,9 @@ public class VLConfigPane extends JPanel{
 				if(cfgTableIdPlanId!=null && cfgTableIdPlanId[1]>=0){
 					fillTable(switchName, cfgTableIdPlanId[0], cfgTableIdPlanId[1]);
 				}
+				*/
+				
+				fillTable(switchName, 0, 0);
 			}
 		});
 		buttonsPanel.add(switchBox);
@@ -156,7 +161,7 @@ public class VLConfigPane extends JPanel{
 		buttonsPanel.add(sortingBox);
 		
 		JButton btnAddCfgTable=new JButton("创建配置表");
-		buttonsPanel.add(btnAddCfgTable);
+		//buttonsPanel.add(btnAddCfgTable);
 		btnAddCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -180,7 +185,7 @@ public class VLConfigPane extends JPanel{
 		});
 		
 		JButton btnDeleteCfgTable=new JButton("删除配置表");
-		buttonsPanel.add(btnDeleteCfgTable);
+		//buttonsPanel.add(btnDeleteCfgTable);
 		btnDeleteCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -192,7 +197,8 @@ public class VLConfigPane extends JPanel{
 						return;
 					}
 					
-					deleteConfigTable(cfgTableIdPlanId[0]);
+					// TODO
+					//deleteConfigTable(cfgTableIdPlanId[0]);
 				}
 			}
 		});
@@ -215,6 +221,7 @@ public class VLConfigPane extends JPanel{
 		btn1.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				/*
 				Element ele = treebox.getLastSelectedElement();
 				int[] cfgTableIdPlanId = getCurrentCfgTableIdPlanId(ele);
 				if(cfgTableIdPlanId!=null && cfgTableIdPlanId[0]>0 && cfgTableIdPlanId[1]>0){
@@ -224,6 +231,10 @@ public class VLConfigPane extends JPanel{
 				}else{
 					JOptionPane.showMessageDialog(ConfigContext.mainFrame, "请选择配置方案");
 				}
+				*/
+				CreateSwitchVLDialog dialog=new CreateSwitchVLDialog(ConfigContext.mainFrame, "增加记录", currentSwitchName,
+						null, VLConfigPane.this);
+				dialog.setVisible(true);
 			}
 		});
 		buttonPanel.add(btn1);
@@ -272,7 +283,8 @@ public class VLConfigPane extends JPanel{
 					return;
 				}
 				SwitchVL currentVL=(SwitchVL)element;
-				copiedElement=cloneSwitchVL(currentVL, currentVL.getCfgTableId(), currentVL.getPlanId(), currentVL.getVLID());
+				//copiedElement=cloneSwitchVL(currentVL, currentVL.getCfgTableId(), currentVL.getPlanId(), currentVL.getVLID());
+				copiedElement=cloneSwitchVL(currentVL, currentVL.getVLID());
 			}
 		});
 		
@@ -286,14 +298,14 @@ public class VLConfigPane extends JPanel{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int[] cfgPlan=getCurrentCfgTableIdPlanId(treeElement);
-				if(cfgPlan[1]>0){
-					int nextVLID=getNextVLID();
-					SwitchVL newVL=cloneSwitchVL(copiedElement, cfgPlan[0], cfgPlan[1], nextVLID);
-					
-					addOrUpdateSwitchVL(newVL, null, ConfigContext.mainFrame);
-				}
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int[] cfgPlan=getCurrentCfgTableIdPlanId(treeElement);
+				//if(cfgPlan[1]>0)
+				//{
+				int nextVLID=getNextVLID();
+				SwitchVL newVL=cloneSwitchVL(copiedElement, nextVLID);
+				addOrUpdateSwitchVL(newVL, null, ConfigContext.mainFrame);
+				//}
 			}
 		});
 
@@ -308,14 +320,17 @@ public class VLConfigPane extends JPanel{
 				}
 				
 				SwitchDevice swDev = dao.readSwitchDevice(currentSwitchName, true);
-				List<SwitchVLCfg> vlCfgs = swDev.getVlCfgs();
+				/*List<SwitchVLCfg> vlCfgs = swDev.getVlCfgs();
 				for(SwitchVLCfg vlCfg : vlCfgs){
 					List<SwitchVLPlan> plans = vlCfg.getPlans();
 					for(SwitchVLPlan plan : plans){
 						plan.setVlNum(0);
 						plan.setVls(new ArrayList<>());
 					}
-				}
+				}*/
+				swDev.setVlFwdConfigNum((short)0);
+				swDev.getVls().clear();
+				
 				dao.saveSwitchDevice(swDev, null);
 	
 				tablebox.clear();
@@ -329,6 +344,19 @@ public class VLConfigPane extends JPanel{
 
 		mainPanel.add(tablePanel, BorderLayout.CENTER);
 		
+		//JScrollPane treePane=initConfigTableTree();
+		//JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,treePane,mainPanel );
+		//bottomPane.setDividerLocation(140);
+		//this.add(bottomPane, BorderLayout.CENTER);
+		
+		this.add(mainPanel, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * @deprecated
+	 * @return
+	 */
+	private JScrollPane initConfigTableTree(){
 		this.treebox=new TDataBox();
 		this.tree=new TTree(this.treebox, new Comparator<Element>(){
 			@Override
@@ -359,11 +387,7 @@ public class VLConfigPane extends JPanel{
 			}});
 
 		JScrollPane treePane=new JScrollPane(this.tree);
-		
-		JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,treePane,mainPanel );
-		bottomPane.setDividerLocation(140);
-		
-		this.add(bottomPane, BorderLayout.CENTER);
+		return treePane;
 	}
 	
 	private void initTable(){
@@ -387,7 +411,7 @@ public class VLConfigPane extends JPanel{
 		attribute.setName("switchName");
 		attribute.setDisplayName("交换机名称");
 		attributes.add(attribute);
-		
+		/*
 		attribute.setName("cfgTableId");
 		attribute.setDisplayName("配置表");
 		attributes.add(attribute);
@@ -395,15 +419,22 @@ public class VLConfigPane extends JPanel{
 		attribute.setName("planId");
 		attribute.setDisplayName("配置方案");
 		attributes.add(attribute);
-		
+		*/
 		attribute = new ElementAttribute();
 		attribute.setName("VLID");
 		attribute.setDisplayName("虚拟链路号");
 		attributes.add(attribute);
+		
 		attribute = new ElementAttribute();
 		attribute.setName("type");
 		attribute.setDisplayName("类型");
 		attributes.add(attribute);
+		
+		attribute = new ElementAttribute();
+		attribute.setName("priority");
+		attribute.setDisplayName("优先级");
+		attributes.add(attribute);
+		
 		attribute = new ElementAttribute();
 		attribute.setName("bag");
 		attribute.setDisplayName("BAG");
@@ -412,14 +443,29 @@ public class VLConfigPane extends JPanel{
 		attribute.setName("jitter");
 		attribute.setDisplayName("Jitter");
 		attributes.add(attribute);
+		
 		attribute = new ElementAttribute();
 		attribute.setName("ttInterval");
-		attribute.setDisplayName("TT周期");
+		attribute.setDisplayName("TT起始周期");
 		attributes.add(attribute);
 		attribute = new ElementAttribute();
-		attribute.setName("ttWindow");
-		attribute.setDisplayName("TT窗口");
+		attribute.setName("ttSentInterval");
+		attribute.setDisplayName("TT发送周期");
 		attributes.add(attribute);
+		
+		attribute = new ElementAttribute();
+		attribute.setName("ttWindowOffset");
+		attribute.setDisplayName("TT窗口偏移");
+		attributes.add(attribute);
+		attribute = new ElementAttribute();
+		attribute.setName("ttWindowStart");
+		attribute.setDisplayName("TT窗口起始时间");
+		attributes.add(attribute);
+		attribute = new ElementAttribute();
+		attribute.setName("ttWindowEnd");
+		attribute.setDisplayName("TT窗口结束时间");
+		attributes.add(attribute);
+		
 		attribute = new ElementAttribute();
 		attribute.setName("inputPortNo");
 		attribute.setDisplayName("输入端口");
@@ -436,11 +482,17 @@ public class VLConfigPane extends JPanel{
 		table.getColumnByName("outputPortNos").setCellRenderer(new ListDataTableCellRenderer());
 
 		Map<Object, String> mappingType=new HashMap<>();
-		mappingType.put(1,"BE");
-		mappingType.put(2, "RC");
-		mappingType.put(3, "TT");
+		mappingType.put((short)1, "BE");
+		mappingType.put((short)2, "RC");
+		mappingType.put((short)3, "TT");
 		EnumTableCellRenderer rendererType=new EnumTableCellRenderer(mappingType);
 		table.getColumnByName("type").setCellRenderer(rendererType);
+		
+		Map<Object, String> mappingPriority=new HashMap<>();
+		mappingPriority.put((short)0, "低优先级");
+		mappingPriority.put((short)1, "高优先级");
+		EnumTableCellRenderer rendererPriority=new EnumTableCellRenderer(mappingPriority);
+		table.getColumnByName("priority").setCellRenderer(rendererPriority);
 		
 		table.addElementDoubleClickedActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
@@ -453,7 +505,8 @@ public class VLConfigPane extends JPanel{
 	
 	private void openModifySwitchVLDialog(SwitchVL data){
 		CreateSwitchVLDialog dialog=new CreateSwitchVLDialog(ConfigContext.mainFrame, "修改记录", currentSwitchName,
-				data.getCfgTableId(), data.getPlanId(), data, VLConfigPane.this);
+				//data.getCfgTableId(), data.getPlanId(), data, VLConfigPane.this);
+				data, VLConfigPane.this);
 		dialog.setVisible(true);
 	}
 
@@ -471,25 +524,30 @@ public class VLConfigPane extends JPanel{
 		
 		SwitchDevice switchDevice = dao.readSwitchDevice(switchName, true);
 		if(switchDevice!=null){
-			List<SwitchVLCfg> vlCfgs = switchDevice.getVlCfgs();
-			for(SwitchVLCfg vlCfg : vlCfgs){
-				if(vlCfg.getCfgTableId()==cfgTableId){
-					List<SwitchVLPlan> plans = vlCfg.getPlans();
-					for(SwitchVLPlan plan : plans){
-						if(plan.getPlanId()==planId){
-							List<SwitchVL> vls = plan.getVls();
-							for(SwitchVL vl : vls){
-								tablebox.addElement(vl);
-							}
-							break;
-						}
-					}
-					break;
-				}
+			//List<SwitchVLCfg> vlCfgs = switchDevice.getVlCfgs();
+			//for(SwitchVLCfg vlCfg : vlCfgs){
+			//	if(vlCfg.getCfgTableId()==cfgTableId){
+			//		List<SwitchVLPlan> plans = vlCfg.getPlans();
+			//		for(SwitchVLPlan plan : plans){
+			//			if(plan.getPlanId()==planId){
+			//				List<SwitchVL> vls = plan.getVls();
+			List<SwitchVL> vls = switchDevice.getVls();
+			for(SwitchVL vl : vls){
+				tablebox.addElement(vl);
 			}
+			//				break;
+			//			}
+			//		}
+			//		break;
+			//	}
+			//}
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 * @param switchName
+	 */
 	private void fillTree(String switchName){
 		treebox.clear();
 
@@ -498,6 +556,7 @@ public class VLConfigPane extends JPanel{
 		treeRoot.setIcon(this.rootIconURL);
 		treebox.addElement(treeRoot);
 		
+		/*
 		SwitchDevice switchDevice = dao.readSwitchDevice(switchName, true);
 		List<SwitchVLCfg> vlCfgs = switchDevice.getVlCfgs();
 		for(SwitchVLCfg vlcfg : vlCfgs){
@@ -508,10 +567,10 @@ public class VLConfigPane extends JPanel{
 				createPlanTreeNode(cfg,plan.getPlanId(),plan.getVlNum());
 			}
 		}
-		
+		*/
 		tree.expandAll();
 	}
-	
+
 	private Node createCfgTableTreeNode(Element parentNode, int cfgTableId, int planNum, int defaultPlanId){
 		Node cfgNode=new Node("CFG_"+cfgTableId);
 		cfgNode.setName("配置表"+cfgTableId);
@@ -559,6 +618,7 @@ public class VLConfigPane extends JPanel{
 		}
 	}
 	
+	
 	public boolean addOrUpdateSwitchVL(SwitchVL newVL, SwitchVL oldVL, Window dlg){
 		if(oldVL==null){
 			try{
@@ -569,6 +629,7 @@ public class VLConfigPane extends JPanel{
 			}
 			
 			SwitchDevice sw = dao.readSwitchDevice(newVL.getSwitchName(), true);
+			/*
 			List<SwitchVLCfg> vlCfgs = sw.getVlCfgs();
 			for(SwitchVLCfg vlCfg : vlCfgs){
 				if(vlCfg.getCfgTableId()==newVL.getCfgTableId()){
@@ -586,13 +647,19 @@ public class VLConfigPane extends JPanel{
 					}
 					break;
 				}
-			}
+			}*/
+			
+			List<SwitchVL> vls = sw.getVls();
+			vls.add(newVL);
+			sortVLs(vls);
+			sw.setVlFwdConfigNum((short)vls.size());
 			
 			dao.saveSwitchDevice(sw, null);
 		}else{
 			// update: remove old VL first, and then add a new VL
 			SwitchDevice sw = dao.readSwitchDevice(newVL.getSwitchName(), true);
-			List<SwitchVLCfg> vlCfgs = sw.getVlCfgs();
+			
+			/*List<SwitchVLCfg> vlCfgs = sw.getVlCfgs();
 			for(SwitchVLCfg vlCfg : vlCfgs){
 				if(vlCfg.getCfgTableId()==newVL.getCfgTableId()){
 					List<SwitchVLPlan> plans = vlCfg.getPlans();
@@ -602,7 +669,7 @@ public class VLConfigPane extends JPanel{
 							for(SwitchVL vl : vls){
 								if(vl.getVLID()==oldVL.getVLID()){
 									vl.setBag(newVL.getBag());
-									vl.setBe(newVL.getBag());
+									vl.setBe(newVL.getBe());
 									vl.setJitter(newVL.getJitter());
 									vl.setType(newVL.getType());
 									vl.setTtInterval(newVL.getTtInterval());
@@ -618,6 +685,16 @@ public class VLConfigPane extends JPanel{
 					break;
 				}
 			}
+			*/
+			
+			List<SwitchVL> vls = sw.getVls();
+			for(SwitchVL vl : vls){
+				if(vl.getVLID()==oldVL.getVLID()){
+					copySwitchVL(newVL, vl);
+					break;
+				}
+			}
+			
 			dao.saveSwitchDevice(sw, null);
 			
 			tablebox.removeElement(oldVL);
@@ -628,6 +705,7 @@ public class VLConfigPane extends JPanel{
 	
 	public void deleteSwitchVL(SwitchVL currentVL){
 		SwitchDevice sw = dao.readSwitchDevice(currentVL.getSwitchName(), true);
+		/*
 		List<SwitchVLCfg> vlCfgs = sw.getVlCfgs();
 		for(SwitchVLCfg vlCfg : vlCfgs){
 			if(vlCfg.getCfgTableId()==currentVL.getCfgTableId()){
@@ -652,11 +730,25 @@ public class VLConfigPane extends JPanel{
 				break; // cfg
 			}
 		}
+		*/
+		
+		List<SwitchVL> vls = sw.getVls();
+		Iterator<SwitchVL> it = vls.iterator();
+		for(; it.hasNext(); ){
+			SwitchVL vl = it.next();
+			if(vl.getVLID()==currentVL.getVLID()){
+				it.remove();
+				sw.setVlFwdConfigNum((short)vls.size());
+				break;
+			}
+		}
+		
 		dao.saveSwitchDevice(sw, null);
 		
 		tablebox.removeElement(currentVL);
 	}
 
+	/*
 	public void deleteConfigTable(int cfgTableId){
 		deleteCfgTableTreeNode(cfgTableId);
 		
@@ -673,8 +765,9 @@ public class VLConfigPane extends JPanel{
 		dao.saveSwitchDevice(swDev, null);
 		
 		tablebox.clear();
-	}
+	}*/
 	
+	/*
 	@SuppressWarnings("unchecked")
 	public void addOrUpdateConfigTable(boolean isAdd, int cfgTableId, int planNum, int defaultPlanId){
 		if(isAdd){
@@ -726,7 +819,7 @@ public class VLConfigPane extends JPanel{
 			}
 			dao.saveSwitchDevice(swDev, null);
 		}
-	}
+	}*/
 	
 	private void sortVLs(List<SwitchVL> vls){
 		if(vls==null || vls.size()==0){
@@ -744,14 +837,22 @@ public class VLConfigPane extends JPanel{
 		}});
 	}
 	
-	private SwitchVL cloneSwitchVL(SwitchVL vl, int cfgTableId, int planId, int VLID){
-		SwitchVL newVL=new SwitchVL(vl.getSwitchName(), cfgTableId, planId, VLID);
+	private SwitchVL cloneSwitchVL(SwitchVL vl, int VLID){
+		SwitchVL newVL=new SwitchVL(vl.getSwitchName(), VLID);
+		copySwitchVL(vl, newVL);
+		return newVL;
+	}
+	
+	private SwitchVL copySwitchVL(SwitchVL vl, SwitchVL newVL){
 		newVL.setType(vl.getType());
-		newVL.setBe(vl.getBe());
+		newVL.setPriority(vl.getPriority());
 		newVL.setBag(vl.getBag());
 		newVL.setJitter(vl.getJitter());
 		newVL.setTtInterval(vl.getTtInterval());
-		newVL.setTtWindow(vl.getTtWindow());
+		newVL.setTtSentInterval(vl.getTtSentInterval());
+		newVL.setTtWindowOffset(vl.getTtWindowOffset());
+		newVL.setTtWindowStart(vl.getTtWindowStart());
+		newVL.setTtWindowEnd(vl.getTtWindowEnd());
 		newVL.setInputPortNo(vl.getInputPortNo());
 		newVL.setOutputPortNos(vl.getOutputPortNos());
 		return newVL;

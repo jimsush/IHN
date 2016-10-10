@@ -11,16 +11,11 @@ public class SwitchMonitor extends Node{
 
 	private String switchName;
 	
-	private int version=1;
-	private int date;
+	private String version;
+	private String date;
 	private int fileNo=1;
-	private int numberOfConfigTable=1;
-	private int locationId;
 	
-	private int[] configTableOffset;
-	
-	private List<SwitchMonitorCfg> monitorCfgs;
-	
+	private List<SwitchMonitorPort> monitorPorts;
 	
 	public SwitchMonitor(){
 	}
@@ -40,28 +35,28 @@ public class SwitchMonitor extends Node{
 	/**
 	 * @return the version
 	 */
-	public int getVersion() {
+	public String getVersion() {
 		return version;
 	}
 
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersion(int version) {
+	public void setVersion(String version) {
 		this.version = version;
 	}
 
 	/**
 	 * @return the date
 	 */
-	public int getDate() {
+	public String getDate() {
 		return date;
 	}
 
 	/**
 	 * @param date the date to set
 	 */
-	public void setDate(int date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
@@ -79,56 +74,25 @@ public class SwitchMonitor extends Node{
 		this.fileNo = fileNo;
 	}
 
-	/**
-	 * @return the numberOfConfigTable
-	 */
-	public int getNumberOfConfigTable() {
-		return numberOfConfigTable;
-	}
-
-	/**
-	 * @param numberOfConfigTable the numberOfConfigTable to set
-	 */
-	public void setNumberOfConfigTable(int numberOfConfigTable) {
-		this.numberOfConfigTable = numberOfConfigTable;
-	}
-
-	/**
-	 * @return the locationId
-	 */
-	public int getLocationId() {
-		return locationId;
-	}
-
-	/**
-	 * @param locationId the locationId to set
-	 */
-	public void setLocationId(int locationId) {
-		this.locationId = locationId;
-	}
-
-	public int[] getConfigTableOffset() {
-		return configTableOffset;
-	}
-
-	public void setConfigTableOffset(int[] configTableOffset) {
-		this.configTableOffset = configTableOffset;
-	}
-
-	public List<SwitchMonitorCfg> getMonitorCfgs() {
-		if(monitorCfgs==null){
-			monitorCfgs=new ArrayList<SwitchMonitorCfg>();
-		}
-		return monitorCfgs;
-	}
-
-	public void setMonitorCfgs(List<SwitchMonitorCfg> monitorCfgs) {
-		this.monitorCfgs = monitorCfgs;
-	}
-
 	@Override
 	public String toString(){
 		return switchName;
+	}
+
+	public List<SwitchMonitorPort> getMonitorPorts() {
+		if(monitorPorts==null){
+			monitorPorts=new ArrayList<>();
+		}
+		return monitorPorts;
+	}
+
+	public void addMonitorPort(SwitchMonitorPort monPort){
+		List<SwitchMonitorPort> monitorPorts2 = this.getMonitorPorts();
+		monitorPorts2.add(monPort);
+	}
+	
+	public void setMonitorPorts(List<SwitchMonitorPort> monitorPorts) {
+		this.monitorPorts = monitorPorts;
 	}
 	
 	

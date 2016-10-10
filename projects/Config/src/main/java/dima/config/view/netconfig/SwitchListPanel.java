@@ -154,23 +154,21 @@ public class SwitchListPanel extends JPanel implements UpdateCallback{
 			SwitchDevice oldSwitchDevice = (SwitchDevice) box.getElementByID(oldID);
 			SwitchDevice switchDevice=null;
 			if(!newSwitchDev.getSwitchName().equals(oldID)){
-				switchDevice=new SwitchDevice(newSwitchDev.getSwitchName());
-				switchDevice.setVlCfgs(oldSwitchDevice.getVlCfgs());
-				switchDevice.setVersion(oldSwitchDevice.getVersion());
-				switchDevice.setDate(oldSwitchDevice.getDate());
-				switchDevice.setFileNo(oldSwitchDevice.getFileNo());
+				ConfigUtils.copyHideFieldsForSwitch(oldSwitchDevice, switchDevice);
 			}else{
 				switchDevice=oldSwitchDevice;
 			}
 			
 			switchDevice.setPortNumber(newSwitchDev.getPortNumber());
 			switchDevice.setEnableTimeSyncVL(newSwitchDev.isEnableTimeSyncVL());
-			switchDevice.setEportFEPortNos(newSwitchDev.getEportFEPortNos());
+			switchDevice.setEportNos(newSwitchDev.getEportNos());
 			switchDevice.setEportNumber(newSwitchDev.getEportNumber());
 			switchDevice.setLocalDomainID(newSwitchDev.getLocalDomainID());
 			switchDevice.setOverallInterval(newSwitchDev.getOverallInterval());
 			switchDevice.setTimeSyncRole(newSwitchDev.getTimeSyncRole());
-			switchDevice.setTimeSyncVL(newSwitchDev.getTimeSyncVL());
+			switchDevice.setTimeSyncVL1(newSwitchDev.getTimeSyncVL1());
+			switchDevice.setTimeSyncVL2(newSwitchDev.getTimeSyncVL2());
+			switchDevice.setPcfVL(newSwitchDev.getPcfVL());
 			switchDevice.setClusterInterval(newSwitchDev.getClusterInterval());
 			switchDevice.setLocationId(newSwitchDev.getLocationId());
 

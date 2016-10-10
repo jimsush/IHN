@@ -12,27 +12,47 @@ public class SwitchDevice extends Node{
 	
 	private static final long serialVersionUID = -2155055500631955470L;
 	
+	private String version="";
+	private String date="";
+	private short fileNo=1;
+	
 	private String switchName;
 	
-	private int version=1;
-	private int date;
-	private int fileNo=1;
 	private int locationId;
 	
 	private int portNumber;
+	
 	private int localDomainID;
+	
 	private int eportNumber;
-	private String eportFEPortNos;
+	private List<Integer> eportNos;
+	
+	//private int eportFEPortNos;
+	
 	private boolean enableTimeSyncVL;
-	private int timeSyncVL;
+	
+	private short timeSyncVL1;
+	private short timeSyncVL2;
+	
+	private short pcfVL;
+	
 	private int timeSyncRole; //0-SM 1-SC
+	
 	private int overallInterval;
+	
 	private int clusterInterval;
 	
-	private List<SwitchVLCfg> vlCfgs=new ArrayList<>();
+	private short defaultPlanNo=0;
+	private short planNum=1;
+	private short planNo=0;
+	private short vlFwdConfigNum=1;
 	
-	private List<LinkPort> linkedPorts=new ArrayList<LinkPort>();
-
+	private int portsStatus;
+	
+	private List<SwitchVL> vls;
+	
+	private NodeDevice nmu;
+	
 	public SwitchDevice(){
 	}
 	
@@ -40,6 +60,7 @@ public class SwitchDevice extends Node{
 		super(switchName);
 		this.switchName = switchName;
 	}
+	
 	public String getSwitchName() {
 		return switchName;
 	}
@@ -65,39 +86,23 @@ public class SwitchDevice extends Node{
 		this.eportNumber = eportNumber;
 	}
 	
-	public String getEportFEPortNos() {
-		return eportFEPortNos;
+	public void setEportNos(List<Integer> eportNos) {
+		this.eportNos = eportNos;
 	}
 	
-	public void setEportFEPortNos(String eportFEPortNos) {
-		this.eportFEPortNos = eportFEPortNos;
-	}
-	
-	public List<Integer> getEportFEs(){
-		List<Integer> ports=new ArrayList<Integer>();
-		if(eportFEPortNos!=null){
-			String[] fields = eportFEPortNos.split(",");
-			for(String field : fields){
-				String portNoHexStr=field.trim();
-				if(portNoHexStr.length()>0){
-					ports.add(Integer.valueOf(portNoHexStr, 16));
-				}
-			}
+	public List<Integer> getEportNos(){
+		if(eportNos==null){
+			eportNos=new ArrayList<>();
+		}else{
+			Collections.sort(this.eportNos);
 		}
-		Collections.sort(ports);
-		return ports;
+		return eportNos;
 	}
 	
-	public Set<Integer> getEportFESet(){
+	public Set<Integer> getEportSet(){
 		Set<Integer> ports=new HashSet<Integer>();
-		if(eportFEPortNos!=null){
-			String[] fields = eportFEPortNos.split(",");
-			for(String field : fields){
-				String portNoHexStr=field.trim(); //10004
-				if(portNoHexStr.length()>0){
-					ports.add(Integer.valueOf(portNoHexStr, 16));
-				}
-			}
+		if(eportNos!=null){
+			ports.addAll(eportNos);
 		}
 		return ports;
 	}
@@ -108,11 +113,11 @@ public class SwitchDevice extends Node{
 	public void setEnableTimeSyncVL(boolean enableTimeSyncVL) {
 		this.enableTimeSyncVL = enableTimeSyncVL;
 	}
-	public int getTimeSyncVL() {
-		return timeSyncVL;
+	public short getTimeSyncVL1() {
+		return timeSyncVL1;
 	}
-	public void setTimeSyncVL(int syncTimeVL) {
-		this.timeSyncVL = syncTimeVL;
+	public void setTimeSyncVL1(short syncTimeVL1) {
+		this.timeSyncVL1 = syncTimeVL1;
 	}
 	public int getTimeSyncRole() {
 		return timeSyncRole;
@@ -133,78 +138,115 @@ public class SwitchDevice extends Node{
 		this.clusterInterval = clusterInterval;
 	}
 	
-	public int getVersion() {
-		return version;
-	}
-	public void setVersion(int version) {
-		this.version = version;
-	}
-	public int getDate() {
-		return date;
-	}
-	public void setDate(int date) {
-		this.date = date;
-	}
-	public int getFileNo() {
-		return fileNo;
-	}
-	public void setFileNo(int fileNo) {
-		this.fileNo = fileNo;
-	}
-	
-	public int getNumberOfConfigTable() {
-		if(vlCfgs==null){
-			return 0;
-		}
-		return vlCfgs.size();
-	}
-	
 	public int getLocationId() {
 		return locationId;
 	}
 	public void setLocationId(int locationId) {
 		this.locationId = locationId;
 	}
-	
-	/**
-	 * @return the linkedPorts
-	 */
-	public List<LinkPort> getLinkedPorts() {
-		return linkedPorts;
-	}
-	/**
-	 * @param linkedPorts the linkedPorts to set
-	 */
-	public void setLinkedPorts(List<LinkPort> linkedPorts) {
-		this.linkedPorts = linkedPorts;
-	}
-
-	/**
-	 * @return the vlCfgs
-	 */
-	public List<SwitchVLCfg> getVlCfgs() {
-		if(vlCfgs==null){
-			vlCfgs=new ArrayList<>();
-		}
-		return vlCfgs;
-	}
-	
-	public void addVLCfg(SwitchVLCfg vlCfg){
-		List<SwitchVLCfg> vlCfgs2 = this.getVlCfgs();
-		vlCfgs2.add(vlCfg);
-	}
-
-	/**
-	 * @param vlCfgs the vlCfgs to set
-	 */
-	public void setVlCfgs(List<SwitchVLCfg> vlCfgs) {
-		this.vlCfgs = vlCfgs;
-	}
-	
+		
 	@Override
 	public String toString(){
 		return switchName+" portNum:"+portNumber;
 	}
-	
+
+	public short getTimeSyncVL2() {
+		return timeSyncVL2;
+	}
+
+	public void setTimeSyncVL2(short timeSyncVL2) {
+		this.timeSyncVL2 = timeSyncVL2;
+	}
+
+	public short getPcfVL() {
+		return pcfVL;
+	}
+
+	public void setPcfVL(short pcfVL) {
+		this.pcfVL = pcfVL;
+	}
+
+	public short getDefaultPlanNo() {
+		return defaultPlanNo;
+	}
+
+	public void setDefaultPlanNo(short defaultPlanNo) {
+		this.defaultPlanNo = defaultPlanNo;
+	}
+
+	public short getPlanNum() {
+		return planNum;
+	}
+
+	public void setPlanNum(short planNum) {
+		this.planNum = planNum;
+	}
+
+	public short getPlanNo() {
+		return planNo;
+	}
+
+	public void setPlanNo(short planNo) {
+		this.planNo = planNo;
+	}
+
+	public int getPortsStatus() {
+		return portsStatus;
+	}
+
+	public void setPortsStatus(int portsStatus) {
+		this.portsStatus = portsStatus;
+	}
+
+	public List<SwitchVL> getVls() {
+		if(vls==null){
+			vls=new ArrayList<>();
+		}
+		return vls;
+	}
+
+	public void setVls(List<SwitchVL> vls) {
+		this.vls = vls;
+	}
+
+	public NodeDevice getNmu() {
+		return nmu;
+	}
+
+	public void setNmu(NodeDevice nmu) {
+		this.nmu = nmu;
+	}
+
+	public short getVlFwdConfigNum() {
+		return vlFwdConfigNum;
+	}
+
+	public void setVlFwdConfigNum(short vlFwdConfigNum) {
+		this.vlFwdConfigNum = vlFwdConfigNum;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public short getFileNo() {
+		return fileNo;
+	}
+
+	public void setFileNo(short fileNo) {
+		this.fileNo = fileNo;
+	}
 
 }

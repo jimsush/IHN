@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.UIManager;
 
 import dima.config.common.ConfigContext;
@@ -39,7 +38,6 @@ import twaver.Node;
 import twaver.TDataBox;
 import twaver.table.TElementTable;
 import twaver.table.TTableModel;
-import twaver.tree.ElementNode;
 import twaver.tree.TTree;
 
 public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
@@ -75,7 +73,7 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		
 		initTopPanel();
 		
-		JScrollPane treePane = initCfgTablePanel();
+		//JScrollPane treePane = initCfgTablePanel();
 		JPanel rightPane=new JPanel(new BorderLayout());
 		
 		initCenterPanel();
@@ -84,13 +82,16 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		initBottomPanel();
 		rightPane.add(bottomPanel, BorderLayout.SOUTH);
 	
-		JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, rightPane);
-		bottomPane.setDividerLocation(140);
-		this.add(bottomPane, BorderLayout.CENTER);
+		//JSplitPane bottomPane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePane, rightPane);
+		//bottomPane.setDividerLocation(140);
+		//this.add(bottomPane, BorderLayout.CENTER);
+		this.add(rightPane, BorderLayout.CENTER);
 		
 		if(terminalBox.getSelectedItem()!=null){
 			String nodeName=terminalBox.getSelectedItem().toString();
+			this.currentNodeName=nodeName;
 			
+			/*
 			fillTree(nodeName);
 			
 			// select the first cfg table
@@ -102,7 +103,9 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				cfgTableElement.setSelected(true);
 				fillSendTable(nodeName, cfgTableElement);
 				fillReceiveTable(nodeName, cfgTableElement);
-			}
+			}*/
+			fillSendTable(nodeName);
+			fillReceiveTable(nodeName);
 		}
 	}
 
@@ -139,12 +142,12 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				String nodeName=obj.toString();
 				currentNodeName=nodeName;
 				
-				fillTree(nodeName);
-				
-				Element ele = treebox.getLastSelectedElement();
-
-				fillSendTable(nodeName, ele);
-				fillReceiveTable(nodeName, ele);
+				//fillTree(nodeName);
+				//Element ele = treebox.getLastSelectedElement();
+				//fillSendTable(nodeName, ele);
+				//fillReceiveTable(nodeName, ele);
+				fillSendTable(nodeName);
+				fillReceiveTable(nodeName);
 			}
 		});
 		leftPanel.add(terminalBox);
@@ -160,7 +163,7 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		leftPanel.add(sortingBox);
 
 		JButton btnAddCfgTable=new JButton("创建配置表");
-		leftPanel.add(btnAddCfgTable);
+		//leftPanel.add(btnAddCfgTable);
 		btnAddCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -183,7 +186,7 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		});
 		
 		JButton btnDeleteCfgTable=new JButton("删除配置表");
-		leftPanel.add(btnDeleteCfgTable);
+		//leftPanel.add(btnDeleteCfgTable);
 		btnDeleteCfgTable.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -229,15 +232,15 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				if(currentNodeName==null){
 					return;
 				}
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId<=0){
-					return;
-				}
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId<=0){
+				//	return;
+				//}
 				
 				CreateMessageDialog dialog = new CreateMessageDialog(
 						ConfigContext.mainFrame, "增加消息", null,
-						MessageConfigPanel.this, 0);
+						MessageConfigPanel.this, 0, currentNodeName);
 				dialog.setVisible(true);
 			}
 		});
@@ -254,8 +257,8 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				
 				NodeMessage data = (NodeMessage) element;
 				CreateMessageDialog dialog = new CreateMessageDialog(
-						ConfigContext.mainFrame, "修改消息", data,
-						MessageConfigPanel.this, 0);
+						ConfigContext.mainFrame, "修改发送消息", data,
+						MessageConfigPanel.this, 0, currentNodeName);
 				dialog.setVisible(true);
 			}
 		});
@@ -304,14 +307,14 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId>0){
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId>0){
 					int nextMsgId=getNextMessageId(sendBox);
 					NodeMessage newMsg=cloneMessage(copiedTxMsg, nextMsgId);
 					
 					addSendMessage(ConfigContext.mainFrame, newMsg, null);
-				}
+				//}
 			}
 		});
 		
@@ -359,15 +362,15 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		btn1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId<=0){
-					return;
-				}
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId<=0){
+				//	return;
+				//}
 				
 				CreateMessageDialog dialog = new CreateMessageDialog(
-						ConfigContext.mainFrame, "增加消息", null,
-						MessageConfigPanel.this, 1);
+						ConfigContext.mainFrame, "增加接收消息", null,
+						MessageConfigPanel.this, 1, currentNodeName);
 				dialog.setVisible(true);
 			}
 		});
@@ -383,8 +386,8 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				}
 				NodeMessage data = (NodeMessage) element;
 				CreateMessageDialog dialog = new CreateMessageDialog(
-						ConfigContext.mainFrame, "修改消息", data,
-						MessageConfigPanel.this, 1);
+						ConfigContext.mainFrame, "修改接收消息", data,
+						MessageConfigPanel.this, 1, currentNodeName);
 				dialog.setVisible(true);
 			}
 		});
@@ -435,14 +438,14 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 					return;
 				}
 				
-				Element treeElement=treebox.getLastSelectedElement();
-				int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
-				if(cfgTableId>0){
+				//Element treeElement=treebox.getLastSelectedElement();
+				//int cfgTableId=ConfigUtils.getCurrentCfgTableId(treeElement);
+				//if(cfgTableId>0){
 					int nextMsgId=getNextMessageId(receiveBox);
 					NodeMessage newMsg=cloneMessage(copiedRxMsg, nextMsgId);
 					
 					addRecieveMessage(ConfigContext.mainFrame, newMsg, null);
-				}
+				//}
 			}
 		});
 
@@ -456,7 +459,6 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 
 	private List<String> getAllTerminalNames() {
-
 		List<String> list = new ArrayList<String>();
 		List<NodeDevice> switches = dao.readAllNodeDevices(true);
 		for (NodeDevice sw : switches) {
@@ -471,53 +473,55 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		return list;
 	}
 
-	private void fillSendTable(String nodeName, Element cfgTableElement) {
+	private void fillSendTable(String nodeName){//, Element cfgTableElement) {
 		sendBox.clear();
 
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice nodeDevice = dao.readNodeDeviceFromCache(nodeName);
 		if (nodeDevice != null) {
-			List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getTxMessages();
+			//List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getTxMessages();
+					List<NodeMessage> msgs=nodeDevice.getTxMsgs();
 					if (msgs != null) {
 						for (NodeMessage msg : msgs) {
 							sendBox.addElement(msg);
 						}
 					}
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 		}
 	}
 
-	private void fillReceiveTable(String nodeName, Element cfgTableElement) {
+	private void fillReceiveTable(String nodeName){//, Element cfgTableElement) {
 		receiveBox.clear();
 
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice nodeDevice = dao.readNodeDeviceFromCache(nodeName);
 		if (nodeDevice != null) {
-			List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getRxMessages();
+			//List<NodeDeviceCfg> cfgs = nodeDevice.getCfgs();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getRxMessages();
+					List<NodeMessage> msgs =nodeDevice.getRxMsgs();
 					if (msgs != null) {
 						for (NodeMessage msg : msgs) {
 							receiveBox.addElement(msg);
 						}
 					}
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 		}
 	}
 
@@ -575,20 +579,55 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		attribute.setName("loadID");
 		attribute.setDisplayName("LoadID");
 		attributes.add(attribute);
-
+		
+		attribute = new ElementAttribute();
+		attribute.setName("type");
+		attribute.setDisplayName("消息类型");
+		attributes.add(attribute);
+		
+		attribute = new ElementAttribute();
+		attribute.setName("sID");
+		attribute.setDisplayName("S_ID");
+		attributes.add(attribute);
+		attribute = new ElementAttribute();
+		attribute.setName("dID");
+		attribute.setDisplayName("D_ID");
+		attributes.add(attribute);
+		
 		table.registerElementClassAttributes(NodeMessage.class, attributes);
 
-		Map<Object, String> mapping=new HashMap<Object, String>();
-		mapping.put(1, "管理端");
-		mapping.put(2, "备份管理端");
-		EnumTableCellRenderer renderer1=new EnumTableCellRenderer(mapping);
+		Map<Object, String> mapping1=new HashMap<Object, String>();
+		mapping1.put((short)1, "管理端");
+		mapping1.put((short)2, "备份管理端");
+		EnumTableCellRenderer renderer1=new EnumTableCellRenderer(mapping1);
 		table.getColumnByName("snmpID").setCellRenderer(renderer1);
 		
 		Map<Object, String> mapping2=new HashMap<Object, String>();
-		mapping2.put(0, "加载器1");
-		mapping2.put(1, "加载器2");
+		mapping2.put((short)0, "加载器1");
+		mapping2.put((short)1, "加载器2");
 		EnumTableCellRenderer renderer2=new EnumTableCellRenderer(mapping2);
 		table.getColumnByName("loadID").setCellRenderer(renderer2);
+
+		Map<Object, String> mapping3=new HashMap<Object, String>();
+		mapping3.put((short)1, "BE");
+		mapping3.put((short)2, "RC");
+		mapping3.put((short)3, "TT");
+		EnumTableCellRenderer renderer3=new EnumTableCellRenderer(mapping3);
+		table.getColumnByName("type").setCellRenderer(renderer3);
+		
+		Map<Object, String> mapping4=new HashMap<Object, String>();
+		mapping4.put((short)0,"normal");
+		mapping4.put((short)1,"LOAD_File");
+		mapping4.put((short)2,"LOAD_File_ACK");
+		mapping4.put((short)3,"LOAD_Status");
+		mapping4.put((short)4,"LOAD_Status_ACK");
+		mapping4.put((short)5,"SNMP");
+		mapping4.put((short)6,"SNMP_TRAP");
+		mapping4.put((short)7,"SNMP_Inform");
+		mapping4.put((short)8,"SNMP_InfromACK");
+		mapping4.put((short)9,"RTC");
+		EnumTableCellRenderer renderer4=new EnumTableCellRenderer(mapping4);
+		table.getColumnByName("useOfMessage").setCellRenderer(renderer4);
 		
 		table.getTableModel().sortColumn("vl", TTableModel.SORT_ASCENDING);
 		
@@ -597,7 +636,7 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				NodeMessage oldMessage=((NodeMessage)e.getSource());
 				CreateMessageDialog dialog = new CreateMessageDialog(
 						ConfigContext.mainFrame, "修改消息", oldMessage,
-						MessageConfigPanel.this, txOrRx);
+						MessageConfigPanel.this, txOrRx, currentNodeName);
 				dialog.setVisible(true);
 			}
 		});
@@ -606,42 +645,43 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 
 	public void addRecieveMessage(Window dlg, NodeMessage newMessage, NodeMessage oldMessage) {
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			JOptionPane.showConfirmDialog(dlg, "没有选中无效的配置表");
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	JOptionPane.showConfirmDialog(dlg, "没有选中无效的配置表");
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
-		List<NodeDeviceCfg> cfgs = node.getCfgs();
+		//List<NodeDeviceCfg> cfgs = node.getCfgs();
+		List<NodeMessage> msgs = node.getRxMsgs();
 		if(oldMessage==null){
 			receiveBox.addElement(newMessage);
 
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getRxMessages();
-					if(msgs==null){
-						msgs =new ArrayList<NodeMessage>();
-						cfg.setRxMessages(msgs);
-					}
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getRxMessages();
+			//		if(msgs==null){
+			//			msgs =new ArrayList<NodeMessage>();
+			//			cfg.setRxMessages(msgs);
+			//		}
 					msgs.add(newMessage);
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 		}else{
 			receiveBox.removeElement(oldMessage);
 	
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getRxMessages();
-					if(msgs==null || msgs.size()==0){
-						msgs =new ArrayList<NodeMessage>();
-						cfg.setRxMessages(msgs);
-						msgs.add(newMessage);
-					}else{
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getRxMessages();
+			//		if(msgs==null || msgs.size()==0){
+			//			msgs =new ArrayList<NodeMessage>();
+			//			cfg.setRxMessages(msgs);
+			//			msgs.add(newMessage);
+			//		}else{
 						for(NodeMessage msg : msgs){
 							if(msg.getMessageID()==newMessage.getMessageID()){ //matched than update
 								msg.setLoadID(newMessage.getLoadID());
@@ -650,13 +690,16 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 								msg.setSnmpID(newMessage.getSnmpID());
 								msg.setUseOfMessage(newMessage.getUseOfMessage());
 								msg.setVl(newMessage.getVl());
+								msg.setType(newMessage.getType());
+								msg.setSID(newMessage.getSID());
+								msg.setDID(newMessage.getDID());
 								break;
 							}
 						}
-					}
-					break;
-				}
-			}
+				//	}
+				//	break;
+				//}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 			
@@ -665,42 +708,43 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 
 	public void addSendMessage(Window dlg, NodeMessage newMessage, NodeMessage oldMessage) {
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			JOptionPane.showConfirmDialog(dlg, "没有选中无效的配置表");
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	JOptionPane.showConfirmDialog(dlg, "没有选中无效的配置表");
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
-		List<NodeDeviceCfg> cfgs = node.getCfgs();
+		//List<NodeDeviceCfg> cfgs = node.getCfgs();
+		List<NodeMessage> msgs = node.getTxMsgs();
 		if(oldMessage==null){
 			sendBox.addElement(newMessage);
 
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getTxMessages();
-					if(msgs==null){
-						msgs =new ArrayList<NodeMessage>();
-						cfg.setTxMessages(msgs);
-					}
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getTxMessages();
+			//		if(msgs==null){
+			//			msgs =new ArrayList<NodeMessage>();
+			//			cfg.setTxMessages(msgs);
+			//		}
 					msgs.add(newMessage);
-					break;
-				}
-			}
+			//		break;
+			//	}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 		}else{
 			sendBox.removeElement(oldMessage);
 
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = cfg.getTxMessages();
-					if(msgs==null || msgs.size()==0){
-						msgs = new ArrayList<NodeMessage>();
-						cfg.setTxMessages(msgs);
-						msgs.add(newMessage);
-					}else{
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = cfg.getTxMessages();
+			//		if(msgs==null || msgs.size()==0){
+			//			msgs = new ArrayList<NodeMessage>();
+			//			cfg.setTxMessages(msgs);
+			//			msgs.add(newMessage);
+			//		}else{
 						for(NodeMessage msg : msgs){
 							if(msg.getMessageID()==newMessage.getMessageID()){ 
 								msg.setLoadID(newMessage.getLoadID());
@@ -709,13 +753,16 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 								msg.setSnmpID(newMessage.getSnmpID());
 								msg.setUseOfMessage(newMessage.getUseOfMessage());
 								msg.setVl(newMessage.getVl());
+								msg.setType(newMessage.getType());
+								msg.setSID(newMessage.getSID());
+								msg.setDID(newMessage.getDID());
 								break;
 							}
 						}
-					}
-					break;
-				}
-			}
+					//}
+				//	break;
+				//}
+			//}
 			
 			dao.saveNodeDevice(node, null);
 			
@@ -732,30 +779,32 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 	}
 	
 	public void deleteMessage(NodeMessage currentMessage, boolean isTx){
-		Element cfgTableElement = treebox.getLastSelectedElement();
-		int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
-		if(currentCfgTableId<=0){
-			return;
-		}
+		//Element cfgTableElement = treebox.getLastSelectedElement();
+		//int currentCfgTableId = ConfigUtils.getCurrentCfgTableId(cfgTableElement);
+		//if(currentCfgTableId<=0){
+		//	return;
+		//}
 		
 		NodeDevice node = dao.readNodeDeviceFromCache(currentNodeName);
 		if(node!=null){
-			List<NodeDeviceCfg> cfgs = node.getCfgs();
-			for(NodeDeviceCfg cfg : cfgs){
-				if(cfg.getCfgTableId()==currentCfgTableId){
-					List<NodeMessage> msgs = isTx ? cfg.getTxMessages() : cfg.getRxMessages();
+			//List<NodeDeviceCfg> cfgs = node.getCfgs();
+			//for(NodeDeviceCfg cfg : cfgs){
+			//	if(cfg.getCfgTableId()==currentCfgTableId){
+			//		List<NodeMessage> msgs = isTx ? cfg.getTxMessages() : cfg.getRxMessages();
+			List<NodeMessage> msgs = isTx ? node.getTxMsgs() : node.getRxMsgs();
 					if(msgs!=null){
 						Iterator<NodeMessage> it = msgs.iterator();
 						for( ; it.hasNext() ; ){
 							NodeMessage msg = it.next();
 							if(msg.getMessageID()==currentMessage.getMessageID()){
 								it.remove();
+								break;
 							}
 						}
 					}
-					break;
-				}
-			}
+					//break;
+				//}
+			//}
 			dao.saveNodeDevice(node, null);
 		}
 		
@@ -766,9 +815,15 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		}
 	}
 
+	/**
+	 * @deprecated
+	 * @return
+	 */
 	private JScrollPane initCfgTablePanel() {
 		this.treebox=new TDataBox();
 		this.tree=new TTree(this.treebox);
+		
+		/*
 		this.tree.setRootVisible(false);
 		this.tree.addTreeNodeClickedActionListener(new ActionListener(){
 			@Override
@@ -783,13 +838,18 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 				fillSendTable(currentNodeName, cfgTableElement);
 				fillReceiveTable(currentNodeName, cfgTableElement);
 		}});
+		*/
 		
 		JScrollPane treePane=new JScrollPane(this.tree);
 		return treePane;
 	}
 	
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void addOrUpdateConfigTable(boolean isAdd, int cfgTableId) {
+		/*
 		Node cfgNode=null;
 		String twaverId = ConfigUtils.getCfgTableTwaverId(cfgTableId);
 		if(isAdd){
@@ -823,10 +883,15 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 			}
 			dao.saveNodeDevice(nodeDev, null);
 		}
+		*/
 	}
 
+	/**
+	 * @deprecated
+	 */
 	@Override
 	public void deleteConfigTable(int cfgTableId) {
+		/*
 		treebox.removeElementByID(ConfigUtils.getCfgTableTwaverId(cfgTableId));
 		
 		NodeDevice nodeDev = dao.readNodeDeviceFromCache(currentNodeName);
@@ -843,9 +908,18 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 			sortConfigTable(cfgs);
 			dao.saveNodeDevice(nodeDev, null);
 		}
+		*/
 	}
 	
+	/**
+	 * @deprecated
+	 * @param nodeName
+	 */
 	private void fillTree(String nodeName){
+		if(true){
+			return;
+		}
+		/*
 		treebox.clear();
 		
 		if(nodeName==null){
@@ -872,6 +946,7 @@ public class MessageConfigPanel extends JPanel implements ConfigTableCallback{
 		}
 
 		tree.expandAll();
+		*/
 	}
 	
 	private void sortConfigTable(List<NodeDeviceCfg> cfgs) {

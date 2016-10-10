@@ -41,7 +41,11 @@ public class NewNodeOrNMUPanel extends JPanel{
 	
 	private JComboBox<String> nmuRoleBox; 
 	private JComboBox<String> networkLoadRoleBox;
+	
+	private JComboBox<String> timerSyncRoleBox;
+
 	private JComboBox<String> timeSyncRoleBox;
+	
 	private JTextField rtcIntervalField;
 	private JTextField locationField;
 	
@@ -59,7 +63,7 @@ public class NewNodeOrNMUPanel extends JPanel{
 	private void initUI(){
 		dao=ServiceFactory.getService(ConfigDAO.class);
 		
-		int rowNum= isForNode ? 7:5;
+		int rowNum= isForNode ? 8:5;
 		String title=isForNode ? "节点属性":"网络管理单元属性";
 		String name=isForNode ? "节点名称":"交换机网络管理单元名称";
 		
@@ -137,13 +141,13 @@ public class NewNodeOrNMUPanel extends JPanel{
 		add(networkLoadRoleBox,"3,"+nextRow+",f,0");
 		nextRow+=2;
 		
-		JLabel label4=new JLabel("时间同步角色");
+		JLabel label4=new JLabel("时钟同步角色");
 		add(label4,"1,"+nextRow+",f,0");
-		this.timeSyncRoleBox=new JComboBox<>();
-		timeSyncRoleBox.addItem("客户端");
-		timeSyncRoleBox.addItem("服务器");
-		timeSyncRoleBox.addItem("备份服务器");
-		add(timeSyncRoleBox,"3,"+nextRow+",f,0");
+		this.timerSyncRoleBox=new JComboBox<>();
+		timerSyncRoleBox.addItem("客户端");
+		timerSyncRoleBox.addItem("服务器");
+		timerSyncRoleBox.addItem("备份服务器");
+		add(timerSyncRoleBox,"3,"+nextRow+",f,0");
 		nextRow+=2;
 		
 		JLabel label5=new JLabel("RTC服务器发送周期");
@@ -151,6 +155,16 @@ public class NewNodeOrNMUPanel extends JPanel{
 		this.rtcIntervalField=ConfigUtils.getNumberTextField(5);
 		add(rtcIntervalField,"3,"+nextRow+",f,0");
 		nextRow+=2;
+		
+		if(isForNode){
+			JLabel label6=new JLabel("时间同步角色");
+			add(label6,"1,"+nextRow+",f,0");
+			this.timeSyncRoleBox=new JComboBox<>();
+			timeSyncRoleBox.addItem("SM");
+			timeSyncRoleBox.addItem("SC");
+			add(timeSyncRoleBox,"3,"+nextRow+",f,0");
+			nextRow+=2;
+		}
 		
 		if(oldData!=null){
 			nodeNameField.setText(oldData.getNodeName());
@@ -173,10 +187,15 @@ public class NewNodeOrNMUPanel extends JPanel{
 				}
 			}
 
-			
 			nmuRoleBox.setSelectedIndex(oldData.getRoleOfNM());
 			networkLoadRoleBox.setSelectedIndex(oldData.getRoleOfNetworkLoad());
-			timeSyncRoleBox.setSelectedIndex(oldData.getRoleOfTimeSync());
+			
+			timerSyncRoleBox.setSelectedIndex(oldData.getRoleOfTimerSync());
+			
+			if(isForNode){
+				timeSyncRoleBox.setSelectedIndex(oldData.getRoleOfTimeSync());
+			}
+					
 			rtcIntervalField.setText(oldData.getRtcSendInterval()+"");
 			if(locationField!=null){
 				locationField.setText(oldData.getLocationId()+"");
@@ -206,7 +225,9 @@ public class NewNodeOrNMUPanel extends JPanel{
 		
 		NodeDevice node=new NodeDevice(nodeNameField.getText(), type);
 		if(oldData!=null){
-			node.setCfgs(oldData.getCfgs());
+			node.setVersion(oldData.getVersion());
+			node.setDate(oldData.getDate());
+			node.setFileNo(oldData.getFileNo());
 		}
 		
 		try{
@@ -223,7 +244,12 @@ public class NewNodeOrNMUPanel extends JPanel{
 			}
 			node.setRoleOfNetworkLoad(networkLoadRoleBox.getSelectedIndex());
 			node.setRoleOfNM(nmuRoleBox.getSelectedIndex());
-			node.setRoleOfTimeSync(timeSyncRoleBox.getSelectedIndex());
+			
+			node.setRoleOfTimerSync(timerSyncRoleBox.getSelectedIndex());
+			if(isForNode){
+				node.setRoleOfTimeSync(timeSyncRoleBox.getSelectedIndex());
+			}
+			
 			node.setRtcSendInterval(Integer.valueOf(rtcIntervalField.getText()));
 			if(locationField!=null && locationField.getText().trim().length()>0){
 				node.setLocationId(Integer.valueOf(locationField.getText().trim()));
