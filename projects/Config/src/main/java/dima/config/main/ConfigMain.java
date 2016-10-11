@@ -191,12 +191,12 @@ public class ConfigMain {
 		
 		menu.addSeparator();
 		
-		JMenuItem itemAdc=new JMenuItem("导入ADC");
+		JMenuItem itemAdc=new JMenuItem("导入ICD");
 		itemAdc.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
-				dao.clearAll();
+				//ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+				//dao.clearAll();
 				
 				ImportFileActions.openImportADCAction();
 			}

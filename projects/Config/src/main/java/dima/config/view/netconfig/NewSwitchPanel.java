@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -202,7 +203,7 @@ public class NewSwitchPanel extends JPanel{
 			
 			eportNumField.setText("1");
 			
-			eportListField.setText("1");
+			eportListField.setText("20001");
 					
 			timeSyncVL1Field.setText("0");
 			timeSyncVL2Field.setText("0");
@@ -253,17 +254,26 @@ public class NewSwitchPanel extends JPanel{
 				return null;
 			}
 			
-			data.setEportNumber(Integer.valueOf(eportNumField.getText()));
-			if(data.getEportNumber()<0 || data.getEportNumber()>6){
-				JOptionPane.showMessageDialog(this, "EPort总数必须在0~6间!");
-				return null;
-			}
-			
-			List<Integer> eportList = ConfigUtils.stringToIntList(eportListField.getText(), true);
-			data.setEportNos(eportList);
-			if(eportList.size()!=data.getEportNumber()){
-				JOptionPane.showMessageDialog(this, "EPort总数"+data.getEportNumber()+"与FE列表"+eportList.size()+"不一致!");
-				return null;
+			if(eportNumField.getText().trim().length()==0){
+				data.setEportNumber(0);
+				data.setEportNos(new ArrayList<>());
+			}else{
+				data.setEportNumber(Integer.valueOf(eportNumField.getText()));
+				if(data.getEportNumber()<0 || data.getEportNumber()>6){
+					JOptionPane.showMessageDialog(this, "EPort总数必须在0~6间!");
+					return null;
+				}
+				
+				if(data.getEportNumber()==0){
+					data.setEportNos(new ArrayList<>());
+				}else{
+					List<Integer> eportList = ConfigUtils.stringToIntList(eportListField.getText(), true);
+					data.setEportNos(eportList);
+					if(eportList.size()!=data.getEportNumber()){
+						JOptionPane.showMessageDialog(this, "EPort总数"+data.getEportNumber()+"与FE列表"+eportList.size()+"不一致!");
+						return null;
+					}
+				}
 			}
 
 			data.setEnableTimeSyncVL(timeSyncEnableBox.getSelectedIndex()==0);

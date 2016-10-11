@@ -3,9 +3,11 @@ package dima.config.view.importfile;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -31,71 +33,81 @@ import dima.config.dao.XMLHandler;
 public class ImportFileActions {
 
 	public static void openImportADCAction(){
-		String fileName=openXMLFile();
-        if(fileName==null){
+		String[] fileNames=openXMLFile(true);
+        if(fileNames==null || fileNames.length==0){
         	return;
         }
         
-        List<ADCItem> adcs=null;
+        List<ADCItem> adcs=new ArrayList<>();
         XMLHandler handler=new XMLHandler();
         try{
-        	adcs = handler.readAdc(fileName);
+        	for(String fileName : fileNames){
+        		List<ADCItem> icds = handler.readAdc(fileName);
+        		if(icds!=null){
+        			adcs.addAll(icds);
+        		}
+        	}
         }catch(Exception ex){
         	JOptionPane.showMessageDialog(ConfigContext.mainFrame, ex.getMessage());
         	return;
         }
 
-        // create switch first
+        // create switch first if no switches are created before
         final ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
-        if(adcs.size()<=ConfigUtils.MAX_NUM_OF_PORTS){
-        	SwitchDevice sw1=new SwitchDevice("net1_sw1"); 
-        	sw1.setLocalDomainID(1);
-        	sw1.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
-        	sw1.setEportNumber(0);
-        	
-        	dao.saveSwitchDevice(sw1, null);
-    		if(ConfigContext.topoView!=null){
-    			ConfigContext.topoView.addSwitch(sw1, null);
-    		}
-        }else if(adcs.size()<=(2*ConfigUtils.MAX_NUM_OF_PORTS)){
-        	SwitchDevice sw1=new SwitchDevice("net1_sw1"); 
-        	sw1.setLocalDomainID(1);
-        	sw1.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
-        	List<Integer> eports1=new ArrayList<>();
-        	eports1.add(0x00020001);
-        	eports1.add(0x00020002);
-        	sw1.setEportNos(eports1);
-        	sw1.setEportNumber(eports1.size());
-        	
-        	dao.saveSwitchDevice(sw1, null);
-    		if(ConfigContext.topoView!=null){
-    			ConfigContext.topoView.addSwitch(sw1, null);
-    		}
-    		
-    		// switch2
-    		SwitchDevice sw2=new SwitchDevice("net1_sw2"); 
-        	sw2.setLocalDomainID(2);
-        	sw2.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
-        	List<Integer> eports2=new ArrayList<>();
-        	eports2.add(0x00010001);
-        	eports2.add(0x00010002);
-        	sw2.setEportNos(eports2);
-        	sw2.setEportNumber(eports2.size());
-        	
-        	dao.saveSwitchDevice(sw2, null);
-    		if(ConfigContext.topoView!=null){
-    			ConfigContext.topoView.addSwitch(sw2, null);
-    		}
-        }else{
-        	JOptionPane.showMessageDialog(ConfigContext.mainFrame, "不允许导入的节点数超过"+(ConfigUtils.MAX_NUM_OF_PORTS*2)+"个，目前是"+adcs.size()+"个！");
-        	return;
+        List<SwitchDevice> switches = dao.readAllSwitchDevices(true);
+        if(switches==null || switches.size()==0){
+	        if(adcs.size()<=ConfigUtils.MAX_NUM_OF_PORTS){
+	        	SwitchDevice sw1=new SwitchDevice("net1_sw1"); 
+	        	sw1.setLocalDomainID(1);
+	        	sw1.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
+	        	sw1.setEportNumber(0);
+	        	
+	        	dao.saveSwitchDevice(sw1, null);
+	    		if(ConfigContext.topoView!=null){
+	    			ConfigContext.topoView.addSwitch(sw1, null);
+	    		}
+	        }else if(adcs.size()<=(2*ConfigUtils.MAX_NUM_OF_PORTS)){
+	        	SwitchDevice sw1=new SwitchDevice("net1_sw1"); 
+	        	sw1.setLocalDomainID(1);
+	        	sw1.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
+	        	List<Integer> eports1=new ArrayList<>();
+	        	eports1.add(0x00020001);
+	        	eports1.add(0x00020002);
+	        	sw1.setEportNos(eports1);
+	        	sw1.setEportNumber(eports1.size());
+	        	
+	        	dao.saveSwitchDevice(sw1, null);
+	    		if(ConfigContext.topoView!=null){
+	    			ConfigContext.topoView.addSwitch(sw1, null);
+	    		}
+	    		
+	    		// switch2
+	    		SwitchDevice sw2=new SwitchDevice("net1_sw2"); 
+	        	sw2.setLocalDomainID(2);
+	        	sw2.setPortNumber(ConfigUtils.MAX_NUM_OF_PORTS);
+	        	List<Integer> eports2=new ArrayList<>();
+	        	eports2.add(0x00010001);
+	        	eports2.add(0x00010002);
+	        	sw2.setEportNos(eports2);
+	        	sw2.setEportNumber(eports2.size());
+	        	
+	        	dao.saveSwitchDevice(sw2, null);
+	    		if(ConfigContext.topoView!=null){
+	    			ConfigContext.topoView.addSwitch(sw2, null);
+	    		}
+	        }else{
+	        	JOptionPane.showMessageDialog(ConfigContext.mainFrame, "不允许导入的节点数超过"+(ConfigUtils.MAX_NUM_OF_PORTS*2)+"个，目前是"+adcs.size()+"个！");
+	        	return;
+	        }
         }
 
-        adcs.forEach(adc -> {
+        StringBuilder sb=new StringBuilder();
+        for(ADCItem adc : adcs){
         	List<NodeMessage> newTxMessages=new ArrayList<>();
         	List<SendInfo> sendTable = adc.getSendTable();
     		for(SendInfo sendInfo : sendTable){
     			NodeMessage msg=sendInfo2NodeMessage(adc.getAppName(), sendInfo);
+    			msg.setVl(msg.getMessageID());
     			newTxMessages.add(msg);
     		}
     		
@@ -103,23 +115,31 @@ public class ImportFileActions {
     		List<ReceiveInfo> receiveTable = adc.getReceiveTable();
     		for(ReceiveInfo receiveInfo : receiveTable){
     			NodeMessage msg=receiveInfo2NodeMessage(adc.getAppName(), receiveInfo);
+    			msg.setVl(msg.getMessageID());
     			newRxMessages.add(msg);
     		}
     		
-    		addNodeMessages(dao, adc.getAppName(), newRxMessages, newTxMessages);
-        });
+    		String errorMsg=addNodeMessages(dao, adc.getAppName(), newRxMessages, newTxMessages, true);
+    		if(errorMsg!=null){
+    			sb.append(" ").append(errorMsg);
+    		}
+        };
+        
+        if(sb.length()>0){
+        	JOptionPane.showMessageDialog(ConfigContext.mainFrame, "无可用的交换机端口与节点机相连接，忽略节点机"+sb.toString());
+        }
 	}
 
 	public static void openImportConfigCtrlAction(){
-		String fileName=openXMLFile();
-        if(fileName==null){
+		String[] fileNames=openXMLFile(false);
+        if(fileNames==null || fileNames.length==0){
         	return;
         }
         
         List<ConfigMessageItem> configs =null;
         XMLHandler handler=new XMLHandler();
         try{
-        	configs = handler.readConfigCtrl(fileName);
+        	configs = handler.readConfigCtrl(fileNames[0]);
         }catch(Exception ex){
         	JOptionPane.showMessageDialog(ConfigContext.mainFrame, ex.getMessage());
         	return;
@@ -129,15 +149,15 @@ public class ImportFileActions {
 	}
 	
 	public static void openImportTopoCtrlAction(){
-		String fileName=openXMLFile();
-        if(fileName==null){
+		String[] fileNames=openXMLFile(false);
+        if(fileNames==null || fileNames.length==0){
         	return;
         }
         
         Object[] res=null;
         XMLHandler handler=new XMLHandler();
         try{
-        	res=handler.readTopoCtrl(fileName);
+        	res=handler.readTopoCtrl(fileNames[0]);
         }catch(Exception ex){
         	JOptionPane.showMessageDialog(ConfigContext.mainFrame, ex.getMessage());
         	return;
@@ -287,20 +307,32 @@ public class ImportFileActions {
         }
 	}
 	
-	private static String openXMLFile(){
+	private static String[] openXMLFile(boolean multiSelection){
 		JFileChooser jfc=new JFileChooser();  
 		jfc.setCurrentDirectory(new File("."));
         jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);  
         FileFilter filter = new FileNameExtensionFilter("XML文件", new String[]{"xml"});
         jfc.setFileFilter(filter);
-        jfc.showDialog(new JLabel(), "选择");  
-        File file=jfc.getSelectedFile();  
-        if(file==null){
+        jfc.setMultiSelectionEnabled(multiSelection);
+        jfc.showDialog(new JLabel(), "选择"); 
+        File[] files=null;
+        if(multiSelection){
+        	files=jfc.getSelectedFiles();  
+        }else{
+        	// single selection
+        	File file=jfc.getSelectedFile();
+        	if(file!=null){
+        		files=new File[]{ file };
+        	}
+        }
+        if(files==null || files.length==0){
         	return null;
-        }else if(!file.isFile()){
-        	return null;
-        } 
-        return file.getAbsolutePath();
+        }
+        String[] fileNames=new String[files.length];
+        for (int i=0; i<files.length; i++) {
+			fileNames[i]=files[i].getAbsolutePath();
+		}
+        return fileNames;
 	}
 	
 	private static NodeMessage sendInfo2NodeMessage(String deviceName, SendInfo sendInfo){
@@ -353,6 +385,7 @@ public class ImportFileActions {
 			if(rxMsgs!=null){
 				for(ConfigMessageItem rxMsg : rxMsgs){
 					NodeMessage msg=configMessage2NodeMessage(devName, rxMsg);
+					msg.setVl(msg.getMessageID());
 					newRxMessages.add(msg);
 				}
 			}
@@ -361,11 +394,12 @@ public class ImportFileActions {
 			if(txMsgs!=null){
 				for(ConfigMessageItem txMsg : txMsgs){
 					NodeMessage msg=configMessage2NodeMessage(devName, txMsg);
+					msg.setVl(msg.getMessageID());
 					newTxMessages.add(msg);
 				}
 			}
 			
-			addNodeMessages(dao, devName, newRxMessages, newTxMessages);
+			addNodeMessages(dao, devName, newRxMessages, newTxMessages, false);
 		}
 	}
 	
@@ -379,8 +413,13 @@ public class ImportFileActions {
 		return msg;
 	}
 	
-	private static void addNodeMessages(ConfigDAO dao, String deviceName, List<NodeMessage> newRxMessages, List<NodeMessage> newTxMessages){
+	private static String addNodeMessages(ConfigDAO dao, String deviceName, List<NodeMessage> newRxMessages, List<NodeMessage> newTxMessages, boolean toCreateNode){
 		NodeDevice node = dao.readNodeDeviceFromCache(deviceName);
+		if(node==null && !toCreateNode){
+			System.out.println("node "+deviceName+" not found, so ignore the messages");
+			return null;
+		}
+		
 		boolean flag=true;
     	if(node==null){
     		// the node is not existed, so create it
@@ -389,7 +428,7 @@ public class ImportFileActions {
     		int portNo=ConfigUtils.getNextUnusedSwitchPort();
     		if(portNo<=0){
     			flag=false;
-    			System.out.println("No switch port available for "+deviceName);
+    			return deviceName;
     		}else{
         		node.setPortNo(portNo);
         		
@@ -399,24 +438,41 @@ public class ImportFileActions {
     		}
     	}
     	if(!flag){
-    		return;
+    		return null;
     	}
     	
 		// tx, send
 		List<NodeMessage> txMessages = node.getTxMsgs();
-		txMessages.clear();
+		Set<Integer> txMsgIds=new HashSet<>();
+		for(NodeMessage txMsg : txMessages){
+			txMsgIds.add(txMsg.getMessageID());
+		}
+		//txMessages.clear();
 		if(newTxMessages!=null){
-			txMessages.addAll(newTxMessages);
+			for(NodeMessage newMsg : newTxMessages){
+				if(!txMsgIds.contains(newMsg.getMessageID())){
+					txMessages.add(newMsg);
+				}
+			}
 		}
 		
 		// rx, receive
 		List<NodeMessage> rxMessages = node.getRxMsgs();
-		rxMessages.clear();
+		Set<Integer> rxMsgIds=new HashSet<>();
+		for(NodeMessage rxMsg : rxMessages){
+			rxMsgIds.add(rxMsg.getMessageID());
+		}
+		//rxMessages.clear();
 		if(newRxMessages!=null){
-			rxMessages.addAll(newRxMessages);
+			for(NodeMessage newMsg : newRxMessages){
+				if(!rxMsgIds.contains(newMsg.getMessageID())){
+					rxMessages.add(newMsg);
+				}
+			}
 		}
     	
     	dao.saveNodeDevice(node, null);
+    	return null;
 	}
 	
 	private static String getDevNameFromPortName(String portName){

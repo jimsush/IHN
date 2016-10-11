@@ -157,12 +157,12 @@ public class TopoView extends JPanel implements UpdateCallback{
 			    	popMenu.add(item);
 			    	popMenu.addSeparator();
 			    	
-			    	item=new JMenuItem("导入ADC");
+			    	item=new JMenuItem("导入ICD");
 			    	  item.addActionListener(new ActionListener(){
 							@Override
 							public void actionPerformed(ActionEvent arg0) {
-								ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
-								dao.clearAll();
+								//ConfigDAO dao=ServiceFactory.getService(ConfigDAO.class);
+								//dao.clearAll();
 								
 								ImportFileActions.openImportADCAction();
 							}
