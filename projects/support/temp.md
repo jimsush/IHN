@@ -198,3 +198,23 @@ OO1是个Class,但是有个apply后，我们可以直接把OO1当成1个function
 	trait符合最右（最后）的深度优先遍历结果
 	
 	• Java 8 default methods in interface definition
+
+//
+	//  http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html
+	//
+	
+	public static void main(String[] args){
+		Stream.of("1","20","12").filter(a->Integer.valueOf(a)>10).forEach(a->System.out.println(a));
+		List<String> l=new ArrayList<>();
+		Object[] array = l.stream().toArray();
+		List<Long> sourceLongList = Arrays.asList(1L, 10L, 50L, 80L, 100L, 120L, 133L, 333L);
+		List<String> list = Stream.of("1","20","12").collect(Collectors.toList());
+		//Collectors.toSet();
+		System.out.println(list);
+		
+		Stream.of("1","20","12").map(Java8::method1).forEach(a->System.out.println(a));
+	}
+	
+	private static String method1(String item){
+		return item+"aa";
+	}
