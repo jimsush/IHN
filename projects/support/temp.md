@@ -199,7 +199,7 @@ OO1是个Class,但是有个apply后，我们可以直接把OO1当成1个function
 	
 	• Java 8 default methods in interface definition
 
-//
+	//
 	//  http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html
 	//
 	
@@ -213,6 +213,13 @@ OO1是个Class,但是有个apply后，我们可以直接把OO1当成1个function
 		System.out.println(list);
 		
 		Stream.of("1","20","12").map(Java8::method1).forEach(a->System.out.println(a));
+		
+		new Random().ints(100,200).forEach(System.out::println);
+		
+		Comparator<List> c = (a, b) -> Integer.compare(a.size(), b.size());
+		
+		//join
+		//min, max, sort...
 	}
 	
 	private static String method1(String item){
