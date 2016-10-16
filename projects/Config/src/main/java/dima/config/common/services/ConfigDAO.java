@@ -4,6 +4,7 @@
 package dima.config.common.services;
 
 import java.util.List;
+import java.util.Map;
 
 import dima.config.common.models.NodeDevice;
 import dima.config.common.models.SwitchDevice;
@@ -12,6 +13,8 @@ import dima.config.common.models.SwitchMonitor;
 public interface ConfigDAO {
 	
 	public void clearAll();
+	
+	public Map<String, String> file2Devices(int type);
 	
 	public List<SwitchDevice> readAllSwitchDevices(boolean fromCache);
 	

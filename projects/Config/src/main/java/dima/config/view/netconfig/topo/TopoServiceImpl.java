@@ -379,6 +379,7 @@ public class TopoServiceImpl implements UpdateCallback{
 
 	@Override
 	public void deleteDevice(String twaverId, int type) {
+		System.out.println("deleteDevice "+twaverId+" type: "+type);
 		box.removeElementByID(twaverId);
 		
 		if(ConfigUtils.TYPE_SW==type){

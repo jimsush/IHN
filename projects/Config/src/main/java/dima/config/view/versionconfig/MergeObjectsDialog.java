@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,10 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import dima.config.common.controls.TableLayout;
-import dima.config.common.models.NodeDevice;
-import dima.config.common.models.SwitchDevice;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
+import dima.config.dao.BinFileHandler;
 import twaver.ElementAttribute;
 import twaver.TDataBox;
 import twaver.TWaverUtil;
@@ -79,7 +79,8 @@ public class MergeObjectsDialog extends JDialog{
 	    buttonPane.add(cancelBtn,"3,1,f,0");
 	    
 	    ActionListener l = new ActionListener() {
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void actionPerformed(ActionEvent e) {
                 Object source = e.getSource();
                 if (source == okBtn) {
@@ -88,9 +89,39 @@ public class MergeObjectsDialog extends JDialog{
                 		JOptionPane.showMessageDialog(MergeObjectsDialog.this, "至少选择2个设备进行配置文件合并! ");
                 		return;
                 	}
+                	
+                	List<String> binFiles=new ArrayList<>();
+                	selectedElements.stream().forEach(ele -> binFiles.add(((TwoColumnNode<String,String>)ele).getValue()));
+                	try {
+	                	switch(code){
+	                	case 0:
+	                		BinFileHandler.mergeSwitchFiles(binFiles);
+	                		break;
+	                	case 1:
+	                		BinFileHandler.mergeNodeFiles(binFiles);
+	                		break;
+	                	case 2:
+	                		BinFileHandler.mergeSwitchMonitorFiles(binFiles);
+	                		break;
+	                	default:
+	                		break;
+	                	}
+                	} catch (Exception e1) {
+						JOptionPane.showMessageDialog(MergeObjectsDialog.this, "合并Bin配置文件异常， "+e1.getMessage());
+						return;
+					}
+            		
                 	JOptionPane.showMessageDialog(MergeObjectsDialog.this, "合并Bin配置文件完成! ");
                 	
-                	dispose();
+                	// to show the refreshed files and devices
+                	devicesBox.clear();
+                	Map<String, String> file2Devices = dao.file2Devices(code);
+            		file2Devices.forEach((file, dev)->{
+            			TwoColumnNode<String, String> element=new TwoColumnNode<>(file, dev);
+            			devicesBox.addElement(element);
+            		});
+            		
+                	//dispose();
                 }else if(source==cancelBtn){
                 	dispose();
                 }
@@ -107,19 +138,11 @@ public class MergeObjectsDialog extends JDialog{
 		devicesBox=new TDataBox();
 		devicesTable=tableInit(devicesBox);
 		
-		if(code==0 || code==2){
-			List<SwitchDevice> switches = dao.readAllSwitchDevices(true);
-			for(SwitchDevice sw : switches){
-				SingleColumnNode<String> element=new SingleColumnNode<String>(sw.getSwitchName());
-				devicesBox.addElement(element);
-			}
-		}else if(code==1){
-			List<NodeDevice> nodes = dao.readAllNodeDevices(true);
-			for(NodeDevice nd : nodes){
-				SingleColumnNode<String> element=new SingleColumnNode<String>(nd.getNodeName());
-				devicesBox.addElement(element);
-			}
-		}
+		Map<String, String> file2Devices = dao.file2Devices(code);
+		file2Devices.forEach((file, dev)->{
+			TwoColumnNode<String, String> element=new TwoColumnNode<>(file, dev);
+			devicesBox.addElement(element);
+		});
 	}
 	
 	private TElementTable tableInit(TDataBox box){
@@ -131,16 +154,21 @@ public class MergeObjectsDialog extends JDialog{
 		table.setTableHeaderPopupMenuFactory(null);
 		table.setTableBodyPopupMenuFactory(null);
 		
-		table.setElementClass(SingleColumnNode.class);
+		table.setElementClass(TwoColumnNode.class);
 		
 		List<ElementAttribute> attributes = new ArrayList<ElementAttribute>();
 		
 		ElementAttribute attribute = new ElementAttribute();
 		attribute.setName("value");
-		attribute.setDisplayName("设备名称");
+		attribute.setDisplayName("bin文件");
 		attributes.add(attribute);
 		
-		table.registerElementClassAttributes(SingleColumnNode.class, attributes);
+		attribute = new ElementAttribute();
+		attribute.setName("value2");
+		attribute.setDisplayName("包含元素");
+		attributes.add(attribute);
+		
+		table.registerElementClassAttributes(TwoColumnNode.class, attributes);
 		return table;
 	}
 	

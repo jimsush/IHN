@@ -148,6 +148,7 @@ public class ImportFileActions {
         addConfigMessages(configs);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void openImportTopoCtrlAction(){
 		String[] fileNames=openXMLFile(false);
         if(fileNames==null || fileNames.length==0){

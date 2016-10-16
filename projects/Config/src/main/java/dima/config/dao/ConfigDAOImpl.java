@@ -7,16 +7,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dima.config.common.ConfigContext;
 import dima.config.common.ConfigUtils;
+import dima.config.common.models.NodeBin;
 import dima.config.common.models.NodeDevice;
+import dima.config.common.models.SwitchBin;
 import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchMonitor;
+import dima.config.common.models.SwitchMonitorPort;
 import dima.config.common.services.ConfigDAO;
 
 public class ConfigDAOImpl implements ConfigDAO {
@@ -32,56 +37,47 @@ public class ConfigDAOImpl implements ConfigDAO {
 			if(!file.isDirectory()){
 				String fileName = file.getName();
 				if(fileName.startsWith("sw_") && fileName.endsWith("_config.bin")){
-					String swName=ConfigUtils.getSwitchName(fileName);
-					
-					SwitchDevice swDevice = null;
+					SwitchBin sb = null;
 					try{
-						swDevice=BinFileHandler.readSwitch(swName);
+						sb=BinFileHandler.readSwitch(fileName);
 					}catch(Exception ex){
 						ex.printStackTrace();
 					}
-					if(swDevice!=null){
-						allSwitches.put(swName, swDevice);
+					if(sb!=null){
+						sb.getSwCfgs().forEach(sw ->{
+							allSwitches.put(sw.getSwitchName(), sw);
+							
+							if(sw.getNmu()!=null){
+								allNodes.put(sw.getNmu().getNodeName(), sw.getNmu());
+							}
+						});
 						
-						if(swDevice.getNmu()!=null){
-							allNodes.put(swName, swDevice.getNmu());
-						}
+						BinFileHandler.updateSwitchFileMapping(fileName, sb);
 					}
-				}
-				/*else if(fileName.startsWith("sw_") && fileName.endsWith("_nmu.bin")){
-					String swName=ConfigUtils.getSwitchName(fileName);
-					NodeDevice nmu = null;
+				}else if(fileName.startsWith("fic_") && fileName.endsWith("_config.bin")){
+					NodeBin nb=null;
 					try{
-						nmu=BinFileHandler.readNMUOrNode(swName, ConfigUtils.TYPE_NMU);
+						nb=BinFileHandler.readNode(fileName);
 					}catch(Exception ex){
 						ex.printStackTrace();
 					}
-					if(nmu!=null){
-						allNodes.put(swName, nmu);
-					}
-				}*/
-				else if(fileName.startsWith("fic_") && fileName.endsWith("_config.bin")){
-					String portNo=ConfigUtils.getPortNo(fileName);
-					NodeDevice curNode = null;
-					try{
-						curNode=BinFileHandler.readNMUOrNode(portNo, ConfigUtils.TYPE_NODE);
-					}catch(Exception ex){
-						ex.printStackTrace();
-					}
-					if(curNode!=null){
-						allNodes.put(curNode.getNodeName(), curNode);
+					if(nb!=null){
+						nb.getNodeCfgs().forEach(node ->allNodes.put(node.getNodeName(), node));
+						BinFileHandler.updateNodeFileMapping(fileName, nb);
 					}
 				}else if(fileName.startsWith("sw_") && fileName.endsWith("_mon.bin")){
-					String swName=ConfigUtils.getSwitchName(fileName);
-					
+					List<String> switchNames = ConfigUtils.parseSwitchMonitorNames(fileName);
 					SwitchMonitor mon = null;
 					try{
-						mon=BinFileHandler.readMonitor(swName);
+						mon=BinFileHandler.readMonitor(fileName, switchNames);
 					}catch(Exception ex){
 						ex.printStackTrace();
 					}
+					
 					if(mon!=null){
-						swMonitors.put(swName, mon);
+						final SwitchMonitor mon2=mon;
+						mon.getMonitorPorts().forEach(port -> swMonitors.put(port.getSwitchName(), mon2));
+						BinFileHandler.updateMonitorFileMapping(fileName, mon);
 					}
 				}else if(fileName.equalsIgnoreCase(ConfigUtils.SYS_PROP_FILE)){
 					Properties p = new Properties();
@@ -136,6 +132,40 @@ public class ConfigDAOImpl implements ConfigDAO {
 			}
 		}
 	}
+	
+	@Override
+	public Map<String, String> file2Devices(int type){
+		Map<String, String> map=new HashMap<>();
+		switch(type){
+		case 0:
+			Map<String, Set<SwitchDevice>> switches = BinFileHandler.getFile2Switches();
+			switches.forEach((file, devs)->{
+				StringBuilder sb=new StringBuilder();
+				devs.forEach(dev -> sb.append(dev.getSwitchName()).append(","));
+				map.put(file, sb.substring(0, sb.length()-1));
+			});
+			break;
+		case 1:
+			Map<String, Set<NodeDevice>> nodes = BinFileHandler.getFile2Nodes();
+			nodes.forEach((file, devs)->{
+				StringBuilder sb=new StringBuilder();
+				devs.forEach(dev -> sb.append(dev.getNodeName()).append(","));
+				map.put(file, sb.substring(0, sb.length()-1));
+			});
+			break;
+		case 2:
+			Map<String, Set<SwitchMonitorPort>> monitors = BinFileHandler.getFile2Monitors();
+			monitors.forEach((file, devs)->{
+				StringBuilder sb=new StringBuilder();
+				devs.forEach(dev -> sb.append(dev.getSwitchName()).append(","));
+				map.put(file, sb.substring(0, sb.length()-1));
+			});
+			break;
+		default:
+			break;
+		}
+		return map;
+	}
 
 	@Override
 	public void clearAll(){
@@ -146,6 +176,8 @@ public class ConfigDAOImpl implements ConfigDAO {
 		allSwitches.clear();
 		allNodes.clear();
 		swMonitors.clear();
+		
+		BinFileHandler.clearAll();
 		
 		SimpleDateFormat sdt=new SimpleDateFormat("yyyymmddHHmmss");
 		String now = sdt.format(new Date());
@@ -214,17 +246,6 @@ public class ConfigDAOImpl implements ConfigDAO {
 				// update NMU first, otherwise the NMU will be deleted
 				NodeDevice oldNmu = allNodes.get(oldSwitch.getSwitchName());
 				if(oldNmu!=null){
-					/*
-					String oldNmuBinFile = ConfigUtils.getNMUConfigFileName(oldSwitch.getSwitchName());
-					String newNmuBinFile = ConfigUtils.getNMUConfigFileName(switchDevice.getSwitchName());
-					try{
-						File oldFile=new File(oldNmuBinFile);
-						File newFile=new File(newNmuBinFile);
-						oldFile.renameTo(newFile);
-					}catch(Exception ex){
-						ex.printStackTrace();
-					}*/
-					
 					// update NMU cache
 					oldNmu.setNodeName(switchDevice.getSwitchName());
 					allNodes.put(switchDevice.getSwitchName(), oldNmu);
@@ -266,30 +287,22 @@ public class ConfigDAOImpl implements ConfigDAO {
 
 	@Override
 	public void deleteSwitchDevice(String switchName, boolean deleteMonitorFile) {
-		String binFile = ConfigUtils.getSwitchConfigFileName(switchName);
 		try{
-			File file=new File(binFile);
-			file.delete();
+			BinFileHandler.deleteSwitchFile(switchName);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 		allSwitches.remove(switchName);
-		
-		// remove this switch's NMU file
-		/*
-		String nmuBinFile = ConfigUtils.getNMUConfigFileName(switchName);
-		try{
-			File file=new File(nmuBinFile);
-			file.delete();
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-		*/
+		// remove this switch's NMU
 		allNodes.remove(switchName);
 		
 		// remove this switch's monitor file
 		if(deleteMonitorFile){
-			deleteSwitchMonitor(switchName);
+			try{
+				BinFileHandler.deleteSwitchMonitorFile(switchName);
+			}catch(Exception ex){
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -335,15 +348,8 @@ public class ConfigDAOImpl implements ConfigDAO {
 		if(nodeDevice==null)
 			return;
 		
-		String fileName=null;
-		if(nodeDevice.getType()==ConfigUtils.TYPE_NMU){
-			fileName=ConfigUtils.getNMUConfigFileName(nodeDevice.getNodeName());
-		}else{
-			fileName=ConfigUtils.getNodeConfigFileName(nodeDevice.getPortNo()+"");
-		}
 		try{
-			File file=new File(fileName);
-			file.delete();
+			BinFileHandler.deleteNodeFile(nodeDevice.getNodeName());
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -360,7 +366,8 @@ public class ConfigDAOImpl implements ConfigDAO {
 	@Override
 	public void saveSwitchMonitor(SwitchMonitor monitor) {
 		try{
-			BinFileHandler.writeMonitor(monitor);
+			List<SwitchMonitorPort> mps = monitor.getMonitorPorts();
+			mps.forEach(BinFileHandler::writeMonitor);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -370,14 +377,11 @@ public class ConfigDAOImpl implements ConfigDAO {
 
 	@Override
 	public void deleteSwitchMonitor(String switchName) {
-		String fileName=ConfigUtils.getMonitorConfigFileName(switchName);
 		try{
-			File file=new File(fileName);
-			file.delete();
+			BinFileHandler.deleteSwitchMonitorFile(switchName);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
-		
 		swMonitors.remove(switchName);
 	}
 

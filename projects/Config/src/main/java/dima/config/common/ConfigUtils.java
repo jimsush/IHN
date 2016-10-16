@@ -8,13 +8,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.JTextField;
 
 import dima.config.common.controls.NumberDocument;
 import dima.config.common.controls.TableLayout;
+import dima.config.common.models.NodeBin;
 import dima.config.common.models.NodeDevice;
+import dima.config.common.models.SwitchBin;
 import dima.config.common.models.SwitchDevice;
+import dima.config.common.models.SwitchMonitor;
+import dima.config.common.models.SwitchMonitorPort;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
 import twaver.Element;
@@ -199,6 +205,24 @@ public class ConfigUtils {
 		return "sw_"+switchName+"_config.bin";
 	}
 	
+	public static String getSwitchConfigFileName(SwitchBin swb){
+		List<SwitchDevice> swCfgs = swb.getSwCfgs();
+		if(swCfgs==null || swCfgs.size()==0){
+			return null;
+		}
+		StringBuilder sb=new StringBuilder();
+		sb.append("sw_");
+		swCfgs.forEach(sw ->sb.append(sw.getSwitchName()).append("#"));
+		return sb.substring(0, sb.length()-1)+"_config.bin";
+	}
+	
+	public static List<String> parseSwitchNames(String swBinFileName){
+		int fullLen=swBinFileName.length();
+		String swNames=swBinFileName.substring(3, fullLen-11);
+		String[] fields = swNames.split("#");
+		return Stream.of(fields).collect(Collectors.toList());
+	}
+	
 	public static String getNMUConfigFileName(String switchName){
 		return "sw_"+switchName+"_nmu.bin";
 	}
@@ -207,19 +231,55 @@ public class ConfigUtils {
 		return "sw_"+switchName+"_mon.bin";
 	}
 	
+	public static List<String> parseSwitchMonitorNames(String swMonitorBinFileName){
+		int fullLen=swMonitorBinFileName.length();
+		String swNames=swMonitorBinFileName.substring(3, fullLen-8);
+		String[] fields = swNames.split("#");
+		return Stream.of(fields).collect(Collectors.toList());
+	}
+	
+	public static String getMonitorConfigFileName(SwitchMonitor sm){
+		List<SwitchMonitorPort> swMonCfgs = sm.getMonitorPorts();
+		if(swMonCfgs==null || swMonCfgs.size()==0){
+			return null;
+		}
+		StringBuilder sb=new StringBuilder();
+		sb.append("sw_");
+		swMonCfgs.forEach(sw ->sb.append(sw.getSwitchName()).append("#"));
+		return sb.substring(0, sb.length()-1)+"_mon.bin";
+	}
+	
 	public static String getNodeConfigFileName(String portNo){
 		return "fic_"+portNo+"_config.bin";
 	}
 	
-	public static String getSwitchName(String fileName){
-		int pos=fileName.lastIndexOf("_");
-		return fileName.substring(3, pos);
+	public static String getNodeConfigFileName(NodeBin nb){
+		List<NodeDevice> nodes = nb.getNodeCfgs();
+		if(nodes==null || nodes.size()==0){
+			return null;
+		}
+		StringBuilder sb=new StringBuilder();
+		sb.append("fic_");
+		nodes.forEach(nd ->sb.append(nd.getPortNo()).append("#"));
+		return sb.substring(0, sb.length()-1)+"_config.bin";
 	}
 	
-	public static String getPortNo(String fileName){
-		int pos=fileName.lastIndexOf("_");
-		return fileName.substring(4, pos);
+	public static List<String> parseNodeNames(String nodeBinFileName){
+		int fullLen=nodeBinFileName.length();
+		String nodeNames=nodeBinFileName.substring(4, fullLen-11);
+		String[] fields = nodeNames.split("#");
+		return Stream.of(fields).collect(Collectors.toList());
 	}
+	
+	//public static String getSwitchName(String fileName){
+	//	int pos=fileName.lastIndexOf("_");
+	//	return fileName.substring(3, pos);
+	//}
+	
+	//public static String getPortNo(String fileName){
+	//	int pos=fileName.lastIndexOf("_");
+	//	return fileName.substring(4, pos);
+	//}
 	
 	public static String getPortName(int switchId, int portId){
 		int id=portId+(switchId<<16);
@@ -419,8 +479,16 @@ public class ConfigUtils {
 		//String fullName=getSwitchConfigFileName("abc");
 		//String switchName=getSwitchName(fullName);
 		//System.out.println(switchName);
+    	StringBuilder sb=new StringBuilder();
+		sb.append("sw_");
+		List<String> swCfgs=Stream.of("1","2","3").collect(Collectors.toList());
+		swCfgs.forEach(sw ->sb.append(sw).append("#"));
+		String fileName=sb.substring(0, sb.length()-1)+"_config.bin";
+		System.out.println("sw file name:"+fileName);
     	
-    	
+		List<String> swes = parseSwitchNames(fileName);
+		System.out.println("switches' name:"+swes);
+		
     	List<Integer> ports = bitsetIntToList(0x02ffff01, 0);
     	int[] masks=listToIntBitSet(ports);
     	System.out.println(masks);

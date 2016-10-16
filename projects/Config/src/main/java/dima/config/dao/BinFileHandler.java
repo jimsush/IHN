@@ -1,5 +1,6 @@
 package dima.config.dao;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -7,9 +8,11 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import dima.config.common.ConfigContext;
 import dima.config.common.ConfigUtils;
@@ -27,6 +30,16 @@ import dima.config.common.services.ServiceFactory;
 
 public class BinFileHandler {
 
+	private static Map<String, Set<SwitchDevice>> file2Switches=new HashMap<>();
+	private static Map<String, String> switch2File=new HashMap<>();
+	
+	private static Map<String, Set<NodeDevice>> file2Nodes=new HashMap<>();
+	private static Map<String, String> node2File=new HashMap<>();
+	
+	private static Map<String, Set<SwitchMonitorPort>> file2Monitors=new HashMap<>();
+	/** key is switch name, value is bin file name */
+	private static Map<String, String> monitor2File=new HashMap<>();
+	
 	public static void main(String[] args) throws Exception{
 		List<Integer> list1=ConfigUtils.bitsetIntToList(0x01020304, 0);
 		List<Integer> list2 = ConfigUtils.bitsetIntToList(0x01010101, 32);
@@ -34,15 +47,315 @@ public class BinFileHandler {
 		int b[] = ConfigUtils.listToIntBitSet(list2);
 		System.out.println(list2+"b="+Integer.toHexString(b[0])+" "+Integer.toHexString(b[1]));
 	}
-	
-	
-	
-	
-	public static SwitchDevice readSwitch(String swName) throws Exception{
-		String fileName=ConfigUtils.getSwitchConfigFileName(swName);
-		FileInputStream in = new FileInputStream(fileName);
-		SwitchBin bin=new SwitchBin();
+
+	public static Map<String, Set<SwitchDevice>> getFile2Switches() {
+		return file2Switches;
+	}
+
+	public static Map<String, Set<NodeDevice>> getFile2Nodes() {
+		return file2Nodes;
+	}
+
+	public static Map<String, Set<SwitchMonitorPort>> getFile2Monitors() {
+		return file2Monitors;
+	}
+
+	public static void clearAll(){
+		file2Switches.clear();
+		file2Nodes.clear();
+		file2Monitors.clear();
+		monitor2File.clear();
+		switch2File.clear();
+		node2File.clear();
+	}
+	public static void updateSwitchFileMapping(String binFile, SwitchBin sb){
+		List<SwitchDevice> switches = sb.getSwCfgs();
 		
+		Set<SwitchDevice> swSet=new HashSet<>();
+		swSet.addAll(switches);
+		file2Switches.put(binFile, swSet);
+		
+		swSet.forEach(sw ->switch2File.put(sw.getSwitchName(), binFile));
+	}
+	
+	public static void writeSwitch(SwitchDevice sw0) throws Exception{
+		String file = switch2File.get(sw0.getSwitchName());
+		if(file==null){ // it is a new switch device
+			file=ConfigUtils.getSwitchConfigFileName(sw0.getSwitchName());
+			switch2File.put(sw0.getSwitchName(), file);
+		}
+		
+		Set<SwitchDevice> switchesInSameFile = file2Switches.get(file);
+		if(switchesInSameFile==null){
+			switchesInSameFile=new HashSet<>();
+			file2Switches.put(file, switchesInSameFile);
+		}else{
+			Iterator<SwitchDevice> it = switchesInSameFile.iterator();
+			for(;it.hasNext();){
+				SwitchDevice otherSw = it.next();
+				if(otherSw.getSwitchName().equals(sw0.getSwitchName())){
+					it.remove(); //remove old one
+				}
+			}
+		}
+		switchesInSameFile.add(sw0);
+		
+		// save to bin file
+		SwitchBin swbin=new SwitchBin();
+		switchesInSameFile.forEach(sw1 -> swbin.addSwitchConfig(sw1));
+		String newFileName=ConfigUtils.getSwitchConfigFileName(swbin);
+		writeSwitchBin(swbin, newFileName);
+	}
+	
+	public static void deleteSwitchFile(String sw0) throws Exception{
+		String file = switch2File.get(sw0);
+		if(file==null){ 
+			return;
+		}
+		
+		Set<SwitchDevice> switchesInSameFile = file2Switches.get(file);
+		if(switchesInSameFile==null){
+			new File(file).delete();
+			return;
+		}
+		
+		Iterator<SwitchDevice> it = switchesInSameFile.iterator();
+		for(;it.hasNext();){
+			SwitchDevice otherSw = it.next();
+			if(otherSw.getSwitchName().equals(sw0)){
+				it.remove(); //remove old one
+			}
+		}
+		
+		// re-save to bin file
+		if(switchesInSameFile.size()==0){
+			new File(file).delete();
+		}else{
+			SwitchBin swbin=new SwitchBin();
+			switchesInSameFile.forEach(sw1 -> swbin.addSwitchConfig(sw1));
+			String newFileName=ConfigUtils.getSwitchConfigFileName(swbin);
+			writeSwitchBin(swbin, newFileName);
+		}
+	}
+	
+	public static void mergeSwitchFiles(List<String> oldBinFiles) throws Exception{
+		Set<SwitchDevice> swSet=new HashSet<>();
+		oldBinFiles.forEach(file -> swSet.addAll(file2Switches.get(file)));
+		
+		// write to new file
+		SwitchBin swbin=new SwitchBin();
+		swSet.forEach(sw -> swbin.addSwitchConfig(sw));
+		String newFileName=ConfigUtils.getSwitchConfigFileName(swbin);
+		writeSwitchBin(swbin, newFileName);
+		
+		swSet.forEach(sw -> switch2File.put(sw.getSwitchName(), newFileName));
+		file2Switches.put(newFileName, swSet);
+				
+		// delete old files
+		oldBinFiles.forEach(oldFileName -> {
+			new File(oldFileName).delete();
+			file2Switches.remove(oldFileName);
+		});
+	}
+	
+	public static void writeNMUOrNode(NodeDevice node) throws Exception{
+		if(ConfigUtils.TYPE_NMU==node.getType()){
+			ConfigDAO dao= ServiceFactory.getService(ConfigDAO.class);
+        	SwitchDevice sw = dao.readSwitchDevice(node.getNodeName(), true);
+			writeSwitch(sw);
+			return;
+		}
+		
+		String file = node2File.get(node.getNodeName());
+		if(file==null){ // it is a new switch device
+			file=ConfigUtils.getNodeConfigFileName(node.getPortNo()+"");
+			node2File.put(node.getNodeName(), file);
+		}
+		
+		Set<NodeDevice> nodesInSameFile = file2Nodes.get(file);
+		if(nodesInSameFile==null){
+			nodesInSameFile=new HashSet<>();
+			file2Nodes.put(file, nodesInSameFile);
+		}else{
+			Iterator<NodeDevice> it = nodesInSameFile.iterator();
+			for(;it.hasNext();){
+				NodeDevice otherNode = it.next();
+				if(otherNode.getNodeName().equals(node.getNodeName())){
+					it.remove(); //remove old one
+				}
+			}
+		}
+		// add new one
+		nodesInSameFile.add(node);
+		
+		// save to bin file
+		NodeBin nb=new NodeBin();
+		nodesInSameFile.forEach(nd -> nb.addNode(nd));
+		String fileName=ConfigUtils.getNodeConfigFileName(nb);
+		writeNodeBin(nb, fileName);
+	}
+
+	public static void mergeNodeFiles(List<String> oldBinFiles) throws Exception{
+		Set<NodeDevice> nodeSet=new HashSet<>();
+		oldBinFiles.forEach(file -> nodeSet.addAll(file2Nodes.get(file)));
+		
+		// write to new file
+		NodeBin nb=new NodeBin();
+		nodeSet.forEach(node -> nb.addNode(node));
+		String newFileName=ConfigUtils.getNodeConfigFileName(nb);
+		writeNodeBin(nb, newFileName);
+		
+		nodeSet.forEach(node -> node2File.put(node.getNodeName(), newFileName));
+		file2Nodes.put(newFileName, nodeSet);
+				
+		// delete old files
+		oldBinFiles.forEach(oldFileName -> {
+			new File(oldFileName).delete();
+			file2Nodes.remove(oldFileName);
+		});
+	}
+	
+	public static void deleteNodeFile(String node0) throws Exception{
+		String oldFileName = node2File.get(node0);
+		if(oldFileName==null){ 
+			return;
+		}
+		
+		Set<NodeDevice> nodesInSameFile = file2Nodes.get(oldFileName);
+		if(nodesInSameFile==null){
+			new File(oldFileName).delete();
+			return;
+		}
+		
+		Iterator<NodeDevice> it = nodesInSameFile.iterator();
+		for(;it.hasNext();){
+			NodeDevice otherNode = it.next();
+			if(otherNode.getNodeName().equals(node0)){
+				it.remove(); // remove old one
+			}
+		}
+		
+		// re-save to bin file
+		if(nodesInSameFile.size()==0){
+			new File(oldFileName).delete();
+		}else{
+			NodeBin nb=new NodeBin();
+			nodesInSameFile.forEach(node -> nb.addNode(node));
+			String fileName=ConfigUtils.getNodeConfigFileName(nb);
+			writeNodeBin(nb, fileName);
+		}
+	}
+	
+	public static void updateNodeFileMapping(String binFile, NodeBin nb){
+		List<NodeDevice> nodes = nb.getNodeCfgs();
+		
+		Set<NodeDevice> nodeSet=new HashSet<>();
+		nodeSet.addAll(nodes);
+		file2Nodes.put(binFile, nodeSet);
+		
+		nodeSet.forEach(sw ->node2File.put(sw.getNodeName(), binFile));
+	}
+	
+	public static void writeMonitor(SwitchMonitorPort mp) {
+		String file = monitor2File.get(mp.getSwitchName());
+		if(file==null){ // it is a new switch device's monitor
+			file=ConfigUtils.getMonitorConfigFileName(mp.getSwitchName());
+			monitor2File.put(mp.getSwitchName(), file);
+		}
+		
+		Set<SwitchMonitorPort> swMonitorsInSameFile = file2Monitors.get(file);
+		if(swMonitorsInSameFile==null){
+			swMonitorsInSameFile=new HashSet<>();
+			file2Monitors.put(file, swMonitorsInSameFile);
+		}else{
+			Iterator<SwitchMonitorPort> it = swMonitorsInSameFile.iterator();
+			for(;it.hasNext();){
+				SwitchMonitorPort otherSw = it.next();
+				if(otherSw.getSwitchName().equals(mp.getSwitchName())){
+					it.remove(); //remove old one
+				}
+			}
+		}
+		swMonitorsInSameFile.add(mp);
+		
+		// save to bin file
+		SwitchMonitor sm=new SwitchMonitor();
+		swMonitorsInSameFile.forEach(monPort -> sm.addMonitorPort(monPort));
+		String newFileName=ConfigUtils.getMonitorConfigFileName(sm);
+		try{
+			writeSwitchMonitorBin(sm, newFileName);
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+	
+	/**
+	 * @param mp switch name
+	 * */
+	public static void deleteSwitchMonitorFile(String switchName0) throws Exception{
+		String file = monitor2File.get(switchName0);
+		if(file==null){ 
+			return;
+		}
+		
+		Set<SwitchMonitorPort> swMonitorsInSameFile = file2Monitors.get(file);
+		if(swMonitorsInSameFile==null){
+			new File(file).delete();
+			return;
+		}
+		
+		Iterator<SwitchMonitorPort> it = swMonitorsInSameFile.iterator();
+		for(; it.hasNext(); ){
+			SwitchMonitorPort otherSw = it.next();
+			if(otherSw.getSwitchName().equals(switchName0)){
+				it.remove(); //remove old one
+			}
+		}
+		
+		// re-save to bin file
+		if(swMonitorsInSameFile.size()==0){
+			new File(file).delete();
+		}else{
+			SwitchMonitor sm=new SwitchMonitor();
+			swMonitorsInSameFile.forEach(monPort -> sm.addMonitorPort(monPort));
+			String newFileName=ConfigUtils.getMonitorConfigFileName(sm);
+			writeSwitchMonitorBin(sm, newFileName);
+		}
+	}
+	
+	public static void mergeSwitchMonitorFiles(List<String> oldBinFiles) throws Exception{
+		Set<SwitchMonitorPort> swMonSet=new HashSet<>();
+		oldBinFiles.forEach(file -> swMonSet.addAll(file2Monitors.get(file)));
+		
+		// write to new file
+		SwitchMonitor sm=new SwitchMonitor();
+		swMonSet.forEach(smport -> sm.addMonitorPort(smport));
+		String newFileName=ConfigUtils.getMonitorConfigFileName(sm);
+		writeSwitchMonitorBin(sm, newFileName);
+		
+		swMonSet.forEach(smport -> monitor2File.put(smport.getSwitchName(), newFileName));
+		file2Monitors.put(newFileName, swMonSet);
+				
+		// delete old files
+		oldBinFiles.forEach(oldFileName -> {
+			new File(oldFileName).delete();
+			file2Monitors.remove(oldFileName);
+		});
+	}
+	
+	public static void updateMonitorFileMapping(String binFile, SwitchMonitor sm){
+		List<SwitchMonitorPort> switches = sm.getMonitorPorts();
+		
+		Set<SwitchMonitorPort> swSet=new HashSet<>();
+		swSet.addAll(switches);
+		file2Monitors.put(binFile, swSet);
+		
+		swSet.forEach(swMon ->monitor2File.put(swMon.getSwitchName(), binFile));
+	}
+	
+	public static SwitchBin readSwitch(String swBinFileName) throws Exception{
+		FileInputStream in = new FileInputStream(swBinFileName);
+		SwitchBin bin=new SwitchBin();
 		try {
 			byte[] bs=new byte[16];
         	for(int i=0; i<16; i++){
@@ -67,14 +380,14 @@ public class BinFileHandler {
 			System.out.println("date:"+date);
 			
 			int data=readInt(in); //3
-			System.out.println("file length:"+data+" for "+fileName);
+			System.out.println("file length:"+data+" for "+swBinFileName);
 			
         	short fileNo=readShort(in);
         	bin.setFileNo(fileNo);  //4
         	//System.out.println("file id:"+fileNo);
         	
         	short switchNumber=readShort(in); //5
-        	System.out.println("switch total number:"+switchNumber);
+        	System.out.println("switch total number: "+switchNumber);
         	for(short i=0; i<switchNumber; i++){
         		int locationId=readInt(in);
         		System.out.println("switch "+i+" location id:"+locationId);
@@ -90,7 +403,7 @@ public class BinFileHandler {
             	String switchName=bytesToString(names);
             	System.out.println("switch name:"+switchName);
             	
-            	SwitchDevice sw=new SwitchDevice(swName); //8
+            	SwitchDevice sw=new SwitchDevice(switchName); //8
         		bin.addSwitchConfig(sw);
         		sw.setVersion(version);
         		sw.setDate(date);
@@ -411,32 +724,33 @@ public class BinFileHandler {
         	in.close();
         }
 		
-		if(bin.getSwCfgs().size()>0){
-			return bin.getSwCfgs().get(0);
-		}else{
-			return null;
-		}
+		return bin;
 	}
 	
-	public static void writeSwitch(SwitchDevice sc0) throws Exception{
-		SwitchBin sw=new SwitchBin();
-		sw.addSwitchConfig(sc0);
-		List<SwitchDevice> cfgs = sw.getSwCfgs();
+	public static void writeSwitch_old(SwitchDevice sw) throws Exception{
+		SwitchBin swbin=new SwitchBin();
+		swbin.addSwitchConfig(sw);
 		
-		String fileName=ConfigUtils.getSwitchConfigFileName(sc0.getSwitchName());
-		OutputStream out = new FileOutputStream(fileName); 
-		
+		String fileName=ConfigUtils.getSwitchConfigFileName(sw.getSwitchName());
+		writeSwitchBin(swbin, fileName);
+	}
+	
+	private static void writeSwitchBin(SwitchBin swb, String fileName) throws Exception{
+		List<SwitchDevice> switches = swb.getSwCfgs();
+
 		Map<Integer, Integer[]> switchConfigOffsets=new HashMap<>();
 		Map<Integer, Integer[]> txMsgOffsets=new HashMap<>();
         Map<Integer, Integer[]> rxMsgOffsets=new HashMap<>();
         Map<Integer, Integer[]> txVLOffsets=new HashMap<>();
         Map<Integer, Integer[]> rxVLOffsets=new HashMap<>();
+
+        OutputStream out = new FileOutputStream(fileName); 
         
 		List<Byte> list=new ArrayList<Byte>();
 		int curPos=0;
 
 		try {
-			String ver=sw.getVersion();
+			String ver=swb.getVersion();
 			if(ver==null || "".equals(ver)){
 				ver=ConfigContext.version;
 			}
@@ -444,31 +758,31 @@ public class BinFileHandler {
 			outWriteBytes(list, bytes1);
             curPos+=16;
 			
-            String dat=sw.getDate();
-			if(dat==null || "".equals(dat)){
-				dat=ConfigContext.date;
+            String date=swb.getDate();
+			if(date==null || "".equals(date)){
+				date=ConfigContext.date;
 			}
-			bytes1 = stringToBytes(dat, 16);
+			bytes1 = stringToBytes(date, 16);
             outWriteBytes(list, bytes1);
             curPos+=16;
             
             outWriteBytes(list, toBytes(0)); //3, file length 
             curPos+=4;
             
-            if(sw.getFileNo()==0){
+            if(swb.getFileNo()==0){
             	outWriteBytes(list, toBytes(ConfigContext.fileNo));
             }else{
-            	outWriteBytes(list, toBytes(sw.getFileNo()));
+            	outWriteBytes(list, toBytes(swb.getFileNo()));
             }
             curPos+=2;
             
-            int cfgNum = cfgs.size();
+            int cfgNum = switches.size();
             outWriteBytes(list, toBytes((short)cfgNum));
             curPos+=2;
   
             int swIdx=0;
-            for(SwitchDevice sc : cfgs){	
-            	outWriteBytes(list, toBytes(sc.getLocationId())); //location ID, 6
+            for(SwitchDevice sw : switches){	
+            	outWriteBytes(list, toBytes(sw.getLocationId())); //location ID, 6
                 curPos+=4;
                 
                 outWriteBytes(list, toBytes(0)); //file offset, 7
@@ -480,27 +794,27 @@ public class BinFileHandler {
             
             // for each switch configuration
             swIdx=0;
-            for(SwitchDevice sc : cfgs){
+            for(SwitchDevice sw : switches){
             	Integer[] swpos = switchConfigOffsets.get(swIdx);
             	swpos[1]=curPos;
             	
-            	bytes1 = stringToBytes(sc.getSwitchName(), 16); 
+            	bytes1 = stringToBytes(sw.getSwitchName(), 16); 
             	outWriteBytes(list, bytes1); // 8
             	curPos+=16;
             
-            	outWriteBytes(list, toBytes(sc.getLocationId()));
+            	outWriteBytes(list, toBytes(sw.getLocationId()));
             	curPos+=4;
             
-            	outWriteBytes(list, (byte)sc.getLocalDomainID());
+            	outWriteBytes(list, (byte)sw.getLocalDomainID());
                 curPos+=1;
                 
-                outWriteBytes(list,toBytes((short)sc.getPortNumber()));
+                outWriteBytes(list,toBytes((short)sw.getPortNumber()));
                 curPos+=2;
 
-                outWriteBytes(list, (byte)sc.getEportNumber());
+                outWriteBytes(list, (byte)sw.getEportNumber());
                 curPos+=1;
             
-	            List<Integer> eportNos=sc.getEportNos(); //13, eports, 4*6
+	            List<Integer> eportNos=sw.getEportNos(); //13, eports, 4*6
 	            for(Integer eportNo : eportNos){
 	            	outWriteBytes(list, toBytes(eportNo));
 	            	curPos+=4;
@@ -511,43 +825,43 @@ public class BinFileHandler {
 	            	curPos+=4;
 	            }
 	            
-	            outWriteBytes(list, sc.isEnableTimeSyncVL()? (byte)1:(byte)0);
+	            outWriteBytes(list, sw.isEnableTimeSyncVL()? (byte)1:(byte)0);
 	            curPos+=1;
             
-	            outWriteBytes(list, toBytes(sc.getTimeSyncVL1()));
+	            outWriteBytes(list, toBytes(sw.getTimeSyncVL1()));
 	            curPos+=2;
 	            
-	            outWriteBytes(list, toBytes(sc.getTimeSyncVL2()));
+	            outWriteBytes(list, toBytes(sw.getTimeSyncVL2()));
 	            curPos+=2;
 	            
-	            outWriteBytes(list, toBytes(sc.getPcfVL())); 
+	            outWriteBytes(list, toBytes(sw.getPcfVL())); 
 	            curPos+=2;
 	            
-	            outWriteBytes(list, (byte)sc.getTimeSyncRole());
+	            outWriteBytes(list, (byte)sw.getTimeSyncRole());
 	            curPos+=1;
             
-	            outWriteBytes(list,toBytes(sc.getOverallInterval()));
+	            outWriteBytes(list,toBytes(sw.getOverallInterval()));
 	            curPos+=4;
-	            outWriteBytes(list,toBytes((short)sc.getClusterInterval()));
+	            outWriteBytes(list,toBytes((short)sw.getClusterInterval()));
 	            curPos+=2;
 	            
-	            outWriteBytes(list,toBytes(sc.getDefaultPlanNo()));//TODO 21 default plan ID
+	            outWriteBytes(list,toBytes(sw.getDefaultPlanNo()));//TODO 21 default plan ID
 	            curPos+=2;
             
-	            outWriteBytes(list,toBytes(sc.getPlanNum()));//TODO 22 plan number
+	            outWriteBytes(list,toBytes(sw.getPlanNum()));//TODO 22 plan number
 	            curPos+=2;
 	            
-	            outWriteBytes(list,toBytes(sc.getPlanNo()));//TODO 23 plan number
+	            outWriteBytes(list,toBytes(sw.getPlanNo()));//TODO 23 plan number
 	            curPos+=2;
 
-	            outWriteBytes(list, toBytes(sc.getVlFwdConfigNum())); //TODO 24 forward VL number
+	            outWriteBytes(list, toBytes(sw.getVlFwdConfigNum())); //TODO 24 forward VL number
 	            curPos+=2;
 	            
-	            int portsStatus = sc.getPortsStatus();
+	            int portsStatus = sw.getPortsStatus();
 	            outWriteBytes(list, toBytes(portsStatus)); //25 port status
 	            curPos+=4;
 	            
-	            List<SwitchVL> vls = sc.getVls();
+	            List<SwitchVL> vls = sw.getVls();
 	            outWriteBytes(list, toBytes(vls.size())); //26 VL Number
 	            curPos+=4;
 	           
@@ -586,10 +900,10 @@ public class BinFileHandler {
 	            
 	            // NMU
 	            int startOfNmuPosition=curPos;
-	            NodeDevice nmu=sc.getNmu();
+	            NodeDevice nmu=sw.getNmu();
 	            if(nmu==null){
-	            	nmu=new NodeDevice(sc.getSwitchName(), ConfigUtils.TYPE_NMU);
-	            	sc.setNmu(nmu);
+	            	nmu=new NodeDevice(sw.getSwitchName(), ConfigUtils.TYPE_NMU);
+	            	sw.setNmu(nmu);
 	            	
 	            	ConfigDAO dao= ServiceFactory.getService(ConfigDAO.class);
 	            	dao.updateNMUCache(nmu);
@@ -849,15 +1163,8 @@ public class BinFileHandler {
         }
 	}
 	
-	public static NodeDevice readNMUOrNode(String nameOrOrPortNo, int type) throws Exception{
-		String fileName=null;
-		if(type==ConfigUtils.TYPE_NMU){
-			fileName=ConfigUtils.getNMUConfigFileName(nameOrOrPortNo);
-		}else{
-			fileName=ConfigUtils.getNodeConfigFileName(nameOrOrPortNo); 
-		}
-		
-		FileInputStream in = new FileInputStream(fileName);
+	public static NodeBin readNode(String nodeBinFileName) throws Exception{
+		FileInputStream in = new FileInputStream(nodeBinFileName);
 		NodeBin bin=new NodeBin();
 		
 		try {
@@ -884,7 +1191,7 @@ public class BinFileHandler {
 			System.out.println("date:"+date);
         	
 			int data=readInt(in);
-			System.out.println("file length:"+data +" for "+fileName);
+			System.out.println("file length:"+data +" for "+nodeBinFileName);
 			
 			short fileNo=readShort(in);
 			bin.setFileNo(fileNo);  //4
@@ -1081,29 +1388,26 @@ public class BinFileHandler {
         	in.close();
         }
 		
-		if(bin.getNodeCfgs()!=null && bin.getNodeCfgs().size()>0){
-			return bin.getNodeCfgs().get(0);
-		}
-		return null;
+		return bin;
 	}
 	
-	public static void writeNMUOrNode(NodeDevice nodeDev) throws Exception{
-		String fileName=null;
-		
-		int portNo=nodeDev.getPortNo();		
+	public static void writeNMUOrNode_old(NodeDevice nodeDev) throws Exception{
 		if(ConfigUtils.TYPE_NMU==nodeDev.getType()){
-			//fileName=ConfigUtils.getNMUConfigFileName(nodeDev.getNodeName());
 			ConfigDAO dao= ServiceFactory.getService(ConfigDAO.class);
 			SwitchDevice sw = dao.readSwitchDevice(nodeDev.getNodeName(), true);
 			sw.setNmu(nodeDev);
 			writeSwitch(sw);
 			return;
-		}else{
-			fileName=ConfigUtils.getNodeConfigFileName(portNo+"");
 		}
 		
 		NodeBin nb=new NodeBin();
 		nb.addNode(nodeDev);
+		
+		String fileName=ConfigUtils.getNodeConfigFileName(nodeDev.getPortNo()+"");
+		writeNodeBin(nb, fileName);
+	}
+	
+	private static void writeNodeBin(NodeBin nb, String fileName) throws Exception{
 		List<NodeDevice> nodeCfgs = nb.getNodeCfgs();
 
 		Map<Integer, Integer[]> nodeConfigOffsets=new HashMap<>();
@@ -1117,7 +1421,7 @@ public class BinFileHandler {
 		OutputStream out = new FileOutputStream(fileName); 
 		
 		try {
-			String ver=nodeDev.getVersion();
+			String ver=nb.getVersion();
 			if(ver==null || "".equals(ver)){
 				ver=ConfigContext.version;
 			}
@@ -1125,7 +1429,7 @@ public class BinFileHandler {
             outWriteBytes(list, bytes1);
             curPos+=16;
 			
-            String dat=nodeDev.getDate();
+            String dat=nb.getDate();
 			if(dat==null || "".equals(dat)){
 				dat=ConfigContext.date;
 			}
@@ -1376,10 +1680,9 @@ public class BinFileHandler {
 		}
 	}
 	
-	public static SwitchMonitor readMonitor(String swName) throws Exception{
-		String fileName=ConfigUtils.getMonitorConfigFileName(swName);
+	public static SwitchMonitor readMonitor(String fileName, List<String> switcheNames) throws Exception{
 		FileInputStream in = new FileInputStream(fileName);
-		SwitchMonitor mon=new SwitchMonitor(swName);
+		SwitchMonitor mon=new SwitchMonitor("");
 		try {
 			byte[] bs=new byte[16];
         	for(int i=0; i<16; i++){
@@ -1424,10 +1727,11 @@ public class BinFileHandler {
         	Iterator<Integer> it=planNos.iterator();
         	for(int i=0; i<tableNumber; i++){
         		Integer planNo = it.next();
+        		String curSwitchName=switcheNames.get(i);
         		
         		int locationId=readShort2(in);
         		short portNo=readShort(in);  //7
-        		SwitchMonitorPort port=new SwitchMonitorPort(mon.getSwitchName(), planNo, portNo);
+        		SwitchMonitorPort port=new SwitchMonitorPort(curSwitchName, planNo, portNo);
         		port.setLocationId(locationId);
         		monPorts.add(port);
         		
@@ -1472,9 +1776,13 @@ public class BinFileHandler {
 		return mon;
 	}
 	
-	public static void writeMonitor(SwitchMonitor mon) throws Exception{
-		String fileName=ConfigUtils.getMonitorConfigFileName(mon.getSwitchName());
-		OutputStream out = new FileOutputStream(fileName); 
+	public static void writeMonitor_old(SwitchMonitor mon) throws Exception{
+		String fileName=ConfigUtils.getMonitorConfigFileName(mon);
+		writeSwitchMonitorBin(mon, fileName);
+	}
+	
+	private static void writeSwitchMonitorBin(SwitchMonitor mon, String binFileName) throws Exception{
+		OutputStream out = new FileOutputStream(binFileName); 
 		int curPos=0;
 		List<Byte> list=new ArrayList<>();
 		
@@ -1506,7 +1814,8 @@ public class BinFileHandler {
             curPos+=4;
             
             List<SwitchMonitorPort> monPorts = mon.getMonitorPorts();
-            outWriteBytes(list, toBytes((short)monPorts.size())); //5
+            short monNum=(short)monPorts.size();
+            outWriteBytes(list, toBytes(monNum)); //5
             curPos+=2;
             
             Map<Integer, Integer[]> offsets=new HashMap<>();//key is the index of monitor item
@@ -1578,7 +1887,7 @@ public class BinFileHandler {
             	out.write(b);
             }
             
-            System.out.println("write "+curPos+" to "+fileName);
+            System.out.println("write "+curPos+" to "+binFileName);
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}finally{
@@ -1729,13 +2038,9 @@ public class BinFileHandler {
 	
 	/*** update list in place */
 	private static void setBytesInList(List<Byte> list, int pos, byte[] bs){
-		if(bs==null){
+		if(bs==null || list==null){
 			return;
 		}
-		if(list==null){
-			return;
-		}
-		
 		for(int i=0; i<bs.length; i++){
 			list.set(pos+i, bs[i]);
 		}

@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -23,7 +21,6 @@ import dima.config.common.models.SwitchDevice;
 import dima.config.common.models.SwitchMonitor;
 import dima.config.common.services.ConfigDAO;
 import dima.config.common.services.ServiceFactory;
-import dima.config.view.netconfig.topo.SetRedundancyDialog;
 
 public class VersionPane extends JPanel{
 

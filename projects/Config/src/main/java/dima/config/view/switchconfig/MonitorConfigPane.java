@@ -246,6 +246,12 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		btnAdd.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				List<?> eles = tablebox.getAllElements();
+				if(eles!=null && eles.size()>=1){
+					JOptionPane.showMessageDialog(ConfigContext.mainFrame, "一个 交换机只能添加1条监控记录！");
+					return;
+				}
+				
 				openAddMonitor();
 			}
 		});
@@ -293,6 +299,12 @@ public class MonitorConfigPane extends JPanel implements ConfigTableCallback{
 		pasteBtn.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				List<?> eles = tablebox.getAllElements();
+				if(eles!=null && eles.size()>=1){
+					JOptionPane.showMessageDialog(ConfigContext.mainFrame, "一个 交换机只能添加1条监控记录！");
+					return;
+				}
+
 				if(copiedMonitorPort==null){
 					JOptionPane.showMessageDialog(ConfigContext.mainFrame, "请先复制一条记录");
 					return;
