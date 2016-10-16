@@ -114,13 +114,8 @@ public class MergeObjectsDialog extends JDialog{
                 	JOptionPane.showMessageDialog(MergeObjectsDialog.this, "合并Bin配置文件完成! ");
                 	
                 	// to show the refreshed files and devices
-                	devicesBox.clear();
-                	Map<String, String> file2Devices = dao.file2Devices(code);
-            		file2Devices.forEach((file, dev)->{
-            			TwoColumnNode<String, String> element=new TwoColumnNode<>(file, dev);
-            			devicesBox.addElement(element);
-            		});
-            		
+                	retrieveTableData();
+                	
                 	//dispose();
                 }else if(source==cancelBtn){
                 	dispose();
@@ -134,15 +129,20 @@ public class MergeObjectsDialog extends JDialog{
 		return buttonPane;
 	}
 
-	private void initTable(){
-		devicesBox=new TDataBox();
-		devicesTable=tableInit(devicesBox);
-		
-		Map<String, String> file2Devices = dao.file2Devices(code);
+	private void retrieveTableData() {
+		devicesBox.clear();
+    	Map<String, String> file2Devices = dao.file2Devices(code);
 		file2Devices.forEach((file, dev)->{
 			TwoColumnNode<String, String> element=new TwoColumnNode<>(file, dev);
 			devicesBox.addElement(element);
 		});
+	}
+
+	private void initTable(){
+		devicesBox=new TDataBox();
+		devicesTable=tableInit(devicesBox);
+		
+		retrieveTableData();
 	}
 	
 	private TElementTable tableInit(TDataBox box){
