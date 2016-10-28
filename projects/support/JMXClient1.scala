@@ -30,7 +30,7 @@ object JMXClient1 {
 
     val env1=Map[String, Any]((Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.rmi.registry.RegistryContextFactory")
         ,(RMIConnectorServer.JNDI_REBIND_ATTRIBUTE, "true")
-        ,(JMXConnector.CREDENTIALS, Array[String]("super","dsp4jmx"))).asJava
+        ,(JMXConnector.CREDENTIALS, Array[String]("username","jmx_pwd"))).asJava
     
     //serverAndRegions.zipWithIndex.foreach{case (k,v)=>(v,k)}.foreach(item =>{ 
       //println(item._1(1), item._2)
