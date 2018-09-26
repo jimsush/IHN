@@ -9,5 +9,6 @@ sumb=sum([i*i for i in b])
 sqrtb=numpy.sqrt(sumb)
 
 dotab=numpy.dot(a,b)  //  a.b
+// dotab=[a[i]*b[i] for i in range(0,len(a) ]
 
 cos1=dotab/(sqrta*sqrtb) //cos相似度, =1最相似
