@@ -28,6 +28,15 @@ df.merge
 df.plot(kind='bar', x='', y=[], legend=False)
 
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 从[-10,10]中等距去20个数作为x的取值
+x = np.linspace(-10, 10, 20)
+y = 2*x + 1
+plt.plot(x, y)
+plt.show()
+
 
                                    
                                    
